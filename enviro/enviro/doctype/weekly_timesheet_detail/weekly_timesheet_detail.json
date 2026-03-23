@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-11 20:29:50.682878",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "day",
+  "start",
+  "finish",
+  "total_hours",
+  "normal_hours",
+  "ot_1_5",
+  "ot_2_0",
+  "sick_leave",
+  "annual_leave"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "day",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Day",
+   "read_only": 1
+  },
+  {
+   "fieldname": "normal_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Normal Hours"
+  },
+  {
+   "fieldname": "ot_1_5",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Time & Half"
+  },
+  {
+   "fieldname": "ot_2_0",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Double Time"
+  },
+  {
+   "fieldname": "sick_leave",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Sick Leave"
+  },
+  {
+   "fieldname": "annual_leave",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Annual Leave"
+  },
+  {
+   "fieldname": "start",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Start Time"
+  },
+  {
+   "fieldname": "finish",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Finish Time"
+  },
+  {
+   "fieldname": "total_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total Hours",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-13 16:42:04.535192",
+ "modified_by": "Administrator",
+ "module": "Enviro",
+ "name": "Weekly Timesheet Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

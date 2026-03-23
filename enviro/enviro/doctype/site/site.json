@@ -1,0 +1,333 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:site_name",
+ "creation": "2026-03-03 16:42:18.320652",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company_details_section",
+  "column_break_bphu",
+  "customer",
+  "abn_number",
+  "company_email",
+  "company_phone",
+  "site_type",
+  "disabled",
+  "column_break_ajgp",
+  "site_folders_ui",
+  "site_folders_list",
+  "section_break_tpoi",
+  "column_break_acqi",
+  "search_location",
+  "site_location",
+  "column_break_wewy",
+  "site_address",
+  "site_details_section",
+  "site_name",
+  "site_email_address",
+  "site_postcode",
+  "column_break_pspg",
+  "site_contact_person",
+  "site_phone",
+  "site_contact_mobile",
+  "industry_type",
+  "induction_required",
+  "induction_type",
+  "invoicing_details_section",
+  "purchase_order_no",
+  "terms_of_account",
+  "account_status",
+  "reasons_for_cancelling",
+  "column_break_ggyj",
+  "payment_type",
+  "price",
+  "sales_person"
+ ],
+ "fields": [
+  {
+   "fieldname": "company_details_section",
+   "fieldtype": "Section Break",
+   "label": "Company Details"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Company",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "abn_number",
+   "fieldtype": "Data",
+   "label": "ABN Number",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "company_email",
+   "fieldtype": "Data",
+   "label": "Company Email",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+  },
+  {
+   "fieldname": "company_phone",
+   "fieldtype": "Data",
+   "label": "Company Phone",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+  },
+  {
+   "fieldname": "column_break_acqi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_location",
+   "fieldtype": "Geolocation",
+   "in_list_view": 1,
+   "label": "Site Location"
+  },
+  {
+   "fieldname": "site_details_section",
+   "fieldtype": "Section Break",
+   "label": "Site Details"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "site_name",
+   "fieldtype": "Data",
+   "label": "Site Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "site_email_address",
+   "fieldtype": "Data",
+   "label": "Site Email Address",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'",
+   "options": "Email"
+  },
+  {
+   "fieldname": "site_address",
+   "fieldtype": "Small Text",
+   "label": "Site Address",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+  },
+  {
+   "fieldname": "site_postcode",
+   "fieldtype": "Data",
+   "label": "Site Postcode",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "default": "Temporary Site",
+   "fieldname": "site_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Site Type",
+   "options": "Permanent Site\nTemporary Site"
+  },
+  {
+   "fieldname": "column_break_pspg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_contact_person",
+   "fieldtype": "Data",
+   "label": "Site Contact Person",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+  },
+  {
+   "fieldname": "site_phone",
+   "fieldtype": "Data",
+   "label": "Site Phone",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+  },
+  {
+   "fieldname": "site_contact_mobile",
+   "fieldtype": "Data",
+   "label": "Site Contact Mobile",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+  },
+  {
+   "fieldname": "industry_type",
+   "fieldtype": "Link",
+   "label": "Industry Type",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'",
+   "options": "Industry Type"
+  },
+  {
+   "fieldname": "induction_required",
+   "fieldtype": "Select",
+   "label": "Induction Required",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'",
+   "options": "YES\nNO"
+  },
+  {
+   "fieldname": "induction_type",
+   "fieldtype": "Data",
+   "label": "Induction Type",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+  },
+  {
+   "fieldname": "invoicing_details_section",
+   "fieldtype": "Section Break",
+   "label": "Invoicing Details"
+  },
+  {
+   "fieldname": "purchase_order_no",
+   "fieldtype": "Data",
+   "label": "Purchase Order No"
+  },
+  {
+   "fieldname": "terms_of_account",
+   "fieldtype": "Select",
+   "label": "Terms of Account",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'",
+   "options": "7 DAYS\n14 DAYS\n30 DAYS\n60 DAYS\nCOD\nPREPAID\nPROFORMA\nNOT APPLICABLE"
+  },
+  {
+   "fieldname": "account_status",
+   "fieldtype": "Select",
+   "label": "Account Status",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'",
+   "options": "ACTIVE\nON HOLD\nCANCELLED/UNACTIVE\nNOT APPLICABLE"
+  },
+  {
+   "fieldname": "reasons_for_cancelling",
+   "fieldtype": "Select",
+   "label": "Cancel Reason",
+   "options": "MOVED PREMISES\nNEW OWNER\nPOOR SERVICES\nSHOP CLOSED DOWN\nTOO EXPENSIVE\nNOT APPLICABLE"
+  },
+  {
+   "fieldname": "column_break_ggyj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_type",
+   "fieldtype": "Select",
+   "label": "Payment Type",
+   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'",
+   "options": "ACCOUNT\nCOD\nCREDIT CARD\nPRE-PAID\nNO CHARGE\nNOT APPLICABLE"
+  },
+  {
+   "fieldname": "price",
+   "fieldtype": "Currency",
+   "label": "Price"
+  },
+  {
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "label": "Sales Person",
+   "options": "Sales Person"
+  },
+  {
+   "fieldname": "search_location",
+   "fieldtype": "Data",
+   "label": "Search Location"
+  },
+  {
+   "fieldname": "column_break_ajgp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_folders_ui",
+   "fieldtype": "HTML",
+   "label": "Folder"
+  },
+  {
+   "fieldname": "section_break_tpoi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_wewy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_folders_list",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Site Folders List"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "column_break_bphu",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-18 21:48:24.062427",
+ "modified_by": "midhulbose@gmail.com",
+ "module": "Enviro",
+ "name": "Site",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Enviro Accounts",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Admin",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Enviro Dispatcher",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Enviro Sales",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

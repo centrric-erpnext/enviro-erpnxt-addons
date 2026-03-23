@@ -5,6 +5,16 @@ app_description = "Custom App for Enviro"
 app_email = "support@centrric.com"
 app_license = "mit"
 
+
+fixtures = [
+    "Role",
+    "Custom Field",
+    "Property Setter",
+    "Client Script",
+    "Server Script",
+    "Workspace"
+]
+
 # Apps
 # ------------------
 
