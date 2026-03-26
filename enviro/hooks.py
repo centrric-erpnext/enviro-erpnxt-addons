@@ -12,7 +12,8 @@ fixtures = [
     "Property Setter",
     "Client Script",
     "Server Script",
-    "Workspace"
+    "Workspace",
+    "Custom HTML Block"
 ]
 
 # Apps
