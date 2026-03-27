@@ -65,6 +65,7 @@ def send_approval_email(docname):
         message=message,
         reference_doctype="Quotation",
         reference_name=doc.name,
+        attachments=[frappe.attach_print(doc.doctype, doc.name, file_name=f"Quotation_{doc.name}")],
         now=True
     )
     return "Sent"
