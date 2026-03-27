@@ -1,0 +1,34 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"gCzWpfCG9F\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Vehicles</span>\",\"col\":12}},{\"id\":\"zEbq9eu4Ip\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Vehicle List Dashboard\",\"col\":12}}]",
+ "creation": "2026-03-09 20:43:00.462573",
+ "custom_blocks": [
+  {
+   "custom_block_name": "Vehicle List Dashboard",
+   "label": "Vehicle List Dashboard"
+  }
+ ],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "quantity-1",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Vehicles",
+ "links": [],
+ "modified": "2026-03-27 15:02:24.902395",
+ "modified_by": "Administrator",
+ "module": "Enviro",
+ "name": "Vehicles",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 6.0,
+ "shortcuts": [],
+ "title": "Vehicles"
+}
