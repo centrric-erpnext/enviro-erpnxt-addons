@@ -26,3 +26,30 @@ def before_save(doc, method=None):
         if doc.custom_accounts_approval_status not in ["Approved", "Rejected"]:
             doc.custom_accounts_approval_status = "Pending"
 
+@frappe.whitelist()
+def send_approval_email(docname):
+    doc = frappe.get_doc("Quotation", docname)
+    
+    if not doc.custom_site_email:
+        frappe.throw("No Site Email found to send the approval request.")
+        
+    message = f"""
+    <h3>Quotation Details</h3>
+    <p>Dear {doc.customer_name},</p>
+    <p>Please review and approve the attached quotation ({doc.name}).</p>
+    <p>You can view and digitally sign the quotation by clicking the button below:</p>
+    <br>
+    <a href="/approve-quote?name={doc.name}" style="padding: 10px 20px; background-color: #0ea5e9; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Review & Approve Quotation</a>
+    <br><br>
+    <p>Thank you,</p>
+    """
+    
+    frappe.sendmail(
+        recipients=[doc.custom_site_email],
+        subject=f"Action Required: Quotation {doc.name} Approval",
+        message=message,
+        reference_doctype="Quotation",
+        reference_name=doc.name
+    )
+    return "Sent"
+
