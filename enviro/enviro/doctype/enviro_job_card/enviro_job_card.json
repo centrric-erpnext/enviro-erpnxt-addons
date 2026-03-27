@@ -1,103 +1,561 @@
 {
-    "actions": [],
-    "allow_rename": 1,
-    "creation": "2026-03-04 17:02:34.230068",
-    "doctype": "DocType",
-    "engine": "InnoDB",
-    "field_order": [
-        "job_card_type",
-        "customer",
-        "site",
-        "source_quotation",
-        "status",
-        "driver",
-        "vehicle",
-        "job_instructions__description"
-    ],
-    "fields": [
-        {
-            "fieldname": "job_card_type",
-            "fieldtype": "Select",
-            "label": "Job Card Type",
-            "options": "Standard\nDisposal\nPackaged Waste\nProduct Destruction\nLiquid Waste\nGrease Trap"
-        },
-        {
-            "fieldname": "customer",
-            "fieldtype": "Link",
-            "label": "Customer",
-            "options": "Customer"
-        },
-        {
-            "fieldname": "site",
-            "fieldtype": "Link",
-            "label": "Site",
-            "options": "Site"
-        },
-        {
-            "fieldname": "source_quotation",
-            "fieldtype": "Link",
-            "label": "Source Quotation",
-            "options": "Quotation"
-        },
-        {
-            "fieldname": "status",
-            "fieldtype": "Select",
-            "label": "Status",
-            "options": "Open\nAssigned\nIn Progress\nCompleted\nCancelled"
-        },
-        {
-            "fieldname": "driver",
-            "fieldtype": "Link",
-            "label": "Driver",
-            "options": "Employee"
-        },
-        {
-            "fieldname": "vehicle",
-            "fieldtype": "Link",
-            "label": "Vehicle",
-            "options": "Vehicle"
-        },
-        {
-            "fieldname": "job_instructions__description",
-            "fieldtype": "Text Editor",
-            "label": "Job Instructions / Description"
-        }
-    ],
-    "grid_page_length": 50,
-    "index_web_pages_for_search": 1,
-    "links": [],
-    "modified": "2026-03-04 17:12:41.485833",
-    "modified_by": "Administrator",
-    "module": "Enviro",
-    "name": "Enviro Job Card",
-    "owner": "Administrator",
-    "permissions": [
-        {
-            "create": 1,
-            "delete": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "System Manager",
-            "share": 1,
-            "write": 1
-        },
-        {
-            "create": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "Employee",
-            "share": 1,
-            "write": 1
-        }
-    ],
-    "row_format": "Dynamic",
-    "sort_field": "modified",
-    "sort_order": "DESC",
-    "states": []
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-04 17:02:34.230068",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "job_card_type",
+  "customer",
+  "site",
+  "source_quotation",
+  "status",
+  "driver",
+  "vehicle",
+  "job_instructions__description",
+  "sec_site_company",
+  "site_name",
+  "site_date",
+  "site_address",
+  "site_postcode",
+  "site_contact_name",
+  "site_contact_phone",
+  "site_contact_mob",
+  "site_contact_email",
+  "col_site_company",
+  "site_company_same",
+  "company_name",
+  "company_date",
+  "company_address",
+  "company_contact_phone",
+  "company_contact_mob",
+  "company_contact_email",
+  "additional_email",
+  "additional_contact_phone",
+  "sec_job_details",
+  "induction_type",
+  "industry_type",
+  "sales_person",
+  "job_creation_date",
+  "col_job_details",
+  "is_outsourced_job",
+  "is_reoccurring_quote",
+  "frequency_in_weeks",
+  "sec_additional_info",
+  "access_restriction",
+  "tc_required_comments",
+  "tc_file",
+  "manifest_comments",
+  "manifest_file",
+  "chemist_approval",
+  "chemist_file",
+  "col_additional_info",
+  "safety_data_sheet_required",
+  "sds_file",
+  "additional_images_comment",
+  "additional_images_file",
+  "data_form_required",
+  "data_form_file",
+  "purchase_order_comment",
+  "purchase_order_file",
+  "sec_waste_logistics",
+  "how_waste_packaged",
+  "volume_expected",
+  "number_of_loads_expected",
+  "sample_of_waste",
+  "estimated_date_and_time_of_disposal",
+  "flow_meter_required",
+  "access_height",
+  "key_required",
+  "pitt_distance",
+  "water_tap_location",
+  "gurney_required",
+  "col_waste_logistics",
+  "confined_space_required",
+  "number_of_trucks",
+  "estimated_job_duration",
+  "best_time_for_service",
+  "specific_ppe",
+  "weigh_bridge_required",
+  "weigh_bridge_file",
+  "pallets_to_be_exchanged",
+  "additional_logistics_information",
+  "photo_required",
+  "certification_of_destruction",
+  "capacity",
+  "barcode",
+  "pit_location",
+  "smoke_alarm"
+ ],
+ "fields": [
+  {
+   "fieldname": "job_card_type",
+   "fieldtype": "Select",
+   "label": "Job Card Type",
+   "options": "Standard\nDisposal\nPackaged Waste\nProduct Destruction\nLiquid Waste\nGrease Trap"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "site",
+   "fieldtype": "Link",
+   "label": "Site",
+   "options": "Site"
+  },
+  {
+   "fieldname": "source_quotation",
+   "fieldtype": "Link",
+   "label": "Source Quotation",
+   "options": "Quotation"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Open\nAssigned\nIn Progress\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "label": "Driver",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "label": "Vehicle",
+   "options": "Vehicle"
+  },
+  {
+   "fieldname": "job_instructions__description",
+   "fieldtype": "Text Editor",
+   "label": "Job Instructions / Description"
+  },
+  {
+   "fieldname": "sec_site_company",
+   "fieldtype": "Section Break",
+   "label": "Site and Company Details"
+  },
+  {
+   "fieldname": "site_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Site Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "site_date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "site_address",
+   "fieldtype": "Data",
+   "label": "Site Address"
+  },
+  {
+   "fieldname": "site_postcode",
+   "fieldtype": "Data",
+   "label": "Site Postcode"
+  },
+  {
+   "fieldname": "site_contact_name",
+   "fieldtype": "Data",
+   "label": "Site Contact Name"
+  },
+  {
+   "fieldname": "site_contact_phone",
+   "fieldtype": "Data",
+   "label": "Site Contact Phone"
+  },
+  {
+   "fieldname": "site_contact_mob",
+   "fieldtype": "Data",
+   "label": "Site Contact Mob"
+  },
+  {
+   "fieldname": "site_contact_email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Site Contact Email",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_site_company",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_company_same",
+   "fieldtype": "Select",
+   "label": "Site and Company Details are same",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "label": "Company Name"
+  },
+  {
+   "fieldname": "company_date",
+   "fieldtype": "Date",
+   "label": "Date (Company)"
+  },
+  {
+   "fieldname": "company_address",
+   "fieldtype": "Data",
+   "label": "Company Address"
+  },
+  {
+   "fieldname": "company_contact_phone",
+   "fieldtype": "Data",
+   "label": "Company Contact Phone"
+  },
+  {
+   "fieldname": "company_contact_mob",
+   "fieldtype": "Data",
+   "label": "Company Contact Mob"
+  },
+  {
+   "fieldname": "company_contact_email",
+   "fieldtype": "Data",
+   "label": "Company Contact Email"
+  },
+  {
+   "fieldname": "additional_email",
+   "fieldtype": "Data",
+   "label": "Additional Email"
+  },
+  {
+   "fieldname": "additional_contact_phone",
+   "fieldtype": "Data",
+   "label": "Additional Contact Phone"
+  },
+  {
+   "fieldname": "sec_job_details",
+   "fieldtype": "Section Break",
+   "label": "Job Metadata"
+  },
+  {
+   "fieldname": "induction_type",
+   "fieldtype": "Data",
+   "label": "Induction Type"
+  },
+  {
+   "fieldname": "industry_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Industry Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sales_person",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sales Person",
+   "options": "Sales Person",
+   "reqd": 1
+  },
+  {
+   "fieldname": "job_creation_date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "col_job_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "is_outsourced_job",
+   "fieldtype": "Select",
+   "label": "Is this an Outsourced Job",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "is_reoccurring_quote",
+   "fieldtype": "Select",
+   "label": "Is this a Reoccurring Quote",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "frequency_in_weeks",
+   "fieldtype": "Int",
+   "label": "Frequency in Weeks"
+  },
+  {
+   "fieldname": "sec_additional_info",
+   "fieldtype": "Section Break",
+   "label": "Additional Information & Compliance Files"
+  },
+  {
+   "fieldname": "access_restriction",
+   "fieldtype": "Data",
+   "label": "Access Restriction"
+  },
+  {
+   "fieldname": "tc_required_comments",
+   "fieldtype": "Data",
+   "label": "TC Required | Comments"
+  },
+  {
+   "fieldname": "tc_file",
+   "fieldtype": "Attach",
+   "label": "TC File"
+  },
+  {
+   "fieldname": "manifest_comments",
+   "fieldtype": "Data",
+   "label": "Manifest | Comments"
+  },
+  {
+   "fieldname": "manifest_file",
+   "fieldtype": "Attach",
+   "label": "Manifest File"
+  },
+  {
+   "fieldname": "chemist_approval",
+   "fieldtype": "Select",
+   "label": "Chemist Approval",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "chemist_file",
+   "fieldtype": "Attach",
+   "label": "Chemist File"
+  },
+  {
+   "fieldname": "col_additional_info",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "safety_data_sheet_required",
+   "fieldtype": "Select",
+   "label": "Safety Data Sheet Required",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "sds_file",
+   "fieldtype": "Attach",
+   "label": "SDS File"
+  },
+  {
+   "fieldname": "additional_images_comment",
+   "fieldtype": "Data",
+   "label": "Additional Images"
+  },
+  {
+   "fieldname": "additional_images_file",
+   "fieldtype": "Attach Image",
+   "label": "Image File"
+  },
+  {
+   "fieldname": "data_form_required",
+   "fieldtype": "Select",
+   "label": "Data Form Required",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "data_form_file",
+   "fieldtype": "Attach",
+   "label": "Data Form File"
+  },
+  {
+   "fieldname": "purchase_order_comment",
+   "fieldtype": "Data",
+   "label": "Purchase Order Comment"
+  },
+  {
+   "fieldname": "purchase_order_file",
+   "fieldtype": "Attach",
+   "label": "Purchase Order File"
+  },
+  {
+   "fieldname": "sec_waste_logistics",
+   "fieldtype": "Section Break",
+   "label": "Waste & Execution Logistics"
+  },
+  {
+   "fieldname": "how_waste_packaged",
+   "fieldtype": "Data",
+   "label": "How is the Waste Packaged"
+  },
+  {
+   "fieldname": "volume_expected",
+   "fieldtype": "Data",
+   "label": "Volume Expected"
+  },
+  {
+   "fieldname": "number_of_loads_expected",
+   "fieldtype": "Data",
+   "label": "Number of Loads expected"
+  },
+  {
+   "fieldname": "sample_of_waste",
+   "fieldtype": "Select",
+   "label": "Sample of Waste to be collected",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "estimated_date_and_time_of_disposal",
+   "fieldtype": "Data",
+   "label": "Estimated Date and Time of Disposal"
+  },
+  {
+   "fieldname": "flow_meter_required",
+   "fieldtype": "Select",
+   "label": "Flow Meter Required",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "access_height",
+   "fieldtype": "Data",
+   "label": "Access Height"
+  },
+  {
+   "default": "0",
+   "fieldname": "key_required",
+   "fieldtype": "Check",
+   "label": "Key Required"
+  },
+  {
+   "fieldname": "pitt_distance",
+   "fieldtype": "Data",
+   "label": "Pitt Distance from Truck Location"
+  },
+  {
+   "fieldname": "water_tap_location",
+   "fieldtype": "Data",
+   "label": "Water tap Location"
+  },
+  {
+   "fieldname": "gurney_required",
+   "fieldtype": "Select",
+   "label": "Gurney Required",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "col_waste_logistics",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "confined_space_required",
+   "fieldtype": "Select",
+   "label": "Confined Space Required",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "number_of_trucks",
+   "fieldtype": "Data",
+   "label": "Number of Trucks"
+  },
+  {
+   "fieldname": "estimated_job_duration",
+   "fieldtype": "Data",
+   "label": "Estimated Job Duration"
+  },
+  {
+   "fieldname": "best_time_for_service",
+   "fieldtype": "Data",
+   "label": "Best time for service"
+  },
+  {
+   "fieldname": "specific_ppe",
+   "fieldtype": "Select",
+   "label": "Specific PPE",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "weigh_bridge_required",
+   "fieldtype": "Select",
+   "label": "Weigh Bridge Required",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "weigh_bridge_file",
+   "fieldtype": "Attach",
+   "label": "Weigh Bridge File"
+  },
+  {
+   "fieldname": "pallets_to_be_exchanged",
+   "fieldtype": "Data",
+   "label": "Number and type of pallets to be exchanged"
+  },
+  {
+   "fieldname": "additional_logistics_information",
+   "fieldtype": "Text",
+   "label": "Additional Information"
+  },
+  {
+   "fieldname": "photo_required",
+   "fieldtype": "Select",
+   "label": "Photo Required",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "certification_of_destruction",
+   "fieldtype": "Select",
+   "label": "Certification of Destruction Required",
+   "options": "\nYES\nNO"
+  },
+  {
+   "fieldname": "capacity",
+   "fieldtype": "Data",
+   "label": "Capacity"
+  },
+  {
+   "fieldname": "barcode",
+   "fieldtype": "Data",
+   "label": "Barcode"
+  },
+  {
+   "fieldname": "pit_location",
+   "fieldtype": "Data",
+   "label": "Pit Location"
+  },
+  {
+   "fieldname": "smoke_alarm",
+   "fieldtype": "Data",
+   "label": "Smoke Alarm"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-27 22:55:34.708786",
+ "modified_by": "Administrator",
+ "module": "Enviro",
+ "name": "Enviro Job Card",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
 }

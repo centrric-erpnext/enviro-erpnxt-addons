@@ -2,6 +2,11 @@ import frappe
 from frappe.utils import get_url
 
 def before_save(doc, method=None):
+    # Enforce Enviro Job Card linkage
+    if getattr(doc, "custom_accounts_approval_status", "") == "Approved":
+        if not getattr(doc, "custom_enviro_job_card", None):
+            frappe.throw("❌ You must create and link an <b>Enviro Job Card</b> before confirming this Quotation internally.")
+
     # If the user checks 'Requires Client Approval'
     if doc.custom_requires_client_approval:
         # Check if the client has already signed the web form or clicked the email button
