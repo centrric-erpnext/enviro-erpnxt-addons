@@ -49,7 +49,8 @@ def send_approval_email(docname):
         subject=f"Action Required: Quotation {doc.name} Approval",
         message=message,
         reference_doctype="Quotation",
-        reference_name=doc.name
+        reference_name=doc.name,
+        now=True
     )
     return "Sent"
 
