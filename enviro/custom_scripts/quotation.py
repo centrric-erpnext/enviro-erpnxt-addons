@@ -28,10 +28,14 @@ def before_save(doc, method=None):
 
 @frappe.whitelist()
 def send_approval_email(docname):
+    from frappe.utils import get_url
+    
     doc = frappe.get_doc("Quotation", docname)
     
     if not doc.custom_site_email:
         frappe.throw("No Site Email found to send the approval request.")
+        
+    approval_link = f"{get_url()}/approve-quote?name={doc.name}"
         
     message = f"""
     <h3>Quotation Details</h3>
@@ -39,7 +43,7 @@ def send_approval_email(docname):
     <p>Please review and approve the attached quotation ({doc.name}).</p>
     <p>You can view and digitally sign the quotation by clicking the button below:</p>
     <br>
-    <a href="/approve-quote?name={doc.name}" style="padding: 10px 20px; background-color: #0ea5e9; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Review & Approve Quotation</a>
+    <a href="{approval_link}" style="padding: 10px 20px; background-color: #0ea5e9; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Review & Approve Quotation</a>
     <br><br>
     <p>Thank you,</p>
     """
