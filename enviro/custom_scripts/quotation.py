@@ -73,23 +73,16 @@ def send_approval_email(docname):
 
 @frappe.whitelist(allow_guest=True)
 def handle_email_approval(name, token, action):
-    # Set standard response to HTML for public web endpoints instead of JSON
-    frappe.response['type'] = 'html'
-    
-    base_html = """
-    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 30px; border-radius: 10px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb;">
-        {content}
-    </div>
-    """
-    
     try:
         if not frappe.db.exists("Quotation", name):
-            return base_html.format(content="<h2 style='color: #ef4444;'>❌ Document Not Found</h2><p>This quotation no longer exists.</p>")
+            frappe.respond_as_web_page("Not Found", "<p>This quotation no longer exists.</p>", success=False, http_status_code=404)
+            return
             
         doc = frappe.get_doc("Quotation", name)
         
         if not doc.custom_approval_token or doc.custom_approval_token != token:
-            return base_html.format(content="<h2 style='color: #ef4444;'>❌ Invalid or Expired Link</h2><p>This quotation link is invalid or has already been processed.</p>")
+            frappe.respond_as_web_page("Invalid Link", "<p>This quotation link is invalid or has already been processed.</p>", success=False, http_status_code=403)
+            return
             
         if action == "approve":
             doc.custom_client_approval_status = "Approved"
@@ -97,16 +90,36 @@ def handle_email_approval(name, token, action):
             doc.custom_approval_token = "" # Invalidate token to prevent replay
             doc.save(ignore_permissions=True)
             frappe.db.commit()
-            return base_html.format(content=f"<h2 style='color: #10b981;'>✅ Approved Successfully</h2><p style='font-size: 18px; color: #374151;'>Thank you for your response! Quotation <b>{name}</b> is now fully approved. Our team has been notified.</p>")
+            
+            html = f"""
+            <div style='text-align: center; padding: 40px;'>
+                <h1 style='color: #10b981; font-size: 48px; margin-bottom: 10px;'>✅</h1>
+                <h2>Approval Successful</h2>
+                <p style='font-size: 18px; color: #374151;'>Thank you! Quotation <b>{name}</b> is now fully approved.</p>
+                <p style='color: #6b7280; font-size: 14px;'>You can safely close this window.</p>
+            </div>
+            """
+            frappe.respond_as_web_page("Quotation Approved", html, success=True)
+            return
             
         elif action == "reject":
             doc.custom_client_approval_status = "Rejected"
             doc.custom_approval_token = "" # Invalidate token
             doc.save(ignore_permissions=True)
             frappe.db.commit()
-            return base_html.format(content=f"<h2 style='color: #ef4444;'>🛑 Quotation Rejected</h2><p style='font-size: 18px; color: #374151;'>You have declined quotation <b>{name}</b>. We will contact you shortly to review the details.</p>")
             
-        return base_html.format(content="<h2 style='color: #ef4444;'>❌ Invalid Action</h2>")
+            html = f"""
+            <div style='text-align: center; padding: 40px;'>
+                <h1 style='color: #ef4444; font-size: 48px; margin-bottom: 10px;'>🛑</h1>
+                <h2>Quotation Rejected</h2>
+                <p style='font-size: 18px; color: #374151;'>You have declined quotation <b>{name}</b>.</p>
+                <p style='color: #6b7280; font-size: 14px;'>Our team will contact you shortly to review the details.</p>
+            </div>
+            """
+            frappe.respond_as_web_page("Quotation Rejected", html, success=True)
+            return
+            
+        frappe.respond_as_web_page("Invalid Action", "<p>The requested action is not supported.</p>", success=False, http_status_code=400)
         
     except Exception as e:
-        return base_html.format(content=f"<h2 style='color: #ef4444;'>❌ Server Error</h2><p>An error occurred: {str(e)}</p>")
+        frappe.respond_as_web_page("Server Error", f"<p>An error occurred: {str(e)}</p>", success=False, http_status_code=500)
