@@ -13,14 +13,14 @@
  "is_standard": 1,
  "message": "\n        <h3>Quotation Details</h3>\n        <p>Dear {{ doc.customer_name }},</p>\n        <p>Please review and approve the attached quotation ({{ doc.name }}).</p>\n        <p>You can view and digitally sign the quotation by clicking the button below:</p>\n        <br>\n        <a href=\"/approve-quote?name={{ doc.name }}\" style=\"padding: 10px 20px; background-color: #0ea5e9; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;\">Review & Approve Quotation</a>\n        <br><br>\n        <p>Thank you,</p>\n        <p>{{ frappe.session.user }}</p>\n        ",
  "message_type": "Markdown",
- "modified": "2026-03-27 18:35:00.190513",
+ "modified": "2026-03-27 19:51:13.399441",
  "modified_by": "Administrator",
  "module": "Enviro",
  "name": "Request Client Quotation Approval",
  "owner": "Administrator",
  "recipients": [
   {
-   "receiver_by_document_field": "contact_email"
+   "receiver_by_document_field": "custom_site_email"
   }
  ],
  "send_system_notification": 1,
