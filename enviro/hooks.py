@@ -156,6 +156,12 @@ fixtures = [
 # 	}
 # }
 
+doc_events = {
+	"Quotation": {
+		"before_save": "enviro.custom_scripts.quotation.before_save"
+	}
+}
+
 # Scheduled Tasks
 # ---------------
 

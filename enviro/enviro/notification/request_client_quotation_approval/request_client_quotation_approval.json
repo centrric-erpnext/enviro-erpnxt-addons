@@ -1,0 +1,30 @@
+{
+ "attach_print": 0,
+ "channel": "Email",
+ "condition": "doc.custom_requires_client_approval == 1 and doc.custom_client_approval_status == 'Pending'",
+ "creation": "2026-03-27 18:35:00.190513",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "document_type": "Quotation",
+ "enabled": 1,
+ "event": "Value Change",
+ "idx": 0,
+ "is_standard": 1,
+ "message": "\n        <h3>Quotation Details</h3>\n        <p>Dear {{ doc.customer_name }},</p>\n        <p>Please review and approve the attached quotation ({{ doc.name }}).</p>\n        <p>You can view and digitally sign the quotation by clicking the button below:</p>\n        <br>\n        <a href=\"/approve-quote?name={{ doc.name }}\" style=\"padding: 10px 20px; background-color: #0ea5e9; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;\">Review & Approve Quotation</a>\n        <br><br>\n        <p>Thank you,</p>\n        <p>{{ frappe.session.user }}</p>\n        ",
+ "message_type": "Markdown",
+ "modified": "2026-03-27 18:35:00.190513",
+ "modified_by": "Administrator",
+ "module": "Enviro",
+ "name": "Request Client Quotation Approval",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_document_field": "contact_email"
+  }
+ ],
+ "send_system_notification": 1,
+ "send_to_all_assignees": 0,
+ "subject": "Action Required: Quotation {{ doc.name }} Approval",
+ "value_changed": "custom_client_approval_status"
+}
