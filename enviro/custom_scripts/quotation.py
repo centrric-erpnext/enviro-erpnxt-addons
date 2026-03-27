@@ -48,7 +48,7 @@ def send_approval_email(docname):
     <div style="font-family: Inter, Arial, sans-serif; max-width: 600px; padding: 25px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <h2 style="color: #111827; margin-top: 0;">Quotation Action Required</h2>
         <p style="color: #374151; font-size: 16px;">Dear {doc.customer_name},</p>
-        <p style="color: #374151; font-size: 16px; line-height: 1.5;">Please review the attached quotation (<b>{doc.name}</b>). You can instantly approve or reject it by clicking one of the buttons below. No login is required.</p>
+        <p style="color: #374151; font-size: 16px; line-height: 1.5;">Please review the attached quotation (<b>{doc.name}</b>). You can instantly approve or reject it by clicking one of the buttons below.</p>
         
         <div style="margin-top: 35px; margin-bottom: 35px;">
             <a href="{approve_link}" style="padding: 14px 28px; background-color: #10b981; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">✅ Approve Quotation</a>
