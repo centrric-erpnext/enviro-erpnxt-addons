@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"LCm28vdS-H\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Sites</span>\",\"col\":12}},{\"id\":\"r-iOQvBpeh\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Site Dashboard\",\"col\":12}}]",
+ "content": "[{\"id\":\"r-iOQvBpeh\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Site Dashboard\",\"col\":12}}]",
  "creation": "2026-03-09 20:40:37.183555",
  "custom_blocks": [
   {
@@ -18,7 +18,7 @@
  "is_hidden": 0,
  "label": "Sites",
  "links": [],
- "modified": "2026-03-27 15:02:24.851730",
+ "modified": "2026-03-30 16:26:08.426829",
  "modified_by": "Administrator",
  "module": "Enviro",
  "name": "Sites",

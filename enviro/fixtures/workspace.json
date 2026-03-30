@@ -5240,8 +5240,16 @@
  },
  {
   "charts": [],
-  "content": "[{\"id\":\"Eb4LVvzHXd\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Sales</span>\",\"col\":12}},{\"id\":\"Li08ED3sfk\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Generate Quote\",\"col\":3}}]",
-  "custom_blocks": [],
+  "content": "[{\"id\":\"yqSCzUBQ_X\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Sales Dashboard\",\"col\":12}}]",
+  "custom_blocks": [
+   {
+    "custom_block_name": "Enviro Sales Dashboard",
+    "label": "Enviro Sales Dashboard",
+    "parent": "Sales",
+    "parentfield": "custom_blocks",
+    "parenttype": "Workspace"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Workspace",
   "for_user": "",
@@ -5251,7 +5259,7 @@
   "is_hidden": 0,
   "label": "Sales",
   "links": [],
-  "modified": "2026-03-27 15:02:24.837056",
+  "modified": "2026-03-30 16:25:52.713257",
   "module": "Enviro",
   "name": "Sales",
   "number_cards": [],
@@ -5261,30 +5269,12 @@
   "restrict_to_domain": null,
   "roles": [],
   "sequence_id": 2.0,
-  "shortcuts": [
-   {
-    "color": "Grey",
-    "doc_view": "List",
-    "format": null,
-    "icon": null,
-    "kanban_board": null,
-    "label": "Generate Quote",
-    "link_to": "Quotation",
-    "parent": "Sales",
-    "parentfield": "shortcuts",
-    "parenttype": "Workspace",
-    "report_ref_doctype": null,
-    "restrict_to_domain": null,
-    "stats_filter": "[]",
-    "type": "DocType",
-    "url": null
-   }
-  ],
+  "shortcuts": [],
   "title": "Sales"
  },
  {
   "charts": [],
-  "content": "[{\"id\":\"LCm28vdS-H\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Sites</span>\",\"col\":12}},{\"id\":\"r-iOQvBpeh\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Site Dashboard\",\"col\":12}}]",
+  "content": "[{\"id\":\"r-iOQvBpeh\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Site Dashboard\",\"col\":12}}]",
   "custom_blocks": [
    {
     "custom_block_name": "Enviro Site Dashboard",
@@ -5303,7 +5293,7 @@
   "is_hidden": 0,
   "label": "Sites",
   "links": [],
-  "modified": "2026-03-27 15:02:24.851730",
+  "modified": "2026-03-30 16:26:08.426829",
   "module": "Enviro",
   "name": "Sites",
   "number_cards": [],
@@ -5378,7 +5368,7 @@
  },
  {
   "charts": [],
-  "content": "[{\"id\":\"gCzWpfCG9F\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Vehicles</span>\",\"col\":12}},{\"id\":\"zEbq9eu4Ip\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Vehicle List Dashboard\",\"col\":12}}]",
+  "content": "[{\"id\":\"zEbq9eu4Ip\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Vehicle List Dashboard\",\"col\":12}}]",
   "custom_blocks": [
    {
     "custom_block_name": "Vehicle List Dashboard",
@@ -5397,7 +5387,7 @@
   "is_hidden": 0,
   "label": "Vehicles",
   "links": [],
-  "modified": "2026-03-27 15:02:24.902395",
+  "modified": "2026-03-30 16:26:30.526181",
   "module": "Enviro",
   "name": "Vehicles",
   "number_cards": [],

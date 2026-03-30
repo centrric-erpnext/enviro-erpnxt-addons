@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"gCzWpfCG9F\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Vehicles</span>\",\"col\":12}},{\"id\":\"zEbq9eu4Ip\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Vehicle List Dashboard\",\"col\":12}}]",
+ "content": "[{\"id\":\"zEbq9eu4Ip\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Vehicle List Dashboard\",\"col\":12}}]",
  "creation": "2026-03-09 20:43:00.462573",
  "custom_blocks": [
   {
@@ -18,7 +18,7 @@
  "is_hidden": 0,
  "label": "Vehicles",
  "links": [],
- "modified": "2026-03-27 15:02:24.902395",
+ "modified": "2026-03-30 16:26:30.526181",
  "modified_by": "Administrator",
  "module": "Enviro",
  "name": "Vehicles",

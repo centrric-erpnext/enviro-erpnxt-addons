@@ -80,13 +80,30 @@ def send_approval_email(docname):
 def handle_email_approval(name, token, action):
     try:
         if not frappe.db.exists("Quotation", name):
-            frappe.respond_as_web_page("Not Found", "<p>This quotation no longer exists.</p>", success=False, http_status_code=404)
+            
+            html = """
+            <div style='text-align: center; padding: 40px;'>
+                <h1 style='color: #ef4444; font-size: 48px; margin-bottom: 10px;'>❌</h1>
+                <h2>Document Not Found</h2>
+                <p style='font-size: 18px; color: #374151;'>This quotation no longer exists in our system.</p>
+            </div>
+            """
+            frappe.respond_as_web_page("Not Found", html, success=True)
             return
             
         doc = frappe.get_doc("Quotation", name)
         
         if not doc.custom_approval_token or doc.custom_approval_token != token:
-            frappe.respond_as_web_page("Invalid Link", "<p>This quotation link is invalid or has already been processed.</p>", success=False, http_status_code=403)
+            
+            html = """
+            <div style='text-align: center; padding: 40px;'>
+                <h1 style='color: #fbbf24; font-size: 48px; margin-bottom: 10px;'>⚠️</h1>
+                <h2>Link Already Used</h2>
+                <p style='font-size: 18px; color: #374151;'>This quotation has already been approved or rejected.</p>
+                <p style='color: #6b7280; font-size: 14px;'>Responses are final and cannot be changed.</p>
+            </div>
+            """
+            frappe.respond_as_web_page("Already Responded", html, success=True)
             return
             
         if action == "approve":
