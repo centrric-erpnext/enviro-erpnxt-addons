@@ -40,6 +40,9 @@ def send_approval_email(docname):
     if not doc.custom_site_email:
         frappe.throw("No Site Email found to send the approval request.")
         
+    if not getattr(doc, "custom_enviro_job_card", None):
+        frappe.throw("❌ You must create and link an Enviro Job Card before sending the approval request to the customer.")
+        
     # Generate a secure one-time token if one does not exist
     if not doc.custom_approval_token:
         doc.custom_approval_token = frappe.generate_hash(length=32)
