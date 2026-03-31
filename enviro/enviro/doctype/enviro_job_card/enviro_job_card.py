@@ -9,3 +9,5 @@ class EnviroJobCard(Document):
         # Automatically link this newly generated Job Card back into the Source Quotation
         if self.source_quotation:
             frappe.db.set_value("Quotation", self.source_quotation, "custom_enviro_job_card", self.name)
+            # Instantly push a silent update to the user's browser so they don't get a Timestamp Mismatch error!
+            frappe.publish_realtime("doc_update", {"doctype": "Quotation", "name": self.source_quotation})
