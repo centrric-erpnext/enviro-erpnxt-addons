@@ -156,3 +156,22 @@ def submit_quotation(name):
     doc = frappe.get_doc("Quotation", name)
     doc.submit()
     return "Submitted"
+
+@frappe.whitelist()
+def make_enviro_job_card(source_name, target_doc=None):
+    from frappe.model.mapper import get_mapped_doc
+
+    doclist = get_mapped_doc("Quotation", source_name, {
+        "Quotation": {
+            "doctype": "Enviro Job Card",
+            "field_map": {
+                "name": "source_quotation",
+                "customer": "customer",
+                "custom_site": "site",
+                "company": "company_name",
+                "contact_mobile": "site_contact_mob"
+            }
+        }
+    }, target_doc)
+
+    return doclist
