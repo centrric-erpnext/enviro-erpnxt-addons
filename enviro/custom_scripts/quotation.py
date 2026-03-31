@@ -107,18 +107,13 @@ def handle_email_approval(name, token, action):
             return
             
         if action == "approve":
-            original_user = frappe.session.user
-            frappe.set_user("Administrator") # Temporarily elevate privileges so Guest can Submit
-            
             doc.custom_client_approval_status = "Approved"
-            doc.custom_accounts_approval_status = "Approved" # Auto-pass internal accounts check
-            doc.custom_approval_token = "" # Invalidate token
+            doc.custom_accounts_approval_status = "Pending" # Re-enable the Accounts step
+            doc.custom_approval_token = "" # Invalidate token to prevent replay
             
             doc.save(ignore_permissions=True)
-            doc.submit() # Execute automatic backend confirm
+            # doc.submit() is REMOVED so Sales Team can review it as a Draft
             frappe.db.commit()
-            
-            frappe.set_user(original_user) # Restore session safely
             
             html = f"""
             <div style='text-align: center; padding: 40px;'>
@@ -152,3 +147,9 @@ def handle_email_approval(name, token, action):
         
     except Exception as e:
         frappe.respond_as_web_page("Server Error", f"<p>An error occurred: {str(e)}</p>", success=False, http_status_code=500)
+
+@frappe.whitelist()
+def submit_quotation(name):
+    doc = frappe.get_doc("Quotation", name)
+    doc.submit()
+    return "Submitted"
