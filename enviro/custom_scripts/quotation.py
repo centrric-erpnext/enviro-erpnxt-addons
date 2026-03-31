@@ -166,7 +166,7 @@ def make_enviro_job_card(source_name, target_doc=None):
             "doctype": "Enviro Job Card",
             "field_map": {
                 "name": "source_quotation",
-                "customer": "customer",
+                "party_name": "customer",
                 "custom_site": "site",
                 "company": "company_name",
                 "contact_mobile": "site_contact_mob"
