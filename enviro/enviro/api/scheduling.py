@@ -31,3 +31,26 @@ def get_scheduling_data():
         "jobs": jobs,
         "vehicles": vehicles
     }
+
+@frappe.whitelist()
+def api_schedule_job(job_id, payload):
+    import json
+    data = json.loads(payload)
+    
+    doc = frappe.get_doc("Enviro Job Card", job_id)
+    doc.scheduled_start_date = data.get("scheduled_start_date")
+    doc.scheduled_start_time = data.get("scheduled_start_time")
+    doc.scheduled_end_date = data.get("scheduled_end_date")
+    doc.scheduled_end_time = data.get("scheduled_end_time")
+    doc.vehicle = data.get("vehicle")
+    doc.driver = data.get("driver")
+    doc.status = "Assigned"
+    
+    doc.set("team_members", [])
+    team = data.get("team_members")
+    if team:
+        for member in team:
+            doc.append("team_members", {"employee": member})
+            
+    doc.save(ignore_permissions=True)
+    return "OK"
