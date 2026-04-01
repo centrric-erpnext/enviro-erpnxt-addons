@@ -40,7 +40,17 @@
   "col_job_details",
   "is_outsourced_job",
   "is_reoccurring_quote",
+  "type_of_reoccurring",
   "frequency_in_weeks",
+  "col_daily_1",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "col_daily_2",
+  "friday",
+  "saturday",
+  "sunday",
   "sec_additional_info",
   "access_restriction",
   "tc_required_comments",
@@ -246,9 +256,10 @@
   },
   {
    "fieldname": "industry_type",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Industry Type",
+   "options": "Industry Type",
    "reqd": 1
   },
   {
@@ -281,6 +292,7 @@
    "options": "\nYES\nNO"
   },
   {
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Weeks Only'",
    "fieldname": "frequency_in_weeks",
    "fieldtype": "Int",
    "label": "Frequency in Weeks"
@@ -519,12 +531,79 @@
    "fieldname": "smoke_alarm",
    "fieldtype": "Data",
    "label": "Smoke Alarm"
+  },
+  {
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES'",
+   "fieldname": "type_of_reoccurring",
+   "fieldtype": "Select",
+   "label": "Type of Reoccurring",
+   "options": "\nin Weeks Only\nin Daily"
+  },
+  {
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Daily'",
+   "fieldname": "col_daily_1",
+   "fieldtype": "Column Break",
+   "label": "Days"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Daily'",
+   "fieldname": "monday",
+   "fieldtype": "Check",
+   "label": "Monday"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Daily'",
+   "fieldname": "tuesday",
+   "fieldtype": "Check",
+   "label": "Tuesday"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Daily'",
+   "fieldname": "wednesday",
+   "fieldtype": "Check",
+   "label": "Wednesday"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Daily'",
+   "fieldname": "thursday",
+   "fieldtype": "Check",
+   "label": "Thursday"
+  },
+  {
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Daily'",
+   "fieldname": "col_daily_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Daily'",
+   "fieldname": "friday",
+   "fieldtype": "Check",
+   "label": "Friday"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Daily'",
+   "fieldname": "saturday",
+   "fieldtype": "Check",
+   "label": "Saturday"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_reoccurring_quote=='YES' && doc.type_of_reoccurring=='in Daily'",
+   "fieldname": "sunday",
+   "fieldtype": "Check",
+   "label": "Sunday"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-27 22:55:34.708786",
+ "modified": "2026-04-01 17:33:47.639175",
  "modified_by": "Administrator",
  "module": "Enviro",
  "name": "Enviro Job Card",
