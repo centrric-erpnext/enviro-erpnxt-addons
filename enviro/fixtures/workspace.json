@@ -5342,8 +5342,16 @@
  },
  {
   "charts": [],
-  "content": "[{\"type\":\"header\",\"data\":{\"text\":\"Scheduling\"}}]",
-  "custom_blocks": [],
+  "content": "[{\"id\":\"CMqMW7R8am\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Scheduling</span>\",\"col\":12}},{\"id\":\"Kq6lWHs-v_\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Scheduling Workspace\",\"col\":12}}]",
+  "custom_blocks": [
+   {
+    "custom_block_name": "Enviro Scheduling Workspace",
+    "label": "Enviro Scheduling Workspace",
+    "parent": "Scheduling",
+    "parentfield": "custom_blocks",
+    "parenttype": "Workspace"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Workspace",
   "for_user": "",
@@ -5353,7 +5361,7 @@
   "is_hidden": 0,
   "label": "Scheduling",
   "links": [],
-  "modified": "2026-03-27 15:02:24.885599",
+  "modified": "2026-04-01 21:30:11.393142",
   "module": "Enviro",
   "name": "Scheduling",
   "number_cards": [],
