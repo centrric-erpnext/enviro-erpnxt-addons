@@ -95,7 +95,15 @@
   "capacity",
   "barcode",
   "pit_location",
-  "smoke_alarm"
+  "smoke_alarm",
+  "sec_scheduling",
+  "scheduled_start_date",
+  "scheduled_start_time",
+  "col_scheduling",
+  "scheduled_end_date",
+  "scheduled_end_time",
+  "sec_team",
+  "team_members"
  ],
  "fields": [
   {
@@ -598,12 +606,52 @@
    "fieldname": "sunday",
    "fieldtype": "Check",
    "label": "Sunday"
+  },
+  {
+   "fieldname": "sec_scheduling",
+   "fieldtype": "Section Break",
+   "label": "Scheduling Operations"
+  },
+  {
+   "fieldname": "scheduled_start_date",
+   "fieldtype": "Date",
+   "label": "Scheduled Start Date"
+  },
+  {
+   "fieldname": "scheduled_start_time",
+   "fieldtype": "Time",
+   "label": "Scheduled Start Time"
+  },
+  {
+   "fieldname": "col_scheduling",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scheduled_end_date",
+   "fieldtype": "Date",
+   "label": "Scheduled End Date"
+  },
+  {
+   "fieldname": "scheduled_end_time",
+   "fieldtype": "Time",
+   "label": "Scheduled End Time"
+  },
+  {
+   "fieldname": "sec_team",
+   "fieldtype": "Section Break",
+   "label": "Team Assignment"
+  },
+  {
+   "fieldname": "team_members",
+   "fieldtype": "Table MultiSelect",
+   "label": "Assigned Team Members",
+   "options": "Enviro Job Team Member"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-01 17:33:47.639175",
+ "modified": "2026-04-01 21:28:29.071477",
  "modified_by": "Administrator",
  "module": "Enviro",
  "name": "Enviro Job Card",
