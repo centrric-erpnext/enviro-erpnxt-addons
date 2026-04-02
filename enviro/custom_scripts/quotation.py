@@ -161,7 +161,7 @@ def submit_quotation(name):
 def make_enviro_job_card(source_name, target_doc=None):
     from frappe.model.mapper import get_mapped_doc
 
-    def build_metadata(source, target):
+    def build_metadata(source, target, source_parent=None):
         # 1. Bruteforce Site Metadata
         if target.site:
             try:
