@@ -159,6 +159,7 @@
    "label": "Site and Company Details"
   },
   {
+   "fetch_from": "site.site_name",
    "fieldname": "site_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -171,31 +172,37 @@
    "label": "Date"
   },
   {
+   "fetch_from": "site.site_address",
    "fieldname": "site_address",
    "fieldtype": "Data",
    "label": "Site Address"
   },
   {
+   "fetch_from": "site.site_postcode",
    "fieldname": "site_postcode",
    "fieldtype": "Data",
    "label": "Site Postcode"
   },
   {
+   "fetch_from": "site.site_contact_person",
    "fieldname": "site_contact_name",
    "fieldtype": "Data",
    "label": "Site Contact Name"
   },
   {
+   "fetch_from": "site.site_phone",
    "fieldname": "site_contact_phone",
    "fieldtype": "Data",
    "label": "Site Contact Phone"
   },
   {
+   "fetch_from": "site.site_contact_mobile",
    "fieldname": "site_contact_mob",
    "fieldtype": "Data",
    "label": "Site Contact Mob"
   },
   {
+   "fetch_from": "site.site_email_address",
    "fieldname": "site_contact_email",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -213,6 +220,7 @@
    "options": "\nYES\nNO"
   },
   {
+   "fetch_from": "customer.customer_name",
    "fieldname": "company_name",
    "fieldtype": "Data",
    "label": "Company Name"
@@ -223,11 +231,13 @@
    "label": "Date (Company)"
   },
   {
+   "fetch_from": "customer.customer_primary_address",
    "fieldname": "company_address",
    "fieldtype": "Data",
    "label": "Company Address"
   },
   {
+   "fetch_from": "site.company_phone",
    "fieldname": "company_contact_phone",
    "fieldtype": "Data",
    "label": "Company Contact Phone"
@@ -238,6 +248,7 @@
    "label": "Company Contact Mob"
   },
   {
+   "fetch_from": "site.company_email",
    "fieldname": "company_contact_email",
    "fieldtype": "Data",
    "label": "Company Contact Email"
@@ -651,7 +662,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-01 21:28:29.071477",
+ "modified": "2026-04-02 17:46:28.360687",
  "modified_by": "Administrator",
  "module": "Enviro",
  "name": "Enviro Job Card",
