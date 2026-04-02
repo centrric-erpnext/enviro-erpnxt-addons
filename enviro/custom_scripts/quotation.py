@@ -161,16 +161,42 @@ def submit_quotation(name):
 def make_enviro_job_card(source_name, target_doc=None):
     from frappe.model.mapper import get_mapped_doc
 
+    def build_metadata(source, target):
+        # 1. Bruteforce Site Metadata
+        if target.site:
+            try:
+                site = frappe.get_doc("Site", target.site)
+                target.site_name = site.site_name
+                target.site_address = site.site_address
+                target.site_postcode = site.site_postcode
+                target.site_contact_name = site.site_contact_person
+                target.site_contact_phone = site.site_phone
+                target.site_contact_mob = site.site_contact_mobile
+                target.site_contact_email = site.site_email_address
+                target.company_contact_phone = site.company_phone
+                target.company_contact_email = site.company_email
+            except Exception:
+                pass
+                
+        # 2. Bruteforce Customer Metadata
+        if target.customer:
+            try:
+                cust = frappe.get_doc("Customer", target.customer)
+                # Overwrite "company_name" with the Customer Name (not the ERPNext Tenant)
+                target.company_name = cust.customer_name
+                target.company_address = cust.customer_primary_address
+            except Exception:
+                pass
+
     doclist = get_mapped_doc("Quotation", source_name, {
         "Quotation": {
             "doctype": "Enviro Job Card",
             "field_map": {
                 "name": "source_quotation",
                 "party_name": "customer",
-                "custom_site": "site",
-                "company": "company_name",
-                "contact_mobile": "site_contact_mob"
-            }
+                "custom_site": "site"
+            },
+            "postprocess": build_metadata
         }
     }, target_doc)
 
