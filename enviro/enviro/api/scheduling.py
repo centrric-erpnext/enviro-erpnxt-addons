@@ -21,8 +21,9 @@ def get_scheduling_data():
         filters.append(["name", "=", "NONE_AUTHORIZED"])
         
     jobs = frappe.get_all("Enviro Job Card", 
-        fields=["name", "customer", "driver", "vehicle", "scheduled_start_date", "scheduled_start_time", "status"],
-        filters=filters
+        fields=["name", "customer", "driver", "vehicle", "scheduled_start_date", "scheduled_start_time", 
+                "status", "is_reoccurring_quote", "is_outsourced_job", "frequency_in_weeks", "job_card_type"],
+        filters=[["name", "in", valid_job_ids]]
     )
     
     vehicles = frappe.get_all("Vehicle", fields=["name", "license_plate"])
@@ -53,4 +54,9 @@ def api_schedule_job(job_id, payload):
             doc.append("team_members", {"employee": member})
             
     doc.save(ignore_permissions=True)
+    return "OK"
+
+@frappe.whitelist()
+def cancel_job_card(job_id):
+    frappe.db.set_value("Enviro Job Card", job_id, "status", "Cancelled")
     return "OK"
