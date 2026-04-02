@@ -165,23 +165,11 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"enviro.tasks.all"
-# 	],
-# 	"daily": [
-# 		"enviro.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"enviro.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"enviro.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"enviro.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"enviro.cron.recurring.execute_daily_operations"
+	]
+}
 
 # Testing
 # -------
