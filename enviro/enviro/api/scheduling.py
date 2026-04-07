@@ -22,9 +22,25 @@ def get_scheduling_data():
         
     jobs = frappe.get_all("Enviro Job Card", 
         fields=["name", "customer", "driver", "vehicle", "scheduled_start_date", "scheduled_start_time", 
-                "status", "is_reoccurring_quote", "is_outsourced_job", "frequency_in_weeks", "job_card_type"],
+                "status", "is_reoccurring_quote", "is_outsourced_job", "frequency_in_weeks", "job_card_type", "source_quotation"],
         filters=[["name", "in", valid_job_ids]]
     )
+    
+    # Inject core Waste Type label by peering inside the original Quotation
+    for job in jobs:
+        if job.source_quotation:
+            w_types = frappe.db.sql('''
+                SELECT DISTINCT custom_waste_type 
+                FROM `tabQuotation Item` 
+                WHERE parent = %s AND custom_waste_type IS NOT NULL AND custom_waste_type != ''
+            ''', job.source_quotation)
+            if w_types:
+                job.waste_type_label = ", ".join([w[0] for w in w_types])
+            else:
+                job.waste_type_label = "Standard"
+        else:
+            job.waste_type_label = "Manual Job"
+    
     
     vehicles = frappe.get_all("Vehicle", fields=["name", "license_plate"])
     
