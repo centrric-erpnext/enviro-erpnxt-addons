@@ -93,3 +93,30 @@ def api_schedule_job(job_id, payload):
 def cancel_job_card(job_id):
     frappe.db.set_value("Enviro Job Card", job_id, "status", "Cancelled")
     return "OK"
+
+@frappe.whitelist()
+def get_driver_employees(doctype, txt, searchfield, start, page_len, filters):
+    valid_roles = [
+        "Driver Factory Hand (Web)",
+        "Driver Factory Hand (Mobile)",
+        "Driver Liquid Waste Technician (Web)",
+        "Driver Liquid Waste Technician (Mobile)"
+    ]
+    
+    users = frappe.get_all("Has Role", filters={"role": ["in", valid_roles]}, fields=["parent"])
+    user_emails = list(set([u.parent for u in users]))
+    
+    if not user_emails:
+        return []
+        
+    conditions = {"user_id": ["in", user_emails], "status": "Active"}
+    employees = frappe.get_all("Employee", filters=conditions, fields=["name", "employee_name"])
+    
+    result = []
+    # strict null check on txt to prevent NoneType errors in case frappe search API passes None instead of empty string
+    safe_txt = (txt or "").lower()
+    for emp in employees:
+        if safe_txt in emp.name.lower() or safe_txt in str(emp.employee_name or "").lower():
+            result.append([emp.name, emp.employee_name or ""])
+            
+    return result
