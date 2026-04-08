@@ -45,7 +45,7 @@ def get_scheduling_data():
         fields=["name", "customer", "driver", "vehicle", "scheduled_start_date", "scheduled_start_time", "status"]
     )
     
-    vehicles = frappe.get_all("Vehicle", fields=["name", "license_plate"])
+    vehicles = frappe.get_all("Vehicle", fields=["name", "license_plate", "custom_vehicle_category"])
     
     return {
         "queue_jobs": queue_jobs,
