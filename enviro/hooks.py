@@ -14,7 +14,6 @@ fixtures = [
 	"Server Script",
 	"Workspace",
 	"Custom HTML Block",
-	{"dt": "DocType", "filters": [["module", "=", "Enviro"], ["custom", "=", 1]]},
 ]
 
 # Apps
