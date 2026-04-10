@@ -1,3 +1,4 @@
-frappe.ready(function() {
+/* eslint-disable */
+frappe.ready(function () {
 	// bind events here
-})
+});
