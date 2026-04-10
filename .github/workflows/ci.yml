@@ -103,7 +103,7 @@ jobs:
         working-directory: /home/runner/frappe-bench
         run: |
           bench --site test_site set-config allow_tests true
-          ./env/bin/python -c "import frappe; frappe.init('test_site'); frappe.connect(); frappe.get_doc({'doctype': 'Warehouse Type', 'warehouse_type': 'Transit'}).insert(ignore_if_duplicate=True) if not frappe.db.exists('Warehouse Type', 'Transit') else None; frappe.db.commit(); frappe.destroy()"
+          ./env/bin/python -c "import frappe; frappe.init('test_site', sites_path='sites'); frappe.connect(); frappe.get_doc({'doctype': 'Warehouse Type', 'warehouse_type': 'Transit'}).insert(ignore_if_duplicate=True) if not frappe.db.exists('Warehouse Type', 'Transit') else None; frappe.db.commit(); frappe.destroy()"
           bench --site test_site run-tests --app enviro
         env:
           TYPE: server
