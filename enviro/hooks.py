@@ -7,13 +7,13 @@ app_license = "mit"
 
 
 fixtures = [
-    "Role",
-    "Custom Field",
-    "Property Setter",
-    "Client Script",
-    "Server Script",
-    "Workspace",
-    "Custom HTML Block"
+	"Role",
+	"Custom Field",
+	"Property Setter",
+	"Client Script",
+	"Server Script",
+	"Workspace",
+	"Custom HTML Block",
 ]
 
 # Apps
@@ -156,20 +156,12 @@ fixtures = [
 # 	}
 # }
 
-doc_events = {
-	"Quotation": {
-		"before_save": "enviro.custom_scripts.quotation.before_save"
-	}
-}
+doc_events = {"Quotation": {"before_save": "enviro.custom_scripts.quotation.before_save"}}
 
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {
-	"daily": [
-		"enviro.cron.recurring.execute_daily_operations"
-	]
-}
+scheduler_events = {"daily": ["enviro.cron.recurring.execute_daily_operations"]}
 
 # Testing
 # -------
@@ -246,4 +238,3 @@ scheduler_events = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
