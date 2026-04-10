@@ -99,10 +99,18 @@ jobs:
         env:
           CI: 'Yes'
 
-      - name: Run Tests
+      - name: Install
         working-directory: /home/runner/frappe-bench
         run: |
-          bench --site test_site set-config allow_tests true
-          bench --site test_site run-tests --app enviro
+          bench get-app payments --branch version-15
+          bench get-app erpnext --branch version-15
+          bench get-app enviro $GITHUB_WORKSPACE
+          bench setup requirements --dev
+          bench new-site --db-root-password root --admin-password admin test_site
+          bench --site test_site install-app erpnext
+          bench --site test_site install-app enviro
+          # ADD THIS LINE BELOW TO SYNC THE DOCTYPES
+          bench --site test_site migrate  
+          bench build
         env:
-          TYPE: server
+          CI: 'Yes'
