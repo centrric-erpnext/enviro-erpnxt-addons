@@ -103,8 +103,8 @@ jobs:
         working-directory: /home/runner/frappe-bench
         run: |
           bench --site test_site set-config allow_tests true
-          # Direct SQL injection to fix the missing Warehouse Type without triggering the logger
-          bench --site test_site mariadb -e "INSERT IGNORE INTO \`tabWarehouse Type\` (name, modified_by, warehouse_type) VALUES ('Transit', 'Administrator', 'Transit');"
+          # Use the Frappe ORM to safely create the record; it handles column names automatically
+          bench --site test_site execute "if not frappe.db.exists('Warehouse Type', 'Transit'): frappe.get_doc({'doctype': 'Warehouse Type', 'name': 'Transit'}).insert(ignore_permissions=True); frappe.db.commit()"
           bench --site test_site run-tests --app enviro
         env:
           TYPE: server
