@@ -103,9 +103,8 @@ jobs:
         working-directory: /home/runner/frappe-bench
         run: |
           bench --site test_site set-config allow_tests true
-          mkdir -p test_site/logs
-          mkdir -p sites/test_site/logs
-          ./env/bin/python -c "import frappe; frappe.init('test_site', sites_path='sites'); frappe.connect(); frappe.get_doc({'doctype': 'Warehouse Type', 'warehouse_type': 'Transit'}).insert(ignore_if_duplicate=True) if not frappe.db.exists('Warehouse Type', 'Transit') else None; frappe.db.commit(); frappe.destroy()"
+          # Direct SQL injection to fix the missing Warehouse Type without triggering the logger
+          bench --site test_site mariadb -e "INSERT IGNORE INTO \`tabWarehouse Type\` (name, modified_by, warehouse_type) VALUES ('Transit', 'Administrator', 'Transit');"
           bench --site test_site run-tests --app enviro
         env:
           TYPE: server
