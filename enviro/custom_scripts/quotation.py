@@ -1,3 +1,5 @@
+import json
+
 import frappe
 from frappe.utils import get_url
 
@@ -34,6 +36,65 @@ def before_save(doc, method=None):
 		# It goes straight to the Accounts Review stage
 		if doc.custom_accounts_approval_status not in ["Approved", "Rejected"]:
 			doc.custom_accounts_approval_status = "Pending"
+
+
+def on_update(doc, method=None):
+	# AUTO-SPAWN ENVIRO JOB ON APPROVAL
+	# We rely on the 'intended' fields set by the dashboard for reoccurring jobs
+	if (
+		doc.custom_accounts_approval_status == "Approved"
+		and doc.custom_intended_start_date
+		and not doc.get_db_value("custom_accounts_approval_status") == "Approved"
+	):
+		spawn_job_from_intent(doc)
+
+
+def spawn_job_from_intent(doc):
+	frappe.logger().info(f"Auto-spawning job for Quotation: {doc.name} from intended schedule")
+
+	new_job = frappe.new_doc("Enviro Job")
+	new_job.source_job_card = doc.custom_enviro_job_card
+	new_job.quotation = doc.name
+	new_job.customer = doc.party_name
+	new_job.site = doc.custom_site
+
+	# Map intended data
+	new_job.scheduled_start_date = doc.custom_intended_start_date
+	new_job.scheduled_start_time = doc.custom_intended_start_time
+	new_job.scheduled_end_date = doc.custom_intended_end_date
+	new_job.scheduled_end_time = doc.custom_intended_end_time
+	new_job.vehicle = doc.custom_intended_vehicle
+	new_job.driver = doc.custom_intended_driver
+	new_job.status = "Scheduled"
+
+	# Team Members (JSON parsing)
+	if doc.custom_intended_team:
+		try:
+			team = json.loads(doc.custom_intended_team)
+			for member in team:
+				new_job.append("team_members", {"employee": member})
+		except Exception:
+			pass
+
+	new_job.insert(ignore_permissions=True)
+
+	# CLEAR INTENDED FIELDS TO PREVENT DOUBLE SPAWNING
+	frappe.db.set_value(
+		"Quotation",
+		doc.name,
+		{
+			"custom_intended_start_date": None,
+			"custom_intended_start_time": None,
+			"custom_intended_end_date": None,
+			"custom_intended_end_time": None,
+			"custom_intended_vehicle": None,
+			"custom_intended_driver": None,
+			"custom_intended_team": None,
+		},
+		update_modified=False,
+	)
+
+	frappe.msgprint(f"✅ Automated: Enviro Job <b>{new_job.name}</b> has been scheduled.")
 
 
 @frappe.whitelist()

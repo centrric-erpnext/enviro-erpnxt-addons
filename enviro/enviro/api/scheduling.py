@@ -22,6 +22,8 @@ def get_scheduling_data():
 		filters.append(["name", "=", "NONE_AUTHORIZED"])
 
 	# Queue Jobs = Master Requests that aren't purely scheduled one-offs
+	# For Reoccurring: Only show if it hasn't been scheduled 'today' to keep the UI clean
+	today = frappe.utils.today()
 	queue_jobs = frappe.get_all(
 		"Enviro Job Card",
 		fields=[
@@ -37,8 +39,15 @@ def get_scheduling_data():
 			"frequency_in_weeks",
 			"job_card_type",
 			"source_quotation",
+			"custom_last_scheduled_date",
 		],
-		filters=filters,
+		filters=[
+			["docstatus", "<", 2],
+			["name", "in", valid_job_ids],
+			"|",
+			["is_reoccurring_quote", "!=", "YES"],
+			["custom_last_scheduled_date", "!=", today],
+		],
 	)
 
 	# Calculate Waste Type for Queue Jobs
@@ -83,10 +92,52 @@ def api_schedule_job(job_id, payload):
 	import json
 
 	data = json.loads(payload)
-
-	# 1. Spawn a new Enviro Job directly mapping the source card
 	job_card = frappe.get_doc("Enviro Job Card", job_id)
 
+	# --- CASE 1: REOCCURRING JOB (Approval Pipeline) ---
+	if job_card.is_reoccurring_quote == "YES":
+		if not job_card.source_quotation:
+			frappe.throw("Master Job Card has no source quotation to clone.")
+
+		# 1. Clone the Master Quotation
+		master_quote = frappe.get_doc("Quotation", job_card.source_quotation)
+		new_quote = frappe.copy_doc(master_quote)
+		new_quote.transaction_date = frappe.utils.today()
+		new_quote.custom_enviro_job_card = job_card.name
+
+		# 2. Store the 'Intended Schedule' payload
+		new_quote.custom_intended_start_date = data.get("scheduled_start_date")
+		new_quote.custom_intended_start_time = data.get("scheduled_start_time")
+		new_quote.custom_intended_end_date = data.get("scheduled_end_date")
+		new_quote.custom_intended_end_time = data.get("scheduled_end_time")
+		new_quote.custom_intended_vehicle = data.get("vehicle")
+		new_job_driver = data.get("driver")
+		new_quote.custom_intended_driver = new_job_driver
+		new_quote.custom_intended_team = json.dumps(data.get("team_members") or [])
+
+		# 3. Reset workflow status
+		if new_quote.custom_requires_client_approval == 1:
+			new_quote.custom_client_approval_status = "Pending"
+			new_quote.custom_accounts_approval_status = ""
+		else:
+			new_quote.custom_client_approval_status = "Not Required"
+			new_quote.custom_accounts_approval_status = "Pending"
+
+		new_quote.insert(ignore_permissions=True)
+
+		# 4. Filter logic: Mark Master as 'Scheduled Today' so it hides from DB
+		job_card.custom_last_scheduled_date = frappe.utils.today()
+		job_card.save(ignore_permissions=True)
+
+		# 5. Global Action: Trigger Email if needed
+		if new_quote.custom_requires_client_approval == 1:
+			from enviro.custom_scripts.quotation import send_approval_email
+
+			send_approval_email(new_quote.name)
+
+		return {"status": "OK", "type": "reoccurring", "quote": new_quote.name}
+
+	# --- CASE 2: ONE-OFF JOB (Direct Scheduling) ---
 	new_job = frappe.new_doc("Enviro Job")
 	new_job.source_job_card = job_card.name
 	new_job.quotation = job_card.source_quotation
@@ -108,12 +159,11 @@ def api_schedule_job(job_id, payload):
 
 	new_job.insert(ignore_permissions=True)
 
-	# 2. Update the Job Card Status if it is NOT Reoccurring
-	if job_card.is_reoccurring_quote != "YES":
-		job_card.status = "Assigned"
-		job_card.save(ignore_permissions=True)
+	# Update the Job Card Status
+	job_card.status = "Assigned"
+	job_card.save(ignore_permissions=True)
 
-	return "OK"
+	return {"status": "OK", "type": "one-off", "job": new_job.name}
 
 
 @frappe.whitelist()
