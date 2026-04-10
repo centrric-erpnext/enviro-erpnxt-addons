@@ -103,8 +103,6 @@ jobs:
         working-directory: /home/runner/frappe-bench
         run: |
           bench --site test_site set-config allow_tests true
-          # Use the Frappe ORM to safely create the record; it handles column names automatically
-          bench --site test_site execute "if not frappe.db.exists('Warehouse Type', 'Transit'): frappe.get_doc({'doctype': 'Warehouse Type', 'name': 'Transit'}).insert(ignore_permissions=True); frappe.db.commit()"
           bench --site test_site run-tests --app enviro
         env:
           TYPE: server

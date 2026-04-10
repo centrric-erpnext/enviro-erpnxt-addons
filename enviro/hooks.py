@@ -14,6 +14,7 @@ fixtures = [
 	"Server Script",
 	"Workspace",
 	"Custom HTML Block",
+	"Warehouse Type",
 ]
 
 # Apps
