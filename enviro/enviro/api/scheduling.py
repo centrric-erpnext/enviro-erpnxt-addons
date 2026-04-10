@@ -1,4 +1,5 @@
 import frappe
+from frappe import _  # 1. ADDED: The translation function import
 
 
 @frappe.whitelist()
@@ -88,7 +89,8 @@ def get_scheduling_data():
 
 
 @frappe.whitelist()
-def api_schedule_job(job_id, payload):
+# 2. ADDED: Type hints (str) for job_id and payload
+def api_schedule_job(job_id: str, payload: str):
 	import json
 
 	data = json.loads(payload)
@@ -97,7 +99,8 @@ def api_schedule_job(job_id, payload):
 	# --- CASE 1: REOCCURRING JOB (Approval Pipeline) ---
 	if job_card.is_reoccurring_quote == "YES":
 		if not job_card.source_quotation:
-			frappe.throw("Master Job Card has no source quotation to clone.")
+			# 3. ADDED: Wrapped the string in _() for translation
+			frappe.throw(_("Master Job Card has no source quotation to clone."))
 
 		# 1. Clone the Master Quotation
 		master_quote = frappe.get_doc("Quotation", job_card.source_quotation)
@@ -167,13 +170,17 @@ def api_schedule_job(job_id, payload):
 
 
 @frappe.whitelist()
-def cancel_job_card(job_id):
+# 4. ADDED: Type hint for cancel function
+def cancel_job_card(job_id: str):
 	frappe.db.set_value("Enviro Job Card", job_id, "status", "Cancelled")
 	return "OK"
 
 
 @frappe.whitelist()
-def get_driver_employees(doctype, txt, searchfield, start, page_len, filters):
+# 5. ADDED: Type hints for the query function
+def get_driver_employees(
+	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict | None = None
+):
 	valid_roles = [
 		"Driver Factory Hand (Web)",
 		"Driver Factory Hand (Mobile)",
