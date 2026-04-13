@@ -1,8 +1,25 @@
 {
  "charts": [],
- "content": "[{\"id\": \"KysTAz7T3z\", \"type\": \"header\", \"data\": {\"text\": \"Enviro Operations Center\", \"level\": 2, \"col\": 12}}, {\"id\": \"ErOAmeTT60\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Notifications\", \"col\": 12}}, {\"id\": \"TYVXMH0ajp\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Job List\", \"col\": 12}}, {\"id\": \"RQMl61F72W\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Weather\", \"col\": 12}}, {\"id\": \"hfUGcCzmxV\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Schedule Grid\", \"col\": 12}}]",
+ "content": "[{\"id\": \"DU1aXnPFpz\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\">Enviro Operations Center</span>\", \"level\": 2, \"col\": 12}}, {\"id\": \"73ps0WE3Eh\", \"type\": \"columns\", \"data\": {\"content\": [{\"col\": 8, \"blocks\": [{\"id\": \"Zuf4ITWR6u\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Notifications\", \"col\": 12}}, {\"id\": \"RSFa3SgfFs\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Job List\", \"col\": 12}}]}, {\"col\": 4, \"blocks\": [{\"id\": \"A1XgYuLyQ0\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Weather\", \"col\": 12}}, {\"id\": \"06QR8PoeAZ\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Schedule Grid\", \"col\": 12}}]}]}}]",
  "creation": "2026-04-08 19:04:50.097791",
- "custom_blocks": [],
+ "custom_blocks": [
+  {
+   "custom_block_name": "Enviro Home Notifications",
+   "label": "Enviro Home Notifications"
+  },
+  {
+   "custom_block_name": "Enviro Home Job List",
+   "label": "Enviro Home Job List"
+  },
+  {
+   "custom_block_name": "Enviro Home Weather",
+   "label": "Enviro Home Weather"
+  },
+  {
+   "custom_block_name": "Enviro Home Schedule Grid",
+   "label": "Enviro Home Schedule Grid"
+  }
+ ],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
@@ -13,7 +30,7 @@
  "is_hidden": 0,
  "label": "Home",
  "links": [],
- "modified": "2026-04-13 16:01:59.096948",
+ "modified": "2026-04-13 16:30:03.888383",
  "modified_by": "Administrator",
  "module": "Enviro",
  "name": "Home",

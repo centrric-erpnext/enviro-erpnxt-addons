@@ -204,9 +204,19 @@ def create_block(name, html, css, script):
 		doc.html = html
 		doc.style = css
 		doc.script = script
+		# Ensure 'All' role exists for public visibility
+		if not any(r.role == "All" for r in doc.roles):
+			doc.append("roles", {"role": "All"})
 		doc.save()
 	else:
 		doc = frappe.get_doc(
-			{"doctype": "Custom HTML Block", "name": name, "html": html, "style": css, "script": script}
+			{
+				"doctype": "Custom HTML Block",
+				"name": name,
+				"html": html,
+				"style": css,
+				"script": script,
+				"roles": [{"role": "All"}],
+			}
 		)
 		doc.insert()
