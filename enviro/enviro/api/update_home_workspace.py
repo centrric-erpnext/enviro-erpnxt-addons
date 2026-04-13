@@ -16,69 +16,24 @@ def update_home_workspace():
 
 	doc = frappe.get_doc("Workspace", "Home")
 
-	# 1. Populate custom_blocks child table (Required for v15 visibility)
+	# 1. Register only the Master Block in the child table
 	doc.custom_blocks = []
-	block_names = [
-		"Enviro Home Notifications",
-		"Enviro Home Job List",
-		"Enviro Home Weather",
-		"Enviro Home Schedule Grid",
-	]
-	for name in block_names:
-		doc.append("custom_blocks", {"custom_block_name": name, "label": name})
+	master_block = "Enviro Unified Dashboard Master"
+	doc.append("custom_blocks", {"custom_block_name": master_block, "label": "Main Dashboard"})
 
-	# 2. Define the rich 2-column layout in content JSON
-	# Using the 'columns' block structure for v15
+	# 2. Stable Single-Block Content
 	content_blocks = [
 		{
 			"id": get_id(),
-			"type": "header",
-			"data": {"text": '<span class="h4">Enviro Operations Center</span>', "level": 2, "col": 12},
-		},
-		{
-			"id": get_id(),
-			"type": "columns",
-			"data": {
-				"content": [
-					{
-						"col": 8,
-						"blocks": [
-							{
-								"id": get_id(),
-								"type": "custom_block",
-								"data": {"custom_block_name": "Enviro Home Notifications", "col": 12},
-							},
-							{
-								"id": get_id(),
-								"type": "custom_block",
-								"data": {"custom_block_name": "Enviro Home Job List", "col": 12},
-							},
-						],
-					},
-					{
-						"col": 4,
-						"blocks": [
-							{
-								"id": get_id(),
-								"type": "custom_block",
-								"data": {"custom_block_name": "Enviro Home Weather", "col": 12},
-							},
-							{
-								"id": get_id(),
-								"type": "custom_block",
-								"data": {"custom_block_name": "Enviro Home Schedule Grid", "col": 12},
-							},
-						],
-					},
-				]
-			},
-		},
+			"type": "custom_block",
+			"data": {"custom_block_name": master_block, "col": 12},
+		}
 	]
 
 	doc.content = json.dumps(content_blocks)
 	doc.save()
 	frappe.db.commit()
-	print("Home Workspace restored to 2-column layout with child table registration")
+	print("Home Workspace updated with Master Unified Dashboard")
 
 
 if __name__ == "__main__":

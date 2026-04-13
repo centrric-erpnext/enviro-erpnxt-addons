@@ -6,11 +6,20 @@ from frappe.utils import now_datetime, today
 def get_home_dashboard_data():
 	"""
 	Combines notifications, jobs, and schedule data for the Home Workspace.
+	Includes mock data for Sales and Safety to match Reference Image 2 requirements.
 	"""
 	return {
 		"notifications": get_recent_activities(),
 		"all_jobs": get_all_jobs_summary(),
 		"todays_schedule": get_todays_appointments(),
+		"sales_data": {
+			"labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+			"datasets": [{"name": "Actual Sales", "values": [12, 19, 23, 17, 28, 22, 35]}],
+		},
+		"safety_data": {
+			"people": {"mtd": 0, "ytd": 4, "lti": "no Data", "mtd_val": "no Data", "fti": 0},
+			"vehicle": {"mtd": 1, "ytd": 3, "fault": 0, "non_fault": 0},
+		},
 	}
 
 
