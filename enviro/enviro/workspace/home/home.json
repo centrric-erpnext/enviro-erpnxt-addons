@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"type\": \"header\", \"data\": {\"text\": \"Enviro Operations Center\", \"level\": 2}}, {\"type\": \"spacer\", \"data\": {\"height\": \"20px\"}}, {\"type\": \"columns\", \"data\": {\"columns\": [{\"width\": \"66%\", \"blocks\": [{\"type\": \"custom_html\", \"data\": {\"html_block\": \"Enviro Home Notifications\"}}, {\"type\": \"custom_html\", \"data\": {\"html_block\": \"Enviro Home Job List\"}}]}, {\"width\": \"33%\", \"blocks\": [{\"type\": \"custom_html\", \"data\": {\"html_block\": \"Enviro Home Weather\"}}, {\"type\": \"custom_html\", \"data\": {\"html_block\": \"Enviro Home Schedule Grid\"}}]}]}}]",
+ "content": "[{\"id\": \"KysTAz7T3z\", \"type\": \"header\", \"data\": {\"text\": \"Enviro Operations Center\", \"level\": 2, \"col\": 12}}, {\"id\": \"ErOAmeTT60\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Notifications\", \"col\": 12}}, {\"id\": \"TYVXMH0ajp\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Job List\", \"col\": 12}}, {\"id\": \"RQMl61F72W\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Weather\", \"col\": 12}}, {\"id\": \"hfUGcCzmxV\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Home Schedule Grid\", \"col\": 12}}]",
  "creation": "2026-04-08 19:04:50.097791",
  "custom_blocks": [],
  "docstatus": 0,
@@ -13,7 +13,7 @@
  "is_hidden": 0,
  "label": "Home",
  "links": [],
- "modified": "2026-04-13 15:54:47.512756",
+ "modified": "2026-04-13 16:01:59.096948",
  "modified_by": "Administrator",
  "module": "Enviro",
  "name": "Home",

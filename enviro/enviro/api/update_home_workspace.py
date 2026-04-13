@@ -8,45 +8,48 @@ def update_home_workspace():
 		print("Home Workspace not found")
 		return
 
+	import random
+	import string
+
+	def get_id():
+		return "".join(random.choices(string.ascii_letters + string.digits, k=10))
+
 	doc = frappe.get_doc("Workspace", "Home")
 
-	# Define the new blocks
-	# Note: In Frappe v15, Workspace uses 'content' which is a JSON string of blocks
+	# Correct structure for Frappe v15 Workspace Blocks
+	# Type: custom_block, Data: custom_block_name
 	blocks = [
-		{"type": "header", "data": {"text": "Enviro Operations Center", "level": 2}},
-		{"type": "spacer", "data": {"height": "20px"}},
 		{
-			"type": "columns",
-			"data": {
-				"columns": [
-					{
-						"width": "66%",
-						"blocks": [
-							{"type": "custom_html", "data": {"html_block": "Enviro Home Notifications"}},
-							{"type": "custom_html", "data": {"html_block": "Enviro Home Job List"}},
-						],
-					},
-					{
-						"width": "33%",
-						"blocks": [
-							{"type": "custom_html", "data": {"html_block": "Enviro Home Weather"}},
-							{"type": "custom_html", "data": {"html_block": "Enviro Home Schedule Grid"}},
-						],
-					},
-				]
-			},
+			"id": get_id(),
+			"type": "header",
+			"data": {"text": "Enviro Operations Center", "level": 2, "col": 12},
+		},
+		{
+			"id": get_id(),
+			"type": "custom_block",
+			"data": {"custom_block_name": "Enviro Home Notifications", "col": 12},
+		},
+		{
+			"id": get_id(),
+			"type": "custom_block",
+			"data": {"custom_block_name": "Enviro Home Job List", "col": 12},
+		},
+		{
+			"id": get_id(),
+			"type": "custom_block",
+			"data": {"custom_block_name": "Enviro Home Weather", "col": 12},
+		},
+		{
+			"id": get_id(),
+			"type": "custom_block",
+			"data": {"custom_block_name": "Enviro Home Schedule Grid", "col": 12},
 		},
 	]
 
-	# Standard Frappe v15 structure for cards/charts can be added too,
-	# but we will focus on these custom components as requested.
-
-	# We will prepend these to any existing content if possible or just replace if requested
-	# For this professional implementation, we will replace the 'content' field
 	doc.content = json.dumps(blocks)
 	doc.save()
 	frappe.db.commit()
-	print("Home Workspace updated successfully")
+	print("Home Workspace fixed with stable flat layout")
 
 
 if __name__ == "__main__":
