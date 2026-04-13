@@ -25,6 +25,13 @@ def get_scheduling_data():
 	# Queue Jobs = Master Requests that aren't purely scheduled one-offs
 	# For Reoccurring: Only show if it hasn't been scheduled 'today' to keep the UI clean
 	today = frappe.utils.today()
+
+	base_filters = [["docstatus", "<", 2]]
+	if valid_job_ids:
+		base_filters.append(["name", "in", valid_job_ids])
+	else:
+		base_filters.append(["name", "=", "NONE_AUTHORIZED"])
+
 	queue_jobs = frappe.get_all(
 		"Enviro Job Card",
 		fields=[
@@ -42,12 +49,11 @@ def get_scheduling_data():
 			"source_quotation",
 			"custom_last_scheduled_date",
 		],
-		filters=[
-			["docstatus", "<", 2],
-			["name", "in", valid_job_ids],
-			"|",
+		filters=base_filters,
+		or_filters=[
 			["is_reoccurring_quote", "!=", "YES"],
 			["custom_last_scheduled_date", "!=", today],
+			["custom_last_scheduled_date", "is", "not set"],
 		],
 	)
 
