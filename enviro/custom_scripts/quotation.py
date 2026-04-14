@@ -115,21 +115,25 @@ def send_approval_email(docname):
 		doc.save(ignore_permissions=True)
 		frappe.db.commit()
 
-	approve_link = f"{get_url()}/api/method/enviro.custom_scripts.quotation.handle_email_approval?name={doc.name}&token={doc.custom_approval_token}&action=approve"
-	reject_link = f"{get_url()}/api/method/enviro.custom_scripts.quotation.handle_email_approval?name={doc.name}&token={doc.custom_approval_token}&action=reject"
+	view_link = f"{get_url()}/quote_view?name={doc.name}&token={doc.custom_approval_token}"
 
 	message = f"""
     <div style="font-family: Inter, Arial, sans-serif; max-width: 600px; padding: 25px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <h2 style="color: #111827; margin-top: 0;">Quotation Action Required</h2>
-        <p style="color: #374151; font-size: 16px;">Dear {doc.customer_name},</p>
-        <p style="color: #374151; font-size: 16px; line-height: 1.5;">Please review the attached quotation (<b>{doc.name}</b>). You can instantly approve or reject it by clicking one of the buttons below.</p>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <!-- Dummy Logo Space -->
+            <h1 style="color: #0ea5e9; margin: 0; font-size: 24px;">enviro</h1>
+        </div>
+        <div style="background-color: #0ea5e9; height: 10px; width: 100%; border-radius: 4px;"></div>
+        <h2 style="color: #111827; text-align: center; margin-top: 20px;">Enviro Quotation</h2>
+        <p style="color: #374151; font-size: 14px; text-align: center; margin-bottom: 30px;">
+            This is your most recent quote. Kindly click the button below to access the quote details and optionally customize your site information.
+        </p>
 
-        <div style="margin-top: 35px; margin-bottom: 35px;">
-            <a href="{approve_link}" style="padding: 14px 28px; background-color: #10b981; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">✅ Approve Quotation</a>
-            <a href="{reject_link}" style="padding: 14px 28px; background-color: #ef4444; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin-left: 15px;">❌ Reject Quotation</a>
+        <div style="text-align: center; margin-top: 35px; margin-bottom: 35px;">
+            <a href="{view_link}" style="padding: 12px 24px; background-color: #38bdf8; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View Quote</a>
         </div>
 
-        <p style="color: #6b7280; font-size: 14px; margin-bottom: 0;">Thank you,<br>Enviro Operations</p>
+        <p style="color: #6b7280; font-size: 14px; text-align: center; margin-bottom: 0;">Thanks,<br>Team Enviro</p>
     </div>
     """
 
@@ -146,81 +150,68 @@ def send_approval_email(docname):
 
 
 @frappe.whitelist(allow_guest=True)
-def handle_email_approval(name, token, action):
-	try:
-		if not frappe.db.exists("Quotation", name):
-			html = """
-            <div style='text-align: center; padding: 40px;'>
-                <h1 style='color: #ef4444; font-size: 48px; margin-bottom: 10px;'>❌</h1>
-                <h2>Document Not Found</h2>
-                <p style='font-size: 18px; color: #374151;'>This quotation no longer exists in our system.</p>
-            </div>
-            """
-			frappe.respond_as_web_page("Not Found", html, success=True)
-			return
+def submit_quote_approval():
+	data = frappe.local.form_dict
+	name = data.get("name")
+	token = data.get("token")
+	action = data.get("action")
 
-		doc = frappe.get_doc("Quotation", name)
+	if not frappe.db.exists("Quotation", name):
+		return {"status": "error", "message": "Quotation not found"}
 
-		if not doc.custom_approval_token or doc.custom_approval_token != token:
-			html = """
-            <div style='text-align: center; padding: 40px;'>
-                <h1 style='color: #fbbf24; font-size: 48px; margin-bottom: 10px;'>⚠️</h1>
-                <h2>Link Already Used</h2>
-                <p style='font-size: 18px; color: #374151;'>This quotation has already been approved or rejected.</p>
-                <p style='color: #6b7280; font-size: 14px;'>Responses are final and cannot be changed.</p>
-            </div>
-            """
-			frappe.respond_as_web_page("Already Responded", html, success=True)
-			return
+	doc = frappe.get_doc("Quotation", name)
+	if not doc.custom_approval_token or doc.custom_approval_token != token:
+		return {"status": "error", "message": "Invalid or expired token"}
 
-		if action == "approve":
-			doc.custom_client_approval_status = "Approved"
-			doc.custom_accounts_approval_status = "Pending"  # Re-enable the Accounts step
-			doc.custom_approval_token = ""  # Invalidate token to prevent replay
+	if action == "reject":
+		doc.custom_client_approval_status = "Rejected"
+		doc.custom_approval_token = ""
+		doc.save(ignore_permissions=True)
+		frappe.db.commit()
+		return {"status": "success", "message": "Rejected"}
 
-			doc.save(ignore_permissions=True)
-			# doc.submit() is REMOVED so Sales Team can review it as a Draft
-			frappe.db.commit()
+	if action == "approve":
+		# Handle Site details updates if provided
+		site_details = json.loads(data.get("site_details", "{}"))
+		if doc.custom_site and site_details:
+			site = frappe.get_doc("Site", doc.custom_site)
+			if site_details.get("site_name"):
+				site.site_name = site_details.get("site_name")
+			if site_details.get("site_address"):
+				site.site_address = site_details.get("site_address")
+			if site_details.get("contact_name"):
+				site.site_contact_person = site_details.get("contact_name")
+			site.save(ignore_permissions=True)
 
-			html = f"""
-            <div style='text-align: center; padding: 40px;'>
-                <h1 style='color: #10b981; font-size: 48px; margin-bottom: 10px;'>✅</h1>
-                <h2>Approval Successful</h2>
-                <p style='font-size: 18px; color: #374151;'>Thank you! Quotation <b>{name}</b> is now fully approved.</p>
-                <p style='color: #6b7280; font-size: 14px;'>You can safely close this window.</p>
-            </div>
-            """
-			frappe.respond_as_web_page("Quotation Approved", html, success=True)
-			return
+		# Save Signature
+		signature_b64 = data.get("signature")
+		if signature_b64:
+			import base64
 
-		elif action == "reject":
-			doc.custom_client_approval_status = "Rejected"
-			doc.custom_approval_token = ""  # Invalidate token
-			doc.save(ignore_permissions=True)
-			frappe.db.commit()
+			from frappe.core.doctype.file.file import save_file
 
-			html = f"""
-            <div style='text-align: center; padding: 40px;'>
-                <h1 style='color: #ef4444; font-size: 48px; margin-bottom: 10px;'>🛑</h1>
-                <h2>Quotation Rejected</h2>
-                <p style='font-size: 18px; color: #374151;'>You have declined quotation <b>{name}</b>.</p>
-                <p style='color: #6b7280; font-size: 14px;'>Our team will contact you shortly to review the details.</p>
-            </div>
-            """
-			frappe.respond_as_web_page("Quotation Rejected", html, success=True)
-			return
+			# The base64 usually starts with data:image/png;base64,...
+			if "," in signature_b64:
+				signature_b64 = signature_b64.split(",")[1]
 
-		frappe.respond_as_web_page(
-			"Invalid Action",
-			"<p>The requested action is not supported.</p>",
-			success=False,
-			http_status_code=400,
-		)
+			file_doc = save_file(
+				fname=f"signature_{name}.png",
+				content=base64.b64decode(signature_b64),
+				dt="Quotation",
+				dn=name,
+				is_private=1,
+				ignore_permissions=True,
+			)
+			doc.custom_customer_signature = file_doc.file_url
 
-	except Exception as e:
-		frappe.respond_as_web_page(
-			"Server Error", f"<p>An error occurred: {e!s}</p>", success=False, http_status_code=500
-		)
+		doc.custom_client_approval_status = "Approved"
+		doc.custom_accounts_approval_status = "Pending"
+		doc.custom_approval_token = ""
+		doc.save(ignore_permissions=True)
+		frappe.db.commit()
+		return {"status": "success", "message": "Approved"}
+
+	return {"status": "error", "message": "Unknown action"}
 
 
 @frappe.whitelist()
