@@ -200,8 +200,7 @@ def submit_quote_approval():
 			file_doc.content = base64.b64decode(signature_b64)
 			file_doc.attached_to_doctype = "Quotation"
 			file_doc.attached_to_name = name
-			file_doc.flags.ignore_permissions = True
-			file_doc.insert()
+			file_doc.insert(ignore_permissions=True)
 
 			doc.custom_customer_signature = file_doc.file_url
 

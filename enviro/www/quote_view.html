@@ -238,7 +238,8 @@
 						document.body.innerHTML = "<div style='text-align:center; padding:100px;'><h1 style='color:#ef4444; font-size:48px;'>🛑</h1><h2>Quote Rejected</h2><p>Our team will reach out to you shortly.</p></div>";
 					}
 				} else {
-					alert(r.message.message || "An error occurred.");
+					alert((r.message && r.message.message) ? r.message.message : "A server error occurred, the transaction could not be completed.");
+					console.error(r.exc);
 				}
 			}
 		});
