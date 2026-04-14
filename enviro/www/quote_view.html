@@ -216,33 +216,48 @@
 		}
 	}
 
-	function callBackend(action, signature, site_details) {
+	async function callBackend(action, signature, site_details) {
 		const urlParams = new URLSearchParams(window.location.search);
 		const docName = urlParams.get('name');
 		const token = urlParams.get('token');
 
-		frappe.call({
-			method: 'enviro.custom_scripts.quotation.submit_quote_approval',
-			args: {
-				name: docName,
-				token: token,
-				action: action,
-				signature: signature,
-				site_details: site_details
-			},
-			callback: function(r) {
-				if(r.message && r.message.status === 'success') {
-					if(action === 'approve') {
-						document.body.innerHTML = "<div style='text-align:center; padding:100px;'><h1 style='color:#10b981; font-size:48px;'>✅</h1><h2>Quote Approved successfully</h2><p>Thank you for your business. You can close this window now.</p></div>";
-					} else {
-						document.body.innerHTML = "<div style='text-align:center; padding:100px;'><h1 style='color:#ef4444; font-size:48px;'>🛑</h1><h2>Quote Rejected</h2><p>Our team will reach out to you shortly.</p></div>";
-					}
+		try {
+			const btn = document.querySelector('.btn-blue[onclick="uploadSign()"]');
+			if(btn) btn.innerText = "Saving...";
+
+			let response = await fetch('/api/method/enviro.custom_scripts.quotation.submit_quote_approval', {
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					name: docName,
+					token: token,
+					action: action,
+					signature: signature,
+					site_details: site_details
+				})
+			});
+
+			let r = await response.json();
+
+			if (response.ok && r.message && r.message.status === 'success') {
+				if(action === 'approve') {
+					document.body.innerHTML = "<div style='text-align:center; padding:100px;'><h1 style='color:#10b981; font-size:48px;'>✅</h1><h2>Quote Approved successfully</h2><p>Thank you for your business. You can close this window now.</p></div>";
 				} else {
-					alert((r.message && r.message.message) ? r.message.message : "A server error occurred, the transaction could not be completed.");
-					console.error(r.exc);
+					document.body.innerHTML = "<div style='text-align:center; padding:100px;'><h1 style='color:#ef4444; font-size:48px;'>🛑</h1><h2>Quote Rejected</h2><p>Our team will reach out to you shortly.</p></div>";
 				}
+			} else {
+				alert((r.message && r.message.message) ? r.message.message : "A server error occurred, the transaction could not be completed.");
+				if(btn) btn.innerText = "Upload Sign";
 			}
-		});
+		} catch (error) {
+			console.error("Fetch error:", error);
+			alert("A network error occurred. Please verify your connection or try again.");
+			const btn = document.querySelector('.btn-blue[onclick="uploadSign()"]');
+			if(btn) btn.innerText = "Upload Sign";
+		}
 	}
 </script>
 
