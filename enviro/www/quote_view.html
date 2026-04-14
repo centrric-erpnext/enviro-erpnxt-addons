@@ -249,7 +249,20 @@
 					document.body.innerHTML = "<div style='text-align:center; padding:100px;'><h1 style='color:#ef4444; font-size:48px;'>🛑</h1><h2>Quote Rejected</h2><p>Our team will reach out to you shortly.</p></div>";
 				}
 			} else {
-				alert((r.message && r.message.message) ? r.message.message : "A server error occurred, the transaction could not be completed.");
+				let error_msg = "A server error occurred, the transaction could not be completed.";
+				if (r.message && r.message.message) error_msg = r.message.message;
+				else if (r._server_messages) {
+					try {
+						let msgs = JSON.parse(r._server_messages);
+						if (msgs.length > 0) {
+							let parsed = JSON.parse(msgs[0]);
+							error_msg = parsed.message ? parsed.message : msgs[0];
+						}
+					} catch(e) { error_msg = r._server_messages; }
+				}
+				else if (r.exc_type) error_msg = "Server Error: " + r.exc_type;
+
+				alert(error_msg);
 				if(btn) btn.innerText = "Upload Sign";
 			}
 		} catch (error) {

@@ -188,8 +188,6 @@ def submit_quote_approval():
 		if signature_b64:
 			import base64
 
-			from frappe.core.doctype.file.file import save_file
-
 			# The base64 usually starts with data:image/png;base64,...
 			if "," in signature_b64:
 				signature_b64 = signature_b64.split(",")[1]

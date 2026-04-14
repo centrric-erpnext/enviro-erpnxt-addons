@@ -5214,8 +5214,16 @@
  },
  {
   "charts": [],
-  "content": "[{\"id\":\"s-7Mwl8EP0\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Home</span>\",\"col\":12}}]",
-  "custom_blocks": [],
+  "content": "[{\"id\": \"CLMe6zrKCc\", \"type\": \"custom_block\", \"data\": {\"custom_block_name\": \"Enviro Unified Dashboard Master\", \"col\": 12}}]",
+  "custom_blocks": [
+   {
+    "custom_block_name": "Enviro Unified Dashboard Master",
+    "label": "Main Dashboard",
+    "parent": "Home",
+    "parentfield": "custom_blocks",
+    "parenttype": "Workspace"
+   }
+  ],
   "docstatus": 0,
   "doctype": "Workspace",
   "for_user": "",
@@ -5225,7 +5233,7 @@
   "is_hidden": 0,
   "label": "Home",
   "links": [],
-  "modified": "2026-03-27 15:02:24.698134",
+  "modified": "2026-04-13 18:01:58.755972",
   "module": "Enviro",
   "name": "Home",
   "number_cards": [],
