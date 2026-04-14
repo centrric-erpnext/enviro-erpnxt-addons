@@ -194,14 +194,15 @@ def submit_quote_approval():
 			if "," in signature_b64:
 				signature_b64 = signature_b64.split(",")[1]
 
-			file_doc = save_file(
-				fname=f"signature_{name}.png",
-				content=base64.b64decode(signature_b64),
-				dt="Quotation",
-				dn=name,
-				is_private=1,
-				ignore_permissions=True,
-			)
+			file_doc = frappe.new_doc("File")
+			file_doc.file_name = f"signature_{name}.png"
+			file_doc.is_private = 1
+			file_doc.content = base64.b64decode(signature_b64)
+			file_doc.attached_to_doctype = "Quotation"
+			file_doc.attached_to_name = name
+			file_doc.flags.ignore_permissions = True
+			file_doc.insert()
+
 			doc.custom_customer_signature = file_doc.file_url
 
 		doc.custom_client_approval_status = "Approved"
