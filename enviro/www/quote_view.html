@@ -229,7 +229,8 @@
 				method: 'POST',
 				headers: {
 					'Accept': 'application/json',
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+					'X-Frappe-CSRF-Token': window.csrf_token || (typeof frappe !== 'undefined' ? frappe.csrf_token : '')
 				},
 				body: JSON.stringify({
 					name: docName,
