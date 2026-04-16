@@ -224,31 +224,44 @@ def make_enviro_job_card(source_name, target_doc=None):
 	from frappe.model.mapper import get_mapped_doc
 
 	def build_metadata(source, target, source_parent=None):
-		# 1. Bruteforce Site Metadata
+		# 1. Safely pull Site Metadata
 		if target.site:
-			try:
-				site = frappe.get_doc("Site", target.site)
-				target.site_name = site.site_name
-				target.site_address = site.site_address
-				target.site_postcode = site.site_postcode
-				target.site_contact_name = site.site_contact_person
-				target.site_contact_phone = site.site_phone
-				target.site_contact_mob = site.site_contact_mobile
-				target.site_contact_email = site.site_email_address
-				target.company_contact_phone = site.company_phone
-				target.company_contact_email = site.company_email
-			except Exception:
-				pass
+			site_fields = frappe.db.get_value(
+				"Site",
+				target.site,
+				[
+					"site_name",
+					"site_address",
+					"site_postcode",
+					"site_contact_person",
+					"site_phone",
+					"site_contact_mobile",
+					"site_email_address",
+					"company_phone",
+					"company_email",
+				],
+				as_dict=True,
+			)
+			if site_fields:
+				target.site_name = site_fields.site_name
+				target.site_address = site_fields.site_address
+				target.site_postcode = site_fields.site_postcode
+				target.site_contact_name = site_fields.site_contact_person
+				target.site_contact_phone = site_fields.site_phone
+				target.site_contact_mob = site_fields.site_contact_mobile
+				target.site_contact_email = site_fields.site_email_address
+				target.company_contact_phone = site_fields.company_phone
+				target.company_contact_email = site_fields.company_email
 
-		# 2. Bruteforce Customer Metadata
+		# 2. Safely pull Customer Metadata
 		if target.customer:
-			try:
-				cust = frappe.get_doc("Customer", target.customer)
+			cust_fields = frappe.db.get_value(
+				"Customer", target.customer, ["customer_name", "customer_primary_address"], as_dict=True
+			)
+			if cust_fields:
 				# Overwrite "company_name" with the Customer Name (not the ERPNext Tenant)
-				target.company_name = cust.customer_name
-				target.company_address = cust.customer_primary_address
-			except Exception:
-				pass
+				target.company_name = cust_fields.customer_name
+				target.company_address = cust_fields.customer_primary_address
 
 	doclist = get_mapped_doc(
 		"Quotation",
