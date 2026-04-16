@@ -8,15 +8,25 @@ WEATHER_CITY = "Melbourne"  # Change this to your actual city name
 @frappe.whitelist(allow_guest=False)
 def get_weather_data(city=None):
 	"""
-	Fetches live weather data from Open-Meteo (free, no API key required).
+	Fetches live weather data from Open-Meteo with caching and short timeouts.
 	"""
 	city_name = city or WEATHER_CITY
+	cache_key = f"enviro_weather_{city_name.lower().replace(' ', '_')}"
+
+	# 1. Try Cache First
+	cached_data = frappe.cache().get_value(cache_key)
+	if cached_data:
+		return cached_data
+
 	try:
-		geo = requests.get(
+		# Step 1: Geocode city → lat/lon (shorter timeout)
+		geo_resp = requests.get(
 			"https://geocoding-api.open-meteo.com/v1/search",
 			params={"name": city_name, "count": 1, "language": "en", "format": "json"},
-			timeout=5,
-		).json()
+			timeout=2,
+		)
+		geo_resp.raise_for_status()
+		geo = geo_resp.json()
 
 		if not geo.get("results"):
 			return {"error": f"City '{city_name}' not found"}
@@ -24,7 +34,8 @@ def get_weather_data(city=None):
 		loc = geo["results"][0]
 		lat, lon, name = loc["latitude"], loc["longitude"], loc["name"]
 
-		wx = requests.get(
+		# Step 2: Fetch current + 7-day forecast (shorter timeout)
+		wx_resp = requests.get(
 			"https://api.open-meteo.com/v1/forecast",
 			params={
 				"latitude": lat,
@@ -34,10 +45,12 @@ def get_weather_data(city=None):
 				"forecast_days": 7,
 				"timezone": "auto",
 			},
-			timeout=5,
-		).json()
+			timeout=2,
+		)
+		wx_resp.raise_for_status()
+		wx = wx_resp.json()
 
-		return {
+		result = {
 			"city": name,
 			"current_temp": round(wx["current"]["temperature_2m"]),
 			"weather_code": wx["current"]["weather_code"],
@@ -48,9 +61,17 @@ def get_weather_data(city=None):
 				"temp_min": [round(t) for t in wx["daily"]["temperature_2m_min"]],
 			},
 		}
+
+		# 2. Store in Cache (15 minutes)
+		frappe.cache().set_value(cache_key, result, expires_in_sec=900)
+		return result
+
 	except Exception as e:
-		frappe.log_error(f"Weather fetch failed: {e}", "Enviro Weather")
-		return {"error": str(e)}
+		# Don't log full traceback for simple timeouts to keep Error Log clean
+		msg = f"Weather unavailable: {e}"
+		if "timeout" not in e.lower():
+			frappe.log_error(msg, "Enviro Weather Error")
+		return {"error": msg}
 
 
 @frappe.whitelist()
