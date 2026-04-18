@@ -7,7 +7,7 @@ def get_scheduling_data():
 	# Only fetch jobs where the attached quote has completely bypassed/passed Accounts
 	approved_quotes = frappe.get_all(
 		"Quotation",
-		filters={"docstatus": 1, "custom_accounts_approval_status": "Approved"},
+		filters={"docstatus": ["<", 2], "custom_accounts_approval_status": "Approved"},
 		fields=["custom_enviro_job_card", "customer_name"],
 	)
 
@@ -98,6 +98,30 @@ def get_scheduling_data():
 			"status",
 		],
 	)
+
+	# Fetch Pending Reoccurring Schedules (Quotations with intended dates)
+	pending_quotes = frappe.get_all(
+		"Quotation",
+		filters={
+			"docstatus": ["<", 2],
+			"custom_intended_start_date": ["is", "set"],
+			"custom_accounts_approval_status": ["!=", "Approved"],  # If not approved yet, it is still pending
+		},
+		fields=[
+			"name",
+			"customer_name as customer",
+			"custom_intended_driver as driver",
+			"custom_intended_vehicle as vehicle",
+			"custom_intended_start_date as scheduled_start_date",
+			"custom_intended_start_time as scheduled_start_time",
+			"status",
+		],
+	)
+
+	# Mark quotations as pending for the frontend
+	for q in pending_quotes:
+		q.is_pending = True
+		scheduled_jobs.append(q)
 
 	vehicles = frappe.get_all("Vehicle", fields=["name", "license_plate"])
 
