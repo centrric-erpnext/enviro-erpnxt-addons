@@ -343,3 +343,37 @@ def get_vehicle_details():
 		ResponseHandler.error(
 			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
 		)
+
+
+@frappe.whitelist()
+def get_vpi_schema():
+	"""Returns the form fields and options so the mobile app can build the VPI form dynamically"""
+	try:
+		meta = frappe.get_meta("Vehicle Pre-Inspection Check")
+		fields = []
+
+		for f in meta.fields:
+			# Skip pure layout elements but keep data fields
+			if f.fieldtype not in ("HTML", "Column Break"):
+				options = f.options
+				if f.fieldtype == "Select" and f.options:
+					options = f.options.split("\n")
+
+				fields.append(
+					{
+						"fieldname": f.fieldname,
+						"label": f.label,
+						"fieldtype": f.fieldtype,
+						"options": options,
+						"mandatory": f.reqd,
+						"hidden": f.hidden,
+					}
+				)
+
+		ResponseHandler.success(fields)
+	except Exception:
+		frappe.db.rollback()
+		frappe.log_error(title="get_vpi_schema API Failed", message=frappe.get_traceback())
+		ResponseHandler.error(
+			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
+		)
