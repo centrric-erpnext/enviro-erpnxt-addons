@@ -150,7 +150,26 @@ def submit_vehicle_checklist():
 		vpi.insert(ignore_permissions=True)
 		vpi.submit()
 
-		ResponseHandler.success({"vpi_name": vpi.name, "message": "Checklist submitted successfully."})
+		# Explicitly trigger the fault reporting logic for the mobile app
+		faults = str(params.get("any_fault_to_report", ""))
+		is_fault = faults in ["1", "true", "True"]
+		message = "Checklist submitted successfully."
+
+		if is_fault:
+			frappe.get_doc(
+				{
+					"doctype": "ToDo",
+					"description": f"URGENT: Vehicle {vpi.vehicle} reported faults on {vpi.date} by {vpi.driver}.",
+					"reference_type": "Vehicle Pre-Inspection Check",
+					"reference_name": vpi.name,
+					"assigned_by": vpi.driver,
+				}
+			).insert(ignore_permissions=True)
+			message = (
+				"Checklist submitted. ⚠️ A fault report has been automatically sent to the management team."
+			)
+
+		ResponseHandler.success({"vpi_name": vpi.name, "message": message, "fault_reported": is_fault})
 	except ValidationError as e:
 		frappe.db.rollback()
 		error_title = getattr(e, "title", "Validation Error")
