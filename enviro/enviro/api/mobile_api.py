@@ -280,3 +280,19 @@ def update_account_info():
 		frappe.db.rollback()
 		frappe.log_error(title="update_account_info API Failed", message=frappe.get_traceback())
 		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
+
+
+@frappe.whitelist()
+def get_all_vehicles():
+	"""Returns a list of all vehicles available to the driver"""
+	try:
+		# Optionally, you can add filters here like {"docstatus": 0} if you only want active ones
+		vehicles = frappe.get_all("Vehicle", fields=["name", "license_plate", "make", "model"])
+
+		ResponseHandler.success(vehicles)
+	except Exception:
+		frappe.db.rollback()
+		frappe.log_error(title="get_all_vehicles API Failed", message=frappe.get_traceback())
+		ResponseHandler.error(
+			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
+		)
