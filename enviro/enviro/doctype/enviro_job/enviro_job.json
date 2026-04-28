@@ -1112,6 +1112,60 @@
    "trigger": null,
    "unique": 0,
    "width": null
+  },
+  {
+   "fieldname": "sb_mobile_tracking",
+   "fieldtype": "Section Break",
+   "label": "Mobile Lifecycle Tracking"
+  },
+  {
+   "fieldname": "depart_facility_time",
+   "fieldtype": "Datetime",
+   "label": "Depart Enviro Facility"
+  },
+  {
+   "fieldname": "job_started_time",
+   "fieldtype": "Datetime",
+   "label": "Job Started"
+  },
+  {
+   "fieldname": "pre_job_image",
+   "fieldtype": "Attach Image",
+   "label": "Pre-Job Image"
+  },
+  {
+   "fieldname": "job_finished_time",
+   "fieldtype": "Datetime",
+   "label": "Job Finished"
+  },
+  {
+   "fieldname": "post_job_image",
+   "fieldtype": "Attach Image",
+   "label": "Post-Job Image"
+  },
+  {
+   "fieldname": "contact_signature",
+   "fieldtype": "Signature",
+   "label": "Contact Person Signature"
+  },
+  {
+   "fieldname": "cb_lifecycle_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "arrive_depot_time",
+   "fieldtype": "Datetime",
+   "label": "Arrive Waste Depot"
+  },
+  {
+   "fieldname": "depart_depot_time",
+   "fieldtype": "Datetime",
+   "label": "Depart Waste Depot"
+  },
+  {
+   "fieldname": "arrive_facility_time",
+   "fieldtype": "Datetime",
+   "label": "Arrive Enviro Facility"
   }
  ],
  "force_re_route_to_default_view": 0,

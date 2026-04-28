@@ -1,0 +1,507 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:VPI-{vehicle}-{YYYY}-{MM}-{DD}-{###}",
+ "creation": "2026-02-25 21:30:40.297358",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "sec_header",
+  "vehicle",
+  "driver",
+  "date",
+  "current_odometer",
+  "hour_meter_start",
+  "driver_signature",
+  "col_break_header",
+  "fitness_label",
+  "fit_for_work",
+  "valid_license",
+  "appropriate_ppe",
+  "sec_checklist_header",
+  "checklist_details_label",
+  "col_checklist_1",
+  "engine_oil_level",
+  "warning_system",
+  "steering",
+  "safety_emerg_stops",
+  "hand_brake_alarm",
+  "pto_vac_pump",
+  "col_checklist_2",
+  "horn",
+  "rev_alarm_camera",
+  "lights_head",
+  "lights_tail",
+  "light_beacons",
+  "hazards_light",
+  "house_keeping",
+  "col_checklist_3",
+  "rims_wheel_nuts",
+  "coolant",
+  "wheels_tyres",
+  "mirrors_windscreen",
+  "structure_bodywork",
+  "wipers",
+  "col_checklist_4",
+  "fuel_level_pump",
+  "fuel_level_truck",
+  "seat_belt",
+  "park_brake_trailer",
+  "foot_brake",
+  "electrical",
+  "pin_retainers",
+  "sec_accessories",
+  "accessories_label",
+  "col_acc_1",
+  "hoses",
+  "fittings",
+  "first_aid_kit",
+  "ppe_accessory",
+  "fire_extinguisher",
+  "fire_ext_date",
+  "col_acc_2",
+  "garden_hoses",
+  "gattic_lifters",
+  "bucket_rags",
+  "spill_kit",
+  "sec_faults",
+  "any_fault_to_report",
+  "action_taken",
+  "authorized_by",
+  "sec_declarations",
+  "conducted_check",
+  "reported_faults",
+  "sec_manager_review",
+  "manager_review_label",
+  "manager_reviewed",
+  "faults_status",
+  "maintenance_issues_notified"
+ ],
+ "fields": [
+  {
+   "fieldname": "sec_header",
+   "fieldtype": "Section Break",
+   "label": "Vehicle Safety Pre-Start Inspection Checklist"
+  },
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Vehicle Registration",
+   "options": "Vehicle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Drivers Name",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Datetime",
+   "label": "Date & Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "current_odometer",
+   "fieldtype": "Float",
+   "label": "Odometer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "hour_meter_start",
+   "fieldtype": "Float",
+   "label": "Hour Meter Start",
+   "reqd": 1
+  },
+  {
+   "fieldname": "driver_signature",
+   "fieldtype": "Signature",
+   "label": "Drivers Signature"
+  },
+  {
+   "fieldname": "col_break_header",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fitness_label",
+   "fieldtype": "HTML",
+   "label": "Wellness Declaration"
+  },
+  {
+   "fieldname": "fit_for_work",
+   "fieldtype": "Check",
+   "label": "I am Fit for Work"
+  },
+  {
+   "fieldname": "valid_license",
+   "fieldtype": "Check",
+   "label": "I have the appropriate valid driving license"
+  },
+  {
+   "fieldname": "appropriate_ppe",
+   "fieldtype": "Check",
+   "label": "Appropriate PPE for operation of this vehicle"
+  },
+  {
+   "fieldname": "sec_checklist_header",
+   "fieldtype": "Section Break",
+   "label": "Pre-Start Checklist"
+  },
+  {
+   "fieldname": "checklist_details_label",
+   "fieldtype": "HTML",
+   "label": "Checklist Details",
+   "options": "<div style='color:red; font-size:11px;'>Category 'A' Fault: Vehicle MUST NOT be operated until fault is rectified<br/>Category 'B' Fault: Vehicle May be operated Corrective action is required</div>"
+  },
+  {
+   "fieldname": "col_checklist_1",
+   "fieldtype": "Column Break",
+   "label": "Column 1"
+  },
+  {
+   "fieldname": "engine_oil_level",
+   "fieldtype": "Select",
+   "label": "Engine Oil Level",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "warning_system",
+   "fieldtype": "Select",
+   "label": "Warning System",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "steering",
+   "fieldtype": "Select",
+   "label": "Steering",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "safety_emerg_stops",
+   "fieldtype": "Select",
+   "label": "Safety / Emerg Stops",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "hand_brake_alarm",
+   "fieldtype": "Select",
+   "label": "Hand Brake Alarm",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "pto_vac_pump",
+   "fieldtype": "Select",
+   "label": "PTO / Vac. Pump",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "col_checklist_2",
+   "fieldtype": "Column Break",
+   "label": "Column 2"
+  },
+  {
+   "fieldname": "horn",
+   "fieldtype": "Select",
+   "label": "Horn",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "rev_alarm_camera",
+   "fieldtype": "Select",
+   "label": "Rev alarm / Camera",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "lights_head",
+   "fieldtype": "Select",
+   "label": "Lights-Head",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "lights_tail",
+   "fieldtype": "Select",
+   "label": "Lights-Tail",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "light_beacons",
+   "fieldtype": "Select",
+   "label": "Light-beacons",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "hazards_light",
+   "fieldtype": "Select",
+   "label": "Hazards-Light",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "house_keeping",
+   "fieldtype": "Select",
+   "label": "House keeping",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "col_checklist_3",
+   "fieldtype": "Column Break",
+   "label": "Column 3"
+  },
+  {
+   "fieldname": "rims_wheel_nuts",
+   "fieldtype": "Select",
+   "label": "Rims & Wheel Nuts",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "coolant",
+   "fieldtype": "Select",
+   "label": "Coolant",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "wheels_tyres",
+   "fieldtype": "Select",
+   "label": "Wheels & Tyres",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "mirrors_windscreen",
+   "fieldtype": "Select",
+   "label": "Mirrors & Windscreen",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "structure_bodywork",
+   "fieldtype": "Select",
+   "label": "Structure & Bodywork",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "wipers",
+   "fieldtype": "Select",
+   "label": "Wipers",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "col_checklist_4",
+   "fieldtype": "Column Break",
+   "label": "Column 4"
+  },
+  {
+   "fieldname": "fuel_level_pump",
+   "fieldtype": "Select",
+   "label": "Fuel Level Pump",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "fuel_level_truck",
+   "fieldtype": "Select",
+   "label": "Fuel Level Truck",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "seat_belt",
+   "fieldtype": "Select",
+   "label": "Seat / Seat Belt",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "park_brake_trailer",
+   "fieldtype": "Select",
+   "label": "Park Brake/Trailer",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "foot_brake",
+   "fieldtype": "Select",
+   "label": "Foot Brake",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "electrical",
+   "fieldtype": "Select",
+   "label": "Electrical",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "pin_retainers",
+   "fieldtype": "Select",
+   "label": "Pin Retainers",
+   "options": "Pass\nFail\nN/A"
+  },
+  {
+   "fieldname": "sec_accessories",
+   "fieldtype": "Section Break",
+   "label": "Accessories and Fittings"
+  },
+  {
+   "fieldname": "accessories_label",
+   "fieldtype": "HTML",
+   "label": "Accessories Info",
+   "options": "<div>Check all that apply</div>"
+  },
+  {
+   "fieldname": "col_acc_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hoses",
+   "fieldtype": "Check",
+   "label": "Hoses"
+  },
+  {
+   "fieldname": "fittings",
+   "fieldtype": "Check",
+   "label": "Fittings"
+  },
+  {
+   "fieldname": "first_aid_kit",
+   "fieldtype": "Check",
+   "label": "First Aid Kit"
+  },
+  {
+   "fieldname": "ppe_accessory",
+   "fieldtype": "Check",
+   "label": "PPE"
+  },
+  {
+   "fieldname": "fire_extinguisher",
+   "fieldtype": "Check",
+   "label": "Fire Extinguisher"
+  },
+  {
+   "fieldname": "fire_ext_date",
+   "fieldtype": "Date",
+   "label": "Fire Extinguisher Date Calibrated"
+  },
+  {
+   "fieldname": "col_acc_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "garden_hoses",
+   "fieldtype": "Check",
+   "label": "Garden Hoses"
+  },
+  {
+   "fieldname": "gattic_lifters",
+   "fieldtype": "Check",
+   "label": "Gattic Lifters"
+  },
+  {
+   "fieldname": "bucket_rags",
+   "fieldtype": "Check",
+   "label": "Bucket / Rags"
+  },
+  {
+   "fieldname": "spill_kit",
+   "fieldtype": "Check",
+   "label": "Spill Kit"
+  },
+  {
+   "fieldname": "sec_faults",
+   "fieldtype": "Section Break",
+   "label": "Fault Reporting"
+  },
+  {
+   "fieldname": "any_fault_to_report",
+   "fieldtype": "Small Text",
+   "label": "Any Fault to Report (any Category) & any additional information"
+  },
+  {
+   "fieldname": "action_taken",
+   "fieldtype": "Small Text",
+   "label": "Action Taken"
+  },
+  {
+   "fieldname": "authorized_by",
+   "fieldtype": "Link",
+   "label": "Authorized By",
+   "options": "User"
+  },
+  {
+   "fieldname": "sec_declarations",
+   "fieldtype": "Section Break",
+   "label": "Declarations"
+  },
+  {
+   "fieldname": "conducted_check",
+   "fieldtype": "Check",
+   "label": "I have conducted the above pre-start checklist and satisfied that the vehicle is safe and ready to operate."
+  },
+  {
+   "fieldname": "reported_faults",
+   "fieldtype": "Check",
+   "label": "I have reported all faults in appropriate section and notified the authorized personnel."
+  },
+  {
+   "fieldname": "sec_manager_review",
+   "fieldtype": "Section Break",
+   "label": "Manager Brief and Review"
+  },
+  {
+   "fieldname": "manager_review_label",
+   "fieldtype": "HTML",
+   "label": "Manager Declaration"
+  },
+  {
+   "fieldname": "manager_reviewed",
+   "fieldtype": "Check",
+   "label": "I have reviewed this form and satisfied that required maintenance or safety related items have been addressed."
+  },
+  {
+   "fieldname": "faults_status",
+   "fieldtype": "Select",
+   "label": "I Certify that faults reported have been",
+   "options": "Corrected\nSchedule for repair\nNo Action"
+  },
+  {
+   "fieldname": "maintenance_issues_notified",
+   "fieldtype": "Check",
+   "label": "Issues scheduled for maintenance or repair do not affect the safe operation of this vehicle"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "modified": "2026-04-20 17:50:00.000000",
+ "modified_by": "Administrator",
+ "module": "enviro",
+ "name": "Vehicle Pre-Inspection Check",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
