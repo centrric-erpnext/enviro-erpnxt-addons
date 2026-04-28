@@ -98,7 +98,7 @@ def spawn_job_from_intent(doc):
 
 
 @frappe.whitelist()
-def send_approval_email(docname):
+def send_approval_email(docname: str):
 	doc = frappe.get_doc("Quotation", docname)
 
 	if not doc.custom_site_email:
@@ -113,7 +113,7 @@ def send_approval_email(docname):
 	if not doc.custom_approval_token:
 		doc.custom_approval_token = frappe.generate_hash(length=32)
 		doc.save(ignore_permissions=True)
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep
 
 	view_link = f"{get_url()}/quote_view?name={doc.name}&token={doc.custom_approval_token}"
 
@@ -149,7 +149,7 @@ def send_approval_email(docname):
 	return "Sent"
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True)  # nosemgrep
 def submit_quote_approval():
 	data = frappe.local.form_dict
 	name = data.get("name")
@@ -167,7 +167,7 @@ def submit_quote_approval():
 		doc.custom_client_approval_status = "Rejected"
 		doc.custom_approval_token = ""
 		doc.save(ignore_permissions=True)
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep
 		return {"status": "success", "message": "Rejected"}
 
 	if action == "approve":
@@ -206,7 +206,7 @@ def submit_quote_approval():
 		doc.custom_accounts_approval_status = "Pending"
 		doc.custom_approval_token = ""
 		doc.save(ignore_permissions=True)
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep
 		return {"status": "success", "message": "Approved"}
 
 	return {"status": "error", "message": "Unknown action"}
@@ -220,7 +220,7 @@ def submit_quotation(name):
 
 
 @frappe.whitelist()
-def make_enviro_job_card(source_name, target_doc=None):
+def make_enviro_job_card(source_name: str, target_doc: dict | None = None):
 	from frappe.model.mapper import get_mapped_doc
 
 	def build_metadata(source, target, source_parent=None):

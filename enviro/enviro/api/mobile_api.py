@@ -24,7 +24,7 @@ def get_driver_context():
 		)
 
 		if not employee:
-			frappe.throw(_("No Employee record linked to user {0}").format(user), title="User Not Found")
+			frappe.throw(_("No Employee record linked to user {0}").format(user), title=_("User Not Found"))
 
 		# Check if vehicle check for today is done
 		vpi_done = frappe.db.exists(
@@ -87,7 +87,7 @@ def update_job_status():
 		action = params.get("action")
 
 		if not job_name or not action:
-			frappe.throw(_("Missing 'job_name' or 'action' parameter."), title="Missing Information")
+			frappe.throw(_("Missing 'job_name' or 'action' parameter."), title=_("Missing Information"))
 
 		from enviro.enviro.doctype.enviro_job.enviro_job import (
 			arrive_at_depot,
@@ -116,7 +116,7 @@ def update_job_status():
 		elif action == "arrive_facility":
 			result = arrive_at_facility(job_name, timestamp)
 		else:
-			frappe.throw(_("Invalid action: {0}").format(action), title="Invalid Action")
+			frappe.throw(_("Invalid action: {0}").format(action), title=_("Invalid Action"))
 
 		ResponseHandler.success(result)
 
@@ -140,7 +140,7 @@ def submit_vehicle_checklist():
 		employee_name = frappe.db.get_value("Employee", {"user_id": user}, "name")
 
 		if not employee_name:
-			frappe.throw(_("Employee record not found for user."), title="User Not Found")
+			frappe.throw(_("Employee record not found for user."), title=_("User Not Found"))
 
 		# Create the VPI record
 		vpi = frappe.new_doc("Vehicle Pre-Inspection Check")
@@ -207,7 +207,7 @@ def update_account_info():
 		params = get_request_params()
 		user_id = frappe.session.user
 		if user_id == "Guest":
-			frappe.throw(_("Please login to update your account."), title="Authentication Required")
+			frappe.throw(_("Please login to update your account."), title=_("Authentication Required"))
 
 		user = frappe.get_doc("User", user_id)
 
@@ -217,7 +217,7 @@ def update_account_info():
 		if new_password:
 			if not old_password:
 				frappe.throw(
-					_("Current password is required to set a new password."), title="Missing Information"
+					_("Current password is required to set a new password."), title=_("Missing Information")
 				)
 
 			# Verify old password
@@ -236,7 +236,7 @@ def update_account_info():
 		if username and username != user.username:
 			if frappe.db.exists("User", {"username": username}):
 				frappe.throw(
-					_("Username '{0}' is already taken.").format(username), title="Username Unavailable"
+					_("Username '{0}' is already taken.").format(username), title=_("Username Unavailable")
 				)
 			user.username = username
 

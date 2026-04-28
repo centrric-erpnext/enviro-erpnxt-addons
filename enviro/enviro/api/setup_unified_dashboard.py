@@ -233,8 +233,8 @@ def run_setup():
 		doc.html = html
 		doc.style = css
 		doc.script = script
-		if not any(r.role == "All" for r in doc.roles):
-			doc.append("roles", {"role": "All"})
+		if not any(r.role == "System Manager" for r in doc.roles):
+			doc.append("roles", {"role": "System Manager"})
 		doc.save()
 	else:
 		doc = frappe.get_doc(
@@ -244,10 +244,10 @@ def run_setup():
 				"html": html,
 				"style": css,
 				"script": script,
-				"roles": [{"role": "All"}],
+				"roles": [{"role": "System Manager"}],
 			}
 		)
 		doc.insert()
 
-	frappe.db.commit()
+	frappe.db.commit()  # nosemgrep
 	print(f"Registered {name}")

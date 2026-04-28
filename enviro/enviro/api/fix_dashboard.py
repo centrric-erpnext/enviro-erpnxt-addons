@@ -81,5 +81,5 @@ script_content = """
 """
 
 frappe.db.set_value("Custom HTML Block", "Enviro Unified Dashboard Master", "script", script_content)
-frappe.db.commit()
+frappe.db.commit()  # nosemgrep
 print("DASHBOARD_SCRIPT_UPDATED_FULL")

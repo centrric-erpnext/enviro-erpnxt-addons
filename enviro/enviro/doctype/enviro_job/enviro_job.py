@@ -9,7 +9,7 @@ class EnviroJob(Document):
 
 
 @frappe.whitelist()
-def depart_facility(job_id, timestamp=None):
+def depart_facility(job_id: str, timestamp: str | None = None):
 	job = frappe.get_doc("Enviro Job", job_id)
 	job.status = "In Transit"
 	job.depart_facility_time = get_datetime(timestamp) if timestamp else now_datetime()
@@ -18,7 +18,7 @@ def depart_facility(job_id, timestamp=None):
 
 
 @frappe.whitelist()
-def start_job(job_id, pre_image=None):
+def start_job(job_id: str, pre_image: str | None = None):
 	# Automatic timestamp for work start (verified by photo)
 	job = frappe.get_doc("Enviro Job", job_id)
 	job.status = "On Site"
@@ -30,7 +30,7 @@ def start_job(job_id, pre_image=None):
 
 
 @frappe.whitelist()
-def arrive_at_depot(job_id, timestamp=None):
+def arrive_at_depot(job_id: str, timestamp: str | None = None):
 	job = frappe.get_doc("Enviro Job", job_id)
 	job.arrive_depot_time = get_datetime(timestamp) if timestamp else now_datetime()
 	job.save(ignore_permissions=True)
@@ -38,7 +38,7 @@ def arrive_at_depot(job_id, timestamp=None):
 
 
 @frappe.whitelist()
-def depart_depot(job_id, timestamp=None):
+def depart_depot(job_id: str, timestamp: str | None = None):
 	job = frappe.get_doc("Enviro Job", job_id)
 	job.depart_depot_time = get_datetime(timestamp) if timestamp else now_datetime()
 	job.save(ignore_permissions=True)
@@ -46,7 +46,7 @@ def depart_depot(job_id, timestamp=None):
 
 
 @frappe.whitelist()
-def finish_job(job_id, post_image=None, signature=None):
+def finish_job(job_id: str, post_image: str | None = None, signature: str | None = None):
 	# Automatic timestamp for work finish (verified by photo/signature)
 	job = frappe.get_doc("Enviro Job", job_id)
 	job.job_finished_time = now_datetime()
@@ -59,7 +59,7 @@ def finish_job(job_id, post_image=None, signature=None):
 
 
 @frappe.whitelist()
-def arrive_at_facility(job_id, timestamp=None):
+def arrive_at_facility(job_id: str, timestamp: str | None = None):
 	job = frappe.get_doc("Enviro Job", job_id)
 	job.status = "Completed"
 	job.arrive_facility_time = get_datetime(timestamp) if timestamp else now_datetime()
@@ -69,7 +69,7 @@ def arrive_at_facility(job_id, timestamp=None):
 
 # Compatibility helpers
 @frappe.whitelist()
-def arrive_on_site(job_id):
+def arrive_on_site(job_id: str):
 	job = frappe.get_doc("Enviro Job", job_id)
 	job.status = "On Site"
 	job.save(ignore_permissions=True)
@@ -77,7 +77,7 @@ def arrive_on_site(job_id):
 
 
 @frappe.whitelist()
-def complete_job(job_id):
+def complete_job(job_id: str):
 	job = frappe.get_doc("Enviro Job", job_id)
 	job.status = "Completed"
 	job.save(ignore_permissions=True)
