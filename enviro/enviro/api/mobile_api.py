@@ -296,3 +296,31 @@ def get_all_vehicles():
 		ResponseHandler.error(
 			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
 		)
+
+
+@frappe.whitelist()
+def get_vehicle_details():
+	"""Returns the full details of a specific vehicle"""
+	try:
+		params = get_request_params()
+		vehicle_name = params.get("vehicle_name")
+
+		if not vehicle_name:
+			frappe.throw(_("Missing 'vehicle_name' parameter."), title=_("Missing Information"))
+
+		if not frappe.db.exists("Vehicle", vehicle_name):
+			frappe.throw(_("Vehicle {0} not found.").format(vehicle_name), title=_("Not Found"))
+
+		vehicle = frappe.get_doc("Vehicle", vehicle_name)
+
+		ResponseHandler.success(vehicle)
+	except ValidationError as e:
+		frappe.db.rollback()
+		error_title = getattr(e, "title", "Validation Error")
+		ResponseHandler.error(status_code=400, title=error_title, message=str(e))
+	except Exception:
+		frappe.db.rollback()
+		frappe.log_error(title="get_vehicle_details API Failed", message=frappe.get_traceback())
+		ResponseHandler.error(
+			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
+		)
