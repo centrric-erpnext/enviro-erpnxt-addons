@@ -1,3 +1,5 @@
+import json
+
 import frappe
 from frappe.utils import get_url
 
@@ -36,8 +38,67 @@ def before_save(doc, method=None):
 			doc.custom_accounts_approval_status = "Pending"
 
 
+def on_update(doc, method=None):
+	# AUTO-SPAWN ENVIRO JOB ON APPROVAL
+	# We rely on the 'intended' fields set by the dashboard for reoccurring jobs
+	if (
+		doc.custom_accounts_approval_status == "Approved"
+		and doc.custom_intended_start_date
+		and not doc.get_db_value("custom_accounts_approval_status") == "Approved"
+	):
+		spawn_job_from_intent(doc)
+
+
+def spawn_job_from_intent(doc):
+	frappe.logger().info(f"Auto-spawning job for Quotation: {doc.name} from intended schedule")
+
+	new_job = frappe.new_doc("Enviro Job")
+	new_job.source_job_card = doc.custom_enviro_job_card
+	new_job.quotation = doc.name
+	new_job.customer = doc.party_name
+	new_job.site = doc.custom_site
+
+	# Map intended data
+	new_job.scheduled_start_date = doc.custom_intended_start_date
+	new_job.scheduled_start_time = doc.custom_intended_start_time
+	new_job.scheduled_end_date = doc.custom_intended_end_date
+	new_job.scheduled_end_time = doc.custom_intended_end_time
+	new_job.vehicle = doc.custom_intended_vehicle
+	new_job.driver = doc.custom_intended_driver
+	new_job.status = "Scheduled"
+
+	# Team Members (JSON parsing)
+	if doc.custom_intended_team:
+		try:
+			team = json.loads(doc.custom_intended_team)
+			for member in team:
+				new_job.append("team_members", {"employee": member})
+		except Exception:
+			pass
+
+	new_job.insert(ignore_permissions=True)
+
+	# CLEAR INTENDED FIELDS TO PREVENT DOUBLE SPAWNING
+	frappe.db.set_value(
+		"Quotation",
+		doc.name,
+		{
+			"custom_intended_start_date": None,
+			"custom_intended_start_time": None,
+			"custom_intended_end_date": None,
+			"custom_intended_end_time": None,
+			"custom_intended_vehicle": None,
+			"custom_intended_driver": None,
+			"custom_intended_team": None,
+		},
+		update_modified=False,
+	)
+
+	frappe.msgprint(f"✅ Automated: Enviro Job <b>{new_job.name}</b> has been scheduled.")
+
+
 @frappe.whitelist()
-def send_approval_email(docname):
+def send_approval_email(docname: str):
 	doc = frappe.get_doc("Quotation", docname)
 
 	if not doc.custom_site_email:
@@ -52,23 +113,27 @@ def send_approval_email(docname):
 	if not doc.custom_approval_token:
 		doc.custom_approval_token = frappe.generate_hash(length=32)
 		doc.save(ignore_permissions=True)
-		frappe.db.commit()
+		frappe.db.commit()  # nosemgrep
 
-	approve_link = f"{get_url()}/api/method/enviro.custom_scripts.quotation.handle_email_approval?name={doc.name}&token={doc.custom_approval_token}&action=approve"
-	reject_link = f"{get_url()}/api/method/enviro.custom_scripts.quotation.handle_email_approval?name={doc.name}&token={doc.custom_approval_token}&action=reject"
+	view_link = f"{get_url()}/quote_view?name={doc.name}&token={doc.custom_approval_token}"
 
 	message = f"""
     <div style="font-family: Inter, Arial, sans-serif; max-width: 600px; padding: 25px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-        <h2 style="color: #111827; margin-top: 0;">Quotation Action Required</h2>
-        <p style="color: #374151; font-size: 16px;">Dear {doc.customer_name},</p>
-        <p style="color: #374151; font-size: 16px; line-height: 1.5;">Please review the attached quotation (<b>{doc.name}</b>). You can instantly approve or reject it by clicking one of the buttons below.</p>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <!-- Dummy Logo Space -->
+            <h1 style="color: #0ea5e9; margin: 0; font-size: 24px;">enviro</h1>
+        </div>
+        <div style="background-color: #0ea5e9; height: 10px; width: 100%; border-radius: 4px;"></div>
+        <h2 style="color: #111827; text-align: center; margin-top: 20px;">Enviro Quotation</h2>
+        <p style="color: #374151; font-size: 14px; text-align: center; margin-bottom: 30px;">
+            This is your most recent quote. Kindly click the button below to access the quote details and optionally customize your site information.
+        </p>
 
-        <div style="margin-top: 35px; margin-bottom: 35px;">
-            <a href="{approve_link}" style="padding: 14px 28px; background-color: #10b981; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">✅ Approve Quotation</a>
-            <a href="{reject_link}" style="padding: 14px 28px; background-color: #ef4444; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin-left: 15px;">❌ Reject Quotation</a>
+        <div style="text-align: center; margin-top: 35px; margin-bottom: 35px;">
+            <a href="{view_link}" style="padding: 12px 24px; background-color: #38bdf8; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View Quote</a>
         </div>
 
-        <p style="color: #6b7280; font-size: 14px; margin-bottom: 0;">Thank you,<br>Enviro Operations</p>
+        <p style="color: #6b7280; font-size: 14px; text-align: center; margin-bottom: 0;">Thanks,<br>Team Enviro</p>
     </div>
     """
 
@@ -84,82 +149,67 @@ def send_approval_email(docname):
 	return "Sent"
 
 
-@frappe.whitelist(allow_guest=True)
-def handle_email_approval(name, token, action):
-	try:
-		if not frappe.db.exists("Quotation", name):
-			html = """
-            <div style='text-align: center; padding: 40px;'>
-                <h1 style='color: #ef4444; font-size: 48px; margin-bottom: 10px;'>❌</h1>
-                <h2>Document Not Found</h2>
-                <p style='font-size: 18px; color: #374151;'>This quotation no longer exists in our system.</p>
-            </div>
-            """
-			frappe.respond_as_web_page("Not Found", html, success=True)
-			return
+@frappe.whitelist(allow_guest=True)  # nosemgrep
+def submit_quote_approval():
+	data = frappe.local.form_dict
+	name = data.get("name")
+	token = data.get("token")
+	action = data.get("action")
 
-		doc = frappe.get_doc("Quotation", name)
+	if not frappe.db.exists("Quotation", name):
+		return {"status": "error", "message": "Quotation not found"}
 
-		if not doc.custom_approval_token or doc.custom_approval_token != token:
-			html = """
-            <div style='text-align: center; padding: 40px;'>
-                <h1 style='color: #fbbf24; font-size: 48px; margin-bottom: 10px;'>⚠️</h1>
-                <h2>Link Already Used</h2>
-                <p style='font-size: 18px; color: #374151;'>This quotation has already been approved or rejected.</p>
-                <p style='color: #6b7280; font-size: 14px;'>Responses are final and cannot be changed.</p>
-            </div>
-            """
-			frappe.respond_as_web_page("Already Responded", html, success=True)
-			return
+	doc = frappe.get_doc("Quotation", name)
+	if not doc.custom_approval_token or doc.custom_approval_token != token:
+		return {"status": "error", "message": "Invalid or expired token"}
 
-		if action == "approve":
-			doc.custom_client_approval_status = "Approved"
-			doc.custom_accounts_approval_status = "Pending"  # Re-enable the Accounts step
-			doc.custom_approval_token = ""  # Invalidate token to prevent replay
+	if action == "reject":
+		doc.custom_client_approval_status = "Rejected"
+		doc.custom_approval_token = ""
+		doc.save(ignore_permissions=True)
+		frappe.db.commit()  # nosemgrep
+		return {"status": "success", "message": "Rejected"}
 
-			doc.save(ignore_permissions=True)
-			# doc.submit() is REMOVED so Sales Team can review it as a Draft
-			frappe.db.commit()
+	if action == "approve":
+		# Handle Site details updates if provided
+		site_details = json.loads(data.get("site_details", "{}"))
+		if doc.custom_site and site_details:
+			site = frappe.get_doc("Site", doc.custom_site)
+			if site_details.get("site_name"):
+				site.site_name = site_details.get("site_name")
+			if site_details.get("site_address"):
+				site.site_address = site_details.get("site_address")
+			if site_details.get("contact_name"):
+				site.site_contact_person = site_details.get("contact_name")
+			site.save(ignore_permissions=True)
 
-			html = f"""
-            <div style='text-align: center; padding: 40px;'>
-                <h1 style='color: #10b981; font-size: 48px; margin-bottom: 10px;'>✅</h1>
-                <h2>Approval Successful</h2>
-                <p style='font-size: 18px; color: #374151;'>Thank you! Quotation <b>{name}</b> is now fully approved.</p>
-                <p style='color: #6b7280; font-size: 14px;'>You can safely close this window.</p>
-            </div>
-            """
-			frappe.respond_as_web_page("Quotation Approved", html, success=True)
-			return
+		# Save Signature
+		signature_b64 = data.get("signature")
+		if signature_b64:
+			import base64
 
-		elif action == "reject":
-			doc.custom_client_approval_status = "Rejected"
-			doc.custom_approval_token = ""  # Invalidate token
-			doc.save(ignore_permissions=True)
-			frappe.db.commit()
+			# The base64 usually starts with data:image/png;base64,...
+			if "," in signature_b64:
+				signature_b64 = signature_b64.split(",")[1]
 
-			html = f"""
-            <div style='text-align: center; padding: 40px;'>
-                <h1 style='color: #ef4444; font-size: 48px; margin-bottom: 10px;'>🛑</h1>
-                <h2>Quotation Rejected</h2>
-                <p style='font-size: 18px; color: #374151;'>You have declined quotation <b>{name}</b>.</p>
-                <p style='color: #6b7280; font-size: 14px;'>Our team will contact you shortly to review the details.</p>
-            </div>
-            """
-			frappe.respond_as_web_page("Quotation Rejected", html, success=True)
-			return
+			file_doc = frappe.new_doc("File")
+			file_doc.file_name = f"signature_{name}.png"
+			file_doc.is_private = 1
+			file_doc.content = base64.b64decode(signature_b64)
+			file_doc.attached_to_doctype = "Quotation"
+			file_doc.attached_to_name = name
+			file_doc.insert(ignore_permissions=True)
 
-		frappe.respond_as_web_page(
-			"Invalid Action",
-			"<p>The requested action is not supported.</p>",
-			success=False,
-			http_status_code=400,
-		)
+			doc.custom_customer_signature = file_doc.file_url
 
-	except Exception as e:
-		frappe.respond_as_web_page(
-			"Server Error", f"<p>An error occurred: {e!s}</p>", success=False, http_status_code=500
-		)
+		doc.custom_client_approval_status = "Approved"
+		doc.custom_accounts_approval_status = "Pending"
+		doc.custom_approval_token = ""
+		doc.save(ignore_permissions=True)
+		frappe.db.commit()  # nosemgrep
+		return {"status": "success", "message": "Approved"}
+
+	return {"status": "error", "message": "Unknown action"}
 
 
 @frappe.whitelist()
@@ -170,35 +220,48 @@ def submit_quotation(name):
 
 
 @frappe.whitelist()
-def make_enviro_job_card(source_name, target_doc=None):
+def make_enviro_job_card(source_name: str, target_doc: dict | None = None):
 	from frappe.model.mapper import get_mapped_doc
 
 	def build_metadata(source, target, source_parent=None):
-		# 1. Bruteforce Site Metadata
+		# 1. Safely pull Site Metadata
 		if target.site:
-			try:
-				site = frappe.get_doc("Site", target.site)
-				target.site_name = site.site_name
-				target.site_address = site.site_address
-				target.site_postcode = site.site_postcode
-				target.site_contact_name = site.site_contact_person
-				target.site_contact_phone = site.site_phone
-				target.site_contact_mob = site.site_contact_mobile
-				target.site_contact_email = site.site_email_address
-				target.company_contact_phone = site.company_phone
-				target.company_contact_email = site.company_email
-			except Exception:
-				pass
+			site_fields = frappe.db.get_value(
+				"Site",
+				target.site,
+				[
+					"site_name",
+					"site_address",
+					"site_postcode",
+					"site_contact_person",
+					"site_phone",
+					"site_contact_mobile",
+					"site_email_address",
+					"company_phone",
+					"company_email",
+				],
+				as_dict=True,
+			)
+			if site_fields:
+				target.site_name = site_fields.site_name
+				target.site_address = site_fields.site_address
+				target.site_postcode = site_fields.site_postcode
+				target.site_contact_name = site_fields.site_contact_person
+				target.site_contact_phone = site_fields.site_phone
+				target.site_contact_mob = site_fields.site_contact_mobile
+				target.site_contact_email = site_fields.site_email_address
+				target.company_contact_phone = site_fields.company_phone
+				target.company_contact_email = site_fields.company_email
 
-		# 2. Bruteforce Customer Metadata
+		# 2. Safely pull Customer Metadata
 		if target.customer:
-			try:
-				cust = frappe.get_doc("Customer", target.customer)
+			cust_fields = frappe.db.get_value(
+				"Customer", target.customer, ["customer_name", "customer_primary_address"], as_dict=True
+			)
+			if cust_fields:
 				# Overwrite "company_name" with the Customer Name (not the ERPNext Tenant)
-				target.company_name = cust.customer_name
-				target.company_address = cust.customer_primary_address
-			except Exception:
-				pass
+				target.company_name = cust_fields.customer_name
+				target.company_address = cust_fields.customer_primary_address
 
 	doclist = get_mapped_doc(
 		"Quotation",

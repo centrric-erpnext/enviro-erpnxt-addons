@@ -55,5 +55,43 @@
   "reference_doctype": "Enviro Weekly Timesheet",
   "script": "# Only populate if the table is empty\nif doc.week_beginning and not doc.timesheet_table:\n    \n    for i in range(7):\n        # 1. Add days safely using frappe.utils\n        current_date_str = frappe.utils.add_days(doc.week_beginning, i)\n        \n        # 2. Convert the string to a date object just to extract the day name (\"Monday\", etc.)\n        date_obj = frappe.utils.getdate(current_date_str)\n        day_name = date_obj.strftime(\"%A\")\n        \n        # 3. Append the row to the child table\n        row = doc.append(\"timesheet_table\", {})\n        row.date = current_date_str\n        row.day = day_name",
   "script_type": "DocType Event"
+ },
+ {
+  "allow_guest": 0,
+  "api_method": null,
+  "cron_format": null,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Server Script",
+  "doctype_event": "After Save",
+  "enable_rate_limit": 0,
+  "event_frequency": "All",
+  "modified": "2026-04-17 20:11:37.064273",
+  "module": null,
+  "name": "Track Quotation Approvals",
+  "rate_limit_count": 5,
+  "rate_limit_seconds": 86400,
+  "reference_doctype": "Quotation",
+  "script": "\n# v10.3 - Fixed Operation validation by using empty string\ndef log_activity(sbj, d):\n    # Log to Error Log for debugging\n    frappe.log_error('Logging activity: ' + str(sbj), 'EHB Notification DEBUG')\n    \n    # Check for duplicate logs to avoid spam\n    if not frappe.db.exists('Activity Log', {'subject': sbj, 'reference_name': d.name}):\n        al = frappe.get_doc({\n            'doctype': 'Activity Log',\n            'subject': sbj,\n            'reference_doctype': 'Quotation',\n            'reference_name': d.name,\n            'timeline_doctype': 'Quotation',\n            'timeline_name': d.name,\n            'status': 'Success'\n            # 'operation': 'Workflow Approval'  <-- Removed to avoid validation error\n        })\n        al.insert(ignore_permissions=True)\n\n# Client Approval\nclient_status = doc.get('custom_client_approval_status')\nif client_status in ['Accepted', 'Approved', 'Yes']:\n    log_activity('Quotation Accepted by Client', doc)\n\n# Accounts Approval\naccounts_status = doc.get('custom_accounts_approval_status')\nif accounts_status in ['Approved', 'Accepted', 'Yes']:\n    log_activity('Quotation Approved by Accounts', doc)\n\n# Sales Approval\nif doc.docstatus == 1:\n    log_activity('Quotation Approved by Sales', doc)\n",
+  "script_type": "DocType Event"
+ },
+ {
+  "allow_guest": 0,
+  "api_method": null,
+  "cron_format": null,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Server Script",
+  "doctype_event": "After Save",
+  "enable_rate_limit": 0,
+  "event_frequency": "All",
+  "modified": "2026-04-18 14:04:55.779684",
+  "module": null,
+  "name": "Track Job Scheduling",
+  "rate_limit_count": 5,
+  "rate_limit_seconds": 86400,
+  "reference_doctype": "Enviro Job",
+  "script": "\n# v11.2 - Fixed notification trigger logic\ndef log_activity(sbj, d):\n    # Check if we already logged this milestone to avoid duplicates\n    if not frappe.db.exists('Activity Log', {'subject': sbj, 'reference_name': d.name}):\n        al = frappe.get_doc({\n            'doctype': 'Activity Log',\n            'subject': sbj,\n            'reference_doctype': 'Enviro Job',\n            'reference_name': d.name,\n            'timeline_doctype': 'Enviro Job',\n            'timeline_name': d.name,\n            'status': 'Success'\n        })\n        al.insert(ignore_permissions=True)\n\n# Trigger for new jobs or status transitions\nis_new = doc.get_db_value('name') is None\ncurrent_status = doc.status\nold_status = doc.get_db_value('status')\n\nif is_new or (current_status == 'Scheduled' and old_status != 'Scheduled'):\n    log_activity('Job Scheduled: ' + str(doc.name), doc)\n",
+  "script_type": "DocType Event"
  }
 ]

@@ -63,6 +63,15 @@ def duplicate_and_schedule(master_job):
 	if not master_job.source_quotation:
 		return
 
+	# 0. Duplicate protection
+	existing_quote = frappe.db.get_all(
+		"Quotation",
+		filters={"custom_enviro_job_card": master_job.name, "transaction_date": frappe.utils.today()},
+	)
+	if existing_quote:
+		frappe.logger().info(f"Duplicate protection: Master {master_job.name} already cloned today.")
+		return
+
 	original_quote = frappe.get_doc("Quotation", master_job.source_quotation)
 
 	# 1. Duplicate Quotation

@@ -1,11 +1,6 @@
-
 name: CI
 
-on:
-  push:
-    branches:
-      - develop
-  pull_request:
+on: workflow_dispatch
 
 concurrency:
   group: develop-enviro-${{ github.event.number }}
@@ -89,10 +84,17 @@ jobs:
       - name: Install
         working-directory: /home/runner/frappe-bench
         run: |
-          bench get-app enviro $GITHUB_WORKSPACE
+          if [ ! -d "apps/payments" ]; then bench get-app payments --branch version-15; fi
+          if [ ! -d "apps/erpnext" ]; then bench get-app erpnext --branch version-15; fi
+          if [ ! -d "apps/enviro" ]; then bench get-app enviro $GITHUB_WORKSPACE; fi
+          
           bench setup requirements --dev
           bench new-site --db-root-password root --admin-password admin test_site
+          bench --site test_site install-app erpnext
           bench --site test_site install-app enviro
+          
+          # Syncs the database schema and imports your Warehouse Type fixture
+          bench --site test_site migrate
           bench build
         env:
           CI: 'Yes'

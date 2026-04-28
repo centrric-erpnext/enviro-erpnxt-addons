@@ -14,12 +14,13 @@ fixtures = [
 	"Server Script",
 	"Workspace",
 	"Custom HTML Block",
+	"Warehouse Type",
 ]
 
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["erpnext"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -156,7 +157,12 @@ fixtures = [
 # 	}
 # }
 
-doc_events = {"Quotation": {"before_save": "enviro.custom_scripts.quotation.before_save"}}
+doc_events = {
+	"Quotation": {
+		"before_save": "enviro.custom_scripts.quotation.before_save",
+		"on_update": "enviro.custom_scripts.quotation.on_update",
+	}
+}
 
 # Scheduled Tasks
 # ---------------

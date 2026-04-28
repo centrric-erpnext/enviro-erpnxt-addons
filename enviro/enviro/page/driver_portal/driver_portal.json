@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2026-04-21 14:10:00.000000",
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-04-21 14:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "enviro",
+ "name": "driver-portal",
+ "owner": "Administrator",
+ "page_name": "driver-portal",
+ "roles": [
+  {
+   "role": "Employee"
+  }
+ ],
+ "standard": "Yes",
+ "title": "Driver Portal"
+}

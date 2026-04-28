@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:ENV-JOB-{YYYY}-{MM}-{#####}",
+ "autoname": "format:ENV-JC-{YYYY}-{MM}-{#####}",
  "creation": "2026-03-04 17:02:34.230068",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -272,7 +272,8 @@
   {
    "fieldname": "induction_type",
    "fieldtype": "Data",
-   "label": "Induction Type"
+   "label": "Induction Type",
+   "fetch_from": "site.induction_type"
   },
   {
    "fieldname": "industry_type",
@@ -280,7 +281,8 @@
    "in_list_view": 1,
    "label": "Industry Type",
    "options": "Industry Type",
-   "reqd": 1
+   "reqd": 1,
+   "fetch_from": "site.industry_type"
   },
   {
    "fieldname": "sales_person",
