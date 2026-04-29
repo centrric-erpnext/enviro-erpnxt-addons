@@ -9,4 +9,9 @@ def get_dashboard_data(data):
 		}
 	)
 
+	if "non_standard_fieldnames" not in data:
+		data["non_standard_fieldnames"] = {}
+
+	data["non_standard_fieldnames"]["Vehicle Pre-Inspection Check"] = "vehicle"
+
 	return data
