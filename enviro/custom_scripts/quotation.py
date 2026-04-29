@@ -41,11 +41,17 @@ def before_save(doc, method=None):
 	if doc.custom_intended_start_date:
 		from enviro.enviro.api.scheduling import check_resource_availability
 
+		# Exclude the job already linked to this quotation to avoid self-conflict
+		linked_job = frappe.db.get_value(
+			"Enviro Job", {"quotation": doc.name, "status": ["!=", "Cancelled"]}, "name"
+		)
+
 		check_resource_availability(
 			doc.custom_intended_driver,
 			doc.custom_intended_vehicle,
 			doc.custom_intended_start_date,
 			exclude_quote=doc.name,
+			exclude_job=linked_job,
 		)
 
 

@@ -41,6 +41,7 @@ class EnviroJob(Document):
 					"custom_intended_start_date": self.scheduled_start_date,
 					"docstatus": ["<", 2],
 					"status": ["not in", ["Cancelled", "Lost"]],
+					"name": ["!=", self.quotation] if self.quotation else ["is", "set"],
 				},
 			)
 			if q_conflict:
@@ -76,6 +77,7 @@ class EnviroJob(Document):
 					"custom_intended_start_date": self.scheduled_start_date,
 					"docstatus": ["<", 2],
 					"status": ["not in", ["Cancelled", "Lost"]],
+					"name": ["!=", self.quotation] if self.quotation else ["is", "set"],
 				},
 			)
 			if q_conflict:
