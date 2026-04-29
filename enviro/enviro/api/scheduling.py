@@ -350,7 +350,7 @@ def get_driver_employees(
 def get_available_vehicles(
 	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict | None = None
 ):
-	conditions = {"disabled": 0}
+	conditions = {}
 
 	# FILTER BY DATE AVAILABILITY
 	date = filters.get("date") if filters else None
