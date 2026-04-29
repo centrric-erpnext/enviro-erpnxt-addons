@@ -128,12 +128,85 @@ def get_scheduling_data():
 	return {"queue_jobs": queue_jobs, "scheduled_jobs": scheduled_jobs, "vehicles": vehicles}
 
 
+def check_resource_availability(driver, vehicle, date, exclude_job=None, exclude_quote=None):
+	if not date:
+		return
+
+	# 1. Check existing Enviro Jobs
+	if driver:
+		conflict = frappe.db.exists(
+			"Enviro Job",
+			{
+				"driver": driver,
+				"scheduled_start_date": date,
+				"status": ["!=", "Cancelled"],
+				"name": ["!=", exclude_job] if exclude_job else ["is", "set"],
+			},
+		)
+		if conflict:
+			frappe.throw(
+				_("Driver {0} is already scheduled for Job {1} on {2}").format(driver, conflict, date)
+			)
+
+	if vehicle:
+		conflict = frappe.db.exists(
+			"Enviro Job",
+			{
+				"vehicle": vehicle,
+				"scheduled_start_date": date,
+				"status": ["!=", "Cancelled"],
+				"name": ["!=", exclude_job] if exclude_job else ["is", "set"],
+			},
+		)
+		if conflict:
+			frappe.throw(
+				_("Vehicle {0} is already scheduled for Job {1} on {2}").format(vehicle, conflict, date)
+			)
+
+	# 2. Check intended schedules in Quotations (pending reoccurring)
+	if driver:
+		conflict = frappe.db.exists(
+			"Quotation",
+			{
+				"custom_intended_driver": driver,
+				"custom_intended_start_date": date,
+				"docstatus": ["<", 2],
+				"status": ["not in", ["Cancelled", "Lost"]],
+				"name": ["!=", exclude_quote] if exclude_quote else ["is", "set"],
+			},
+		)
+		if conflict:
+			frappe.throw(
+				_("Driver {0} is already reserved for Quotation {1} on {2}").format(driver, conflict, date)
+			)
+
+	if vehicle:
+		conflict = frappe.db.exists(
+			"Quotation",
+			{
+				"custom_intended_vehicle": vehicle,
+				"custom_intended_start_date": date,
+				"docstatus": ["<", 2],
+				"status": ["not in", ["Cancelled", "Lost"]],
+				"name": ["!=", exclude_quote] if exclude_quote else ["is", "set"],
+			},
+		)
+		if conflict:
+			frappe.throw(
+				_("Vehicle {0} is already reserved for Quotation {1} on {2}").format(vehicle, conflict, date)
+			)
+
+
 @frappe.whitelist()
 # 2. ADDED: Type hints (str) for job_id and payload
 def api_schedule_job(job_id: str, payload: str):
 	import json
 
 	data = json.loads(payload)
+
+	# PRE-CHECK Availability
+	check_resource_availability(data.get("driver"), data.get("vehicle"), data.get("scheduled_start_date"))
+
 	job_card = frappe.get_doc("Enviro Job Card", job_id)
 
 	# --- CASE 1: REOCCURRING JOB (Approval Pipeline) ---
@@ -235,13 +308,82 @@ def get_driver_employees(
 		return []
 
 	conditions = {"user_id": ["in", user_emails], "status": "Active"}
+
+	# FILTER BY DATE AVAILABILITY
+	date = filters.get("date") if filters else None
+	if date:
+		# Drivers with Jobs
+		busy_jobs = frappe.get_all(
+			"Enviro Job",
+			filters={"scheduled_start_date": date, "status": ["!=", "Cancelled"]},
+			fields=["driver"],
+		)
+		# Drivers with Reservations (Quotations)
+		busy_quotes = frappe.get_all(
+			"Quotation",
+			filters={
+				"custom_intended_start_date": date,
+				"docstatus": ["<", 2],
+				"status": ["not in", ["Cancelled", "Lost"]],
+			},
+			fields=["custom_intended_driver"],
+		)
+
+		busy_drivers = set([j.driver for j in busy_jobs if j.driver])
+		busy_drivers.update([q.custom_intended_driver for q in busy_quotes if q.custom_intended_driver])
+
+		if busy_drivers:
+			conditions["name"] = ["not in", list(busy_drivers)]
+
 	employees = frappe.get_all("Employee", filters=conditions, fields=["name", "employee_name"])
 
 	result = []
-	# strict null check on txt to prevent NoneType errors in case frappe search API passes None instead of empty string
 	safe_txt = (txt or "").lower()
 	for emp in employees:
 		if safe_txt in emp.name.lower() or safe_txt in str(emp.employee_name or "").lower():
 			result.append([emp.name, emp.employee_name or ""])
+
+	return result
+
+
+@frappe.whitelist()
+def get_available_vehicles(
+	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict | None = None
+):
+	conditions = {"disabled": 0}
+
+	# FILTER BY DATE AVAILABILITY
+	date = filters.get("date") if filters else None
+	if date:
+		# Vehicles with Jobs
+		busy_jobs = frappe.get_all(
+			"Enviro Job",
+			filters={"scheduled_start_date": date, "status": ["!=", "Cancelled"]},
+			fields=["vehicle"],
+		)
+		# Vehicles with Reservations (Quotations)
+		busy_quotes = frappe.get_all(
+			"Quotation",
+			filters={
+				"custom_intended_start_date": date,
+				"docstatus": ["<", 2],
+				"status": ["not in", ["Cancelled", "Lost"]],
+			},
+			fields=["custom_intended_vehicle"],
+		)
+
+		busy_vehicles = set([j.vehicle for j in busy_jobs if j.vehicle])
+		busy_vehicles.update([q.custom_intended_vehicle for q in busy_quotes if q.custom_intended_vehicle])
+
+		if busy_vehicles:
+			conditions["name"] = ["not in", list(busy_vehicles)]
+
+	vehicles = frappe.get_all("Vehicle", filters=conditions, fields=["name", "license_plate"])
+
+	result = []
+	safe_txt = (txt or "").lower()
+	for v in vehicles:
+		if safe_txt in v.name.lower() or safe_txt in str(v.license_plate or "").lower():
+			result.append([v.name, v.license_plate or ""])
 
 	return result

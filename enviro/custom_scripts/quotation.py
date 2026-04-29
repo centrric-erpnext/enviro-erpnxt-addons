@@ -37,6 +37,17 @@ def before_save(doc, method=None):
 		if doc.custom_accounts_approval_status not in ["Approved", "Rejected"]:
 			doc.custom_accounts_approval_status = "Pending"
 
+	# 4. RESOURCE AVAILABILITY CHECK (FOR REOCCURRING/INTENDED SCHEDULES)
+	if doc.custom_intended_start_date:
+		from enviro.enviro.api.scheduling import check_resource_availability
+
+		check_resource_availability(
+			doc.custom_intended_driver,
+			doc.custom_intended_vehicle,
+			doc.custom_intended_start_date,
+			exclude_quote=doc.name,
+		)
+
 
 def on_update(doc, method=None):
 	# AUTO-SPAWN ENVIRO JOB ON APPROVAL
