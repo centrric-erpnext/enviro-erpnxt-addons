@@ -61,15 +61,22 @@ def on_update(doc, method=None):
 
 
 def spawn_job_from_intent(doc):
-	frappe.logger().info(f"Auto-spawning job for Quotation: {doc.name} from intended schedule")
+	frappe.logger().info(f"Finalizing job for Quotation: {doc.name} from intended schedule")
 
-	new_job = frappe.new_doc("Enviro Job")
-	new_job.source_job_card = doc.custom_enviro_job_card
-	new_job.quotation = doc.name
-	new_job.customer = doc.party_name
-	new_job.site = doc.custom_site
+	# Check if an 'Allocated' job already exists (created during scheduling)
+	job_name = frappe.db.get_value("Enviro Job", {"quotation": doc.name, "status": "Allocated"}, "name")
 
-	# Map intended data
+	if job_name:
+		new_job = frappe.get_doc("Enviro Job", job_name)
+	else:
+		# Fallback: create new if not found
+		new_job = frappe.new_doc("Enviro Job")
+		new_job.source_job_card = doc.custom_enviro_job_card
+		new_job.quotation = doc.name
+		new_job.customer = doc.party_name
+		new_job.site = doc.custom_site
+
+	# Map intended data (in case they were changed during approval)
 	new_job.scheduled_start_date = doc.custom_intended_start_date
 	new_job.scheduled_start_time = doc.custom_intended_start_time
 	new_job.scheduled_end_date = doc.custom_intended_end_date
@@ -82,12 +89,13 @@ def spawn_job_from_intent(doc):
 	if doc.custom_intended_team:
 		try:
 			team = json.loads(doc.custom_intended_team)
+			new_job.set("team_members", [])
 			for member in team:
 				new_job.append("team_members", {"employee": member})
 		except Exception:
 			pass
 
-	new_job.insert(ignore_permissions=True)
+	new_job.save(ignore_permissions=True)
 
 	# CLEAR INTENDED FIELDS TO PREVENT DOUBLE SPAWNING
 	frappe.db.set_value(

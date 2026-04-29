@@ -1087,7 +1087,7 @@
    "non_negative": 0,
    "oldfieldname": null,
    "oldfieldtype": null,
-   "options": "Scheduled\nIn Transit\nOn Site\nCompleted\nCancelled",
+   "options": "Allocated\nScheduled\nIn Transit\nOn Site\nCompleted\nCancelled",
    "parent": "Enviro Job",
    "parentfield": "fields",
    "parenttype": "DocType",

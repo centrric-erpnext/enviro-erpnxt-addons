@@ -85,9 +85,10 @@ def get_scheduling_data():
 		else:
 			job.waste_type_label = "Manual Job"
 
-	# Scheduled Jobs = Physical executions on the calendar
+	# Fetch Existing Scheduled Jobs
 	scheduled_jobs = frappe.get_all(
 		"Enviro Job",
+		filters={"status": ["!=", "Cancelled"]},
 		fields=[
 			"name",
 			"customer",
@@ -98,30 +99,6 @@ def get_scheduling_data():
 			"status",
 		],
 	)
-
-	# Fetch Pending Reoccurring Schedules (Quotations with intended dates)
-	pending_quotes = frappe.get_all(
-		"Quotation",
-		filters={
-			"docstatus": ["<", 2],
-			"custom_intended_start_date": ["is", "set"],
-			"custom_accounts_approval_status": ["!=", "Approved"],  # If not approved yet, it is still pending
-		},
-		fields=[
-			"name",
-			"customer_name as customer",
-			"custom_intended_driver as driver",
-			"custom_intended_vehicle as vehicle",
-			"custom_intended_start_date as scheduled_start_date",
-			"custom_intended_start_time as scheduled_start_time",
-			"status",
-		],
-	)
-
-	# Mark quotations as pending for the frontend
-	for q in pending_quotes:
-		q.is_pending = True
-		scheduled_jobs.append(q)
 
 	vehicles = frappe.get_all("Vehicle", fields=["name", "license_plate"])
 
@@ -241,17 +218,39 @@ def api_schedule_job(job_id: str, payload: str):
 
 		new_quote.insert(ignore_permissions=True)
 
-		# 4. Filter logic: Mark Master as 'Scheduled Today' so it hides from DB
+		# 4. CREATE ENVIRO JOB IMMEDIATELY (Status: Allocated)
+		# This ensures the dashboard shows a Job ID instead of a Quote ID
+		new_job = frappe.new_doc("Enviro Job")
+		new_job.source_job_card = job_card.name
+		new_job.quotation = new_quote.name
+		new_job.customer = job_card.customer
+		new_job.site = job_card.site
+		new_job.scheduled_start_date = data.get("scheduled_start_date")
+		new_job.scheduled_start_time = data.get("scheduled_start_time")
+		new_job.scheduled_end_date = data.get("scheduled_end_date")
+		new_job.scheduled_end_time = data.get("scheduled_end_time")
+		new_job.vehicle = data.get("vehicle")
+		new_job.driver = data.get("driver")
+		new_job.status = "Allocated"
+
+		team = data.get("team_members")
+		if team:
+			for member in team:
+				new_job.append("team_members", {"employee": member})
+
+		new_job.insert(ignore_permissions=True)
+
+		# 5. Filter logic: Mark Master as 'Scheduled Today' so it hides from DB
 		job_card.custom_last_scheduled_date = frappe.utils.today()
 		job_card.save(ignore_permissions=True)
 
-		# 5. Global Action: Trigger Email if needed
+		# 6. Global Action: Trigger Email if needed
 		if new_quote.custom_requires_client_approval == 1:
 			from enviro.custom_scripts.quotation import send_approval_email
 
 			send_approval_email(new_quote.name)
 
-		return {"status": "OK", "type": "reoccurring", "quote": new_quote.name}
+		return {"status": "OK", "type": "reoccurring", "quote": new_quote.name, "job": new_job.name}
 
 	# --- CASE 2: ONE-OFF JOB (Direct Scheduling) ---
 	new_job = frappe.new_doc("Enviro Job")
