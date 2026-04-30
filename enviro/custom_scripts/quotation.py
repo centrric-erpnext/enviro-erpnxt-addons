@@ -5,6 +5,12 @@ from frappe.utils import get_url
 
 
 def before_save(doc, method=None):
+	"""
+	Custom logic for Quotation lifecycle:
+	1. Enforces Enviro Job Card linkage.
+	2. Handles Client and Accounts approval state machine.
+	3. Performs resource availability validation for reoccurring jobs.
+	"""
 	# Enforce Enviro Job Card linkage
 	if getattr(doc, "custom_accounts_approval_status", "") == "Approved":
 		if not getattr(doc, "custom_enviro_job_card", None):

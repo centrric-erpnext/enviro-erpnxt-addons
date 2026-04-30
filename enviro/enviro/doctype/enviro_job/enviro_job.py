@@ -5,10 +5,20 @@ from frappe.utils import get_datetime, now_datetime
 
 
 class EnviroJob(Document):
+	"""
+	Represents a physical execution of a waste management job.
+	Includes lifecycle tracking (GPS, timestamps, photos) and resource validation.
+	"""
+
 	def validate(self):
+		"""Triggers hard database validation for driver/vehicle availability."""
 		self.check_availability()
 
 	def check_availability(self):
+		"""
+		Prevents double-booking by checking both other Jobs and pending Quotations.
+		Intelligently ignores its own linked Quotation to allow reoccurring scheduling.
+		"""
 		if self.status == "Cancelled":
 			return
 

@@ -192,10 +192,8 @@ def get_all_drivers():
 		]
 
 		# Find all User IDs that have these roles
-		users_with_roles = frappe.get_all(
-			"Has Role", filters={"role": ["in", valid_roles]}, fields=["parent"]
-		)
-		user_ids = list(set([u.parent for u in users_with_roles]))
+		user_ids = frappe.get_all("Has Role", filters={"role": ["in", valid_roles]}, pluck="parent")
+		user_ids = list(set(user_ids))
 
 		if not user_ids:
 			ResponseHandler.success([])

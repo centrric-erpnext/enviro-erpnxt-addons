@@ -5,13 +5,11 @@ from frappe import _  # 1. ADDED: The translation function import
 @frappe.whitelist()
 def get_scheduling_data():
 	# Only fetch jobs where the attached quote has completely bypassed/passed Accounts
-	approved_quotes = frappe.get_all(
+	valid_job_ids = frappe.get_all(
 		"Quotation",
 		filters={"docstatus": ["<", 2], "custom_accounts_approval_status": "Approved"},
-		fields=["custom_enviro_job_card", "customer_name"],
+		pluck="custom_enviro_job_card",
 	)
-
-	valid_job_ids = [q.custom_enviro_job_card for q in approved_quotes if q.custom_enviro_job_card]
 
 	filters = [["docstatus", "<", 2]]
 
@@ -106,6 +104,10 @@ def get_scheduling_data():
 
 
 def check_resource_availability(driver, vehicle, date, exclude_job=None, exclude_quote=None):
+	"""
+	Centralized validation to prevent double-booking of drivers or vehicles.
+	Checks both 'Enviro Job' and 'Quotation' (intended schedules).
+	"""
 	if not date:
 		return
 
@@ -177,6 +179,10 @@ def check_resource_availability(driver, vehicle, date, exclude_job=None, exclude
 @frappe.whitelist()
 # 2. ADDED: Type hints (str) for job_id and payload
 def api_schedule_job(job_id: str, payload: str):
+	"""
+	Main entry point for scheduling a Job Card.
+	Handles both One-Off (direct) and Reoccurring (approval pipeline) jobs.
+	"""
 	import json
 
 	data = json.loads(payload)
@@ -284,6 +290,7 @@ def api_schedule_job(job_id: str, payload: str):
 @frappe.whitelist()
 # 4. ADDED: Type hint for cancel function
 def cancel_job_card(job_id: str):
+	"""Archives/Cancels a Master Job Card."""
 	frappe.db.set_value("Enviro Job Card", job_id, "status", "Cancelled")
 	return "OK"
 
@@ -293,6 +300,7 @@ def cancel_job_card(job_id: str):
 def get_driver_employees(
 	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict | None = None
 ):
+	"""Standard search query for drivers, excluding those busy on the selected date."""
 	valid_roles = [
 		"Driver Factory Hand (Web)",
 		"Driver Factory Hand (Mobile)",
@@ -300,8 +308,8 @@ def get_driver_employees(
 		"Driver Liquid Waste Technician (Mobile)",
 	]
 
-	users = frappe.get_all("Has Role", filters={"role": ["in", valid_roles]}, fields=["parent"])
-	user_emails = list(set([u.parent for u in users]))
+	user_emails = frappe.get_all("Has Role", filters={"role": ["in", valid_roles]}, pluck="parent")
+	user_emails = list(set(user_emails))
 
 	if not user_emails:
 		return []
@@ -349,6 +357,7 @@ def get_driver_employees(
 def get_available_vehicles(
 	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict | None = None
 ):
+	"""Standard search query for vehicles, excluding those busy on the selected date."""
 	conditions = {}
 
 	# FILTER BY DATE AVAILABILITY
