@@ -102,7 +102,8 @@
   "scheduled_end_date",
   "scheduled_end_time",
   "sec_team",
-  "team_members"
+  "team_members",
+  "custom_last_scheduled_date"
  ],
  "fields": [
   {
@@ -646,6 +647,13 @@
    "fieldtype": "Table MultiSelect",
    "label": "Assigned Team Members",
    "options": "Enviro Job Team Member"
+  },
+  {
+   "fieldname": "custom_last_scheduled_date",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": "Last Scheduled Date",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
