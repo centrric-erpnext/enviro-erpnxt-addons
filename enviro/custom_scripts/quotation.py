@@ -270,6 +270,8 @@ def make_enviro_job_card(source_name: str, target_doc: dict | None = None):
 					"site_email_address",
 					"company_phone",
 					"company_email",
+					"industry_type",
+					"induction_type",
 				],
 				as_dict=True,
 			)
@@ -283,6 +285,8 @@ def make_enviro_job_card(source_name: str, target_doc: dict | None = None):
 				target.site_contact_email = site_fields.site_email_address
 				target.company_contact_phone = site_fields.company_phone
 				target.company_contact_email = site_fields.company_email
+				target.industry_type = site_fields.industry_type
+				target.induction_type = site_fields.induction_type
 
 		# 2. Safely pull Customer Metadata
 		if target.customer:

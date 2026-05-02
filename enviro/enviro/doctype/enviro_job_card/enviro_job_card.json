@@ -11,8 +11,6 @@
   "site",
   "source_quotation",
   "status",
-  "driver",
-  "vehicle",
   "job_instructions__description",
   "sec_site_company",
   "site_name",
@@ -135,19 +133,8 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Open\nAssigned\nIn Progress\nCompleted\nCancelled"
-  },
-  {
-   "fieldname": "driver",
-   "fieldtype": "Link",
-   "label": "Driver",
-   "options": "Employee"
-  },
-  {
-   "fieldname": "vehicle",
-   "fieldtype": "Link",
-   "label": "Vehicle",
-   "options": "Vehicle"
+   "options": "Open\nAssigned\nIn Progress\nCompleted\nCancelled",
+   "read_only": 1
   },
   {
    "fieldname": "job_instructions__description",
@@ -267,13 +254,13 @@
   {
    "fieldname": "sec_job_details",
    "fieldtype": "Section Break",
-   "label": "Job Metadata"
+   "label": ""
   },
   {
+   "fetch_from": "site.induction_type",
    "fieldname": "induction_type",
    "fieldtype": "Data",
-   "label": "Induction Type",
-   "fetch_from": "site.induction_type"
+   "label": "Induction Type"
   },
   {
    "fieldname": "industry_type",
@@ -281,8 +268,7 @@
    "in_list_view": 1,
    "label": "Industry Type",
    "options": "Industry Type",
-   "reqd": 1,
-   "fetch_from": "site.industry_type"
+   "reqd": 1
   },
   {
    "fieldname": "sales_person",

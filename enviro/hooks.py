@@ -15,6 +15,7 @@ fixtures = [
 	"Workspace",
 	"Custom HTML Block",
 	"Warehouse Type",
+	"Custom DocPerm",
 ]
 
 # Apps

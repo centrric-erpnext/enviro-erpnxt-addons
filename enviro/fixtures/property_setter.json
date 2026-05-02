@@ -2318,5 +2318,21 @@
   "property_type": "Check",
   "row_name": null,
   "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Enviro Job Card",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocType",
+  "field_name": null,
+  "is_system_generated": 0,
+  "modified": "2026-05-02 16:26:42.587516",
+  "module": null,
+  "name": "Enviro Job Card-main-field_order",
+  "property": "field_order",
+  "property_type": "Data",
+  "row_name": null,
+  "value": "[\"job_card_type\", \"source_quotation\", \"customer\", \"site\", \"status\", \"job_instructions__description\", \"sec_site_company\", \"site_name\", \"site_date\", \"site_address\", \"site_postcode\", \"site_contact_name\", \"site_contact_phone\", \"site_contact_mob\", \"site_contact_email\", \"col_site_company\", \"site_company_same\", \"company_name\", \"company_date\", \"company_address\", \"company_contact_phone\", \"company_contact_mob\", \"company_contact_email\", \"additional_email\", \"additional_contact_phone\", \"sec_job_details\", \"induction_type\", \"industry_type\", \"sales_person\", \"job_creation_date\", \"col_job_details\", \"is_outsourced_job\", \"is_reoccurring_quote\", \"type_of_reoccurring\", \"frequency_in_weeks\", \"col_daily_1\", \"monday\", \"tuesday\", \"wednesday\", \"thursday\", \"col_daily_2\", \"friday\", \"saturday\", \"sunday\", \"sec_additional_info\", \"access_restriction\", \"tc_required_comments\", \"tc_file\", \"manifest_comments\", \"manifest_file\", \"chemist_approval\", \"chemist_file\", \"col_additional_info\", \"safety_data_sheet_required\", \"sds_file\", \"additional_images_comment\", \"additional_images_file\", \"data_form_required\", \"data_form_file\", \"purchase_order_comment\", \"purchase_order_file\", \"sec_waste_logistics\", \"how_waste_packaged\", \"volume_expected\", \"number_of_loads_expected\", \"sample_of_waste\", \"estimated_date_and_time_of_disposal\", \"flow_meter_required\", \"access_height\", \"key_required\", \"pitt_distance\", \"water_tap_location\", \"gurney_required\", \"col_waste_logistics\", \"confined_space_required\", \"number_of_trucks\", \"estimated_job_duration\", \"best_time_for_service\", \"specific_ppe\", \"weigh_bridge_required\", \"weigh_bridge_file\", \"pallets_to_be_exchanged\", \"additional_logistics_information\", \"photo_required\", \"certification_of_destruction\", \"capacity\", \"barcode\", \"pit_location\", \"smoke_alarm\", \"sec_scheduling\", \"scheduled_start_date\", \"scheduled_start_time\", \"col_scheduling\", \"scheduled_end_date\", \"scheduled_end_time\", \"sec_team\", \"team_members\"]"
  }
 ]
