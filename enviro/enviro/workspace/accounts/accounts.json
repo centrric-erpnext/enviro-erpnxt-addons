@@ -1,8 +1,13 @@
 {
  "charts": [],
- "content": "[{\"id\":\"4iCJlDmrMx\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">HR</span>\",\"col\":12}}]",
- "creation": "2026-04-13 18:01:27.854169",
- "custom_blocks": [],
+ "content": "[{\"id\":\"4iCJlDmrMx\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">HR</span>\",\"col\":12}},{\"id\":\"frXd7jWOxL\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro HR Management Dashboard\",\"col\":12}}]",
+ "creation": "2026-04-30 18:22:35.566027",
+ "custom_blocks": [
+  {
+   "custom_block_name": "Enviro HR Management Dashboard",
+   "label": "Enviro HR Management Dashboard"
+  }
+ ],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
@@ -13,31 +18,30 @@
  "is_hidden": 0,
  "label": "Accounts",
  "links": [],
- "modified": "2026-04-16 14:32:23.907581",
+ "modified": "2026-05-01 19:27:16.336007",
  "modified_by": "Administrator",
- "module": "Enviro",
+ "module": "enviro",
  "name": "Accounts",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
- "roles": [],
- "sequence_id": 9.0,
- "shortcuts": [
+ "roles": [
   {
-   "color": "#449CF0",
-   "doc_view": "",
-   "label": "Weekly Timesheet",
-   "link_to": "Enviro Weekly Timesheet",
-   "type": "DocType"
+   "role": "Administrator"
   },
   {
-   "doc_view": "",
-   "label": "Leave Request",
-   "link_to": "Leave Application",
-   "type": "DocType"
+   "role": "Superadmin"
+  },
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Manager"
   }
  ],
+ "sequence_id": 9.0,
+ "shortcuts": [],
  "title": "Accounts"
 }

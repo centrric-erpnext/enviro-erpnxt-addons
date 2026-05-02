@@ -1,7 +1,7 @@
 {
  "charts": [],
  "content": "[{\"id\":\"OSZREw2u2m\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Employee Profile\",\"col\":12}}]",
- "creation": "2026-04-13 18:01:27.795600",
+ "creation": "2026-04-30 18:22:35.550681",
  "custom_blocks": [
   {
    "custom_block_name": "Enviro Employee Profile",
@@ -18,16 +18,74 @@
  "is_hidden": 0,
  "label": "Team",
  "links": [],
- "modified": "2026-04-16 14:32:23.837056",
+ "modified": "2026-04-30 19:06:16.970233",
  "modified_by": "Administrator",
- "module": "Enviro",
+ "module": "enviro",
  "name": "Team",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
- "roles": [],
+ "roles": [
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "Superadmin"
+  },
+  {
+   "role": "Director"
+  },
+  {
+   "role": "Manager"
+  },
+  {
+   "role": "General Manager"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts Staff"
+  },
+  {
+   "role": "Accounts"
+  },
+  {
+   "role": "Account Assistant"
+  },
+  {
+   "role": "Operations Manager"
+  },
+  {
+   "role": "Operations Assistance Manager"
+  },
+  {
+   "role": "Supervisor"
+  },
+  {
+   "role": "Scheduler"
+  },
+  {
+   "role": "Sales Staff"
+  },
+  {
+   "role": "Sales Manager"
+  },
+  {
+   "role": "Pump Manager"
+  },
+  {
+   "role": "Pump Coordinator"
+  },
+  {
+   "role": "Gms Assistant"
+  },
+  {
+   "role": "All Rounder"
+  }
+ ],
  "sequence_id": 4.0,
  "shortcuts": [],
  "title": "Team"

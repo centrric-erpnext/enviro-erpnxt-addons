@@ -1,7 +1,7 @@
 {
  "charts": [],
  "content": "[{\"id\":\"CMqMW7R8am\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Scheduling</span>\",\"col\":12}},{\"id\":\"Kq6lWHs-v_\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Scheduling Workspace\",\"col\":12}}]",
- "creation": "2026-04-13 18:01:27.807297",
+ "creation": "2026-04-30 18:22:35.552830",
  "custom_blocks": [
   {
    "custom_block_name": "Enviro Scheduling Workspace",
@@ -18,16 +18,89 @@
  "is_hidden": 0,
  "label": "Scheduling",
  "links": [],
- "modified": "2026-04-16 14:32:23.850861",
+ "modified": "2026-04-30 19:06:17.210537",
  "modified_by": "Administrator",
- "module": "Enviro",
+ "module": "enviro",
  "name": "Scheduling",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
- "roles": [],
+ "roles": [
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "Superadmin"
+  },
+  {
+   "role": "Director"
+  },
+  {
+   "role": "Manager"
+  },
+  {
+   "role": "General Manager"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts Staff"
+  },
+  {
+   "role": "Accounts"
+  },
+  {
+   "role": "Account Assistant"
+  },
+  {
+   "role": "Operations Manager"
+  },
+  {
+   "role": "Operations Assistance Manager"
+  },
+  {
+   "role": "Supervisor"
+  },
+  {
+   "role": "Scheduler"
+  },
+  {
+   "role": "Pump Manager"
+  },
+  {
+   "role": "Pump Coordinator"
+  },
+  {
+   "role": "Pump Technician"
+  },
+  {
+   "role": "Technical Manager"
+  },
+  {
+   "role": "Whs Manager"
+  },
+  {
+   "role": "Factory Manager"
+  },
+  {
+   "role": "Gms Assistant"
+  },
+  {
+   "role": "Driver Liquid Waste Technician (Mobile)"
+  },
+  {
+   "role": "Driver Liquid Waste Technician (Web)"
+  },
+  {
+   "role": "Driver Factory Hand (Mobile)"
+  },
+  {
+   "role": "Driver Factory Hand (Web)"
+  }
+ ],
  "sequence_id": 5.0,
  "shortcuts": [],
  "title": "Scheduling"

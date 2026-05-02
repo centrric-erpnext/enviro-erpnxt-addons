@@ -11,6 +11,12 @@ def get_home_dashboard_data():
 	Main function wrapped in safety nets. If one widget fails,
 	the rest of the dashboard will still load perfectly.
 	"""
+	# Check cache first for the entire block (short expiry)
+	cache_key = f"home_dashboard_data_{frappe.session.user}"
+	cached = frappe.cache().get_value(cache_key)
+	if cached:
+		return cached
+
 	data = {
 		"notifications": [],
 		"all_jobs": [],
@@ -24,36 +30,30 @@ def get_home_dashboard_data():
 	}
 
 	# Safely load each section
-	try:
-		data["notifications"] = get_recent_activities()
-	except Exception:
-		pass
+	data["notifications"] = _safe_exec(get_recent_activities, [])
+	data["all_jobs"] = _safe_exec(get_all_jobs_summary, [])
+	data["todays_schedule"] = _safe_exec(get_todays_appointments, [])
+	data["weather"] = _safe_exec(get_weather_data, {"error": "Unavailable"})
+	data["sales_data"] = _safe_exec(get_sales_data, None)
 
-	try:
-		data["all_jobs"] = get_all_jobs_summary()
-	except Exception as e:
-		data["all_jobs"] = [{"code": "Error", "title": str(e), "status": "Failed"}]
-
-	try:
-		data["todays_schedule"] = get_todays_appointments()
-	except Exception:
-		pass
-
-	try:
-		data["weather"] = get_weather_data()
-	except Exception:
-		pass
-
-	try:
-		data["sales_data"] = get_sales_data()
-	except Exception:
-		pass
-
+	frappe.cache().set_value(cache_key, data, expires_in_sec=300)  # 5 min cache
 	return data
 
 
+def _safe_exec(func, default):
+	try:
+		return func()
+	except Exception:
+		return default
+
+
 def get_all_jobs_summary():
-	# Efficient list query to avoid permission traps and slow get_doc loops
+	# Cached for 2 minutes
+	cache_key = "all_jobs_summary"
+	cached = frappe.cache().get_value(cache_key)
+	if cached:
+		return cached
+
 	jobs = frappe.get_list(
 		"Enviro Job",
 		fields=["name", "customer", "status"],
@@ -62,20 +62,16 @@ def get_all_jobs_summary():
 		ignore_permissions=True,
 	)
 
-	result = []
-	for j in jobs:
-		customer = j.get("customer")
-		title = customer if customer else "No Customer"
-		status = j.get("status", "Pending")
-
-		result.append({"code": j.name, "title": title, "status": status})
-
+	result = [
+		{"code": j.name, "title": j.get("customer") or "No Customer", "status": j.get("status", "Pending")}
+		for j in jobs
+	]
+	frappe.cache().set_value(cache_key, result, expires_in_sec=120)
 	return result
 
 
 def get_todays_appointments():
 	current_date = today()
-	# Efficient list query
 	appointments = frappe.get_list(
 		"Enviro Job",
 		fields=["name", "customer", "status", "scheduled_start_time", "scheduled_end_time"],
@@ -87,28 +83,26 @@ def get_todays_appointments():
 
 	result = []
 	for appt in appointments:
-		customer = appt.get("customer", "Unknown")
-		status = appt.get("status", "Pending")
 		start = str(appt.get("scheduled_start_time", ""))
 		end = str(appt.get("scheduled_end_time", ""))
-
-		# Format time for display (e.g., 09:00 - 11:00)
 		time_label = f"{start[:5]} - {end[:5]}" if start and end else (start[:5] or "No Time")
 
 		result.append(
-			{"name": appt.name, "customer_name": customer, "time_label": time_label, "status": status}
+			{
+				"name": appt.name,
+				"customer_name": appt.get("customer", "Unknown"),
+				"time_label": time_label,
+				"status": appt.get("status", "Pending"),
+			}
 		)
 	return result
 
 
 def get_recent_activities():
-	# Fetch from both Quotations and Jobs
 	logs = frappe.get_all(
 		"Activity Log",
 		fields=["name", "subject", "creation", "reference_doctype", "reference_name"],
-		filters={
-			"reference_doctype": ["in", ["Quotation", "Enviro Job"]],
-		},
+		filters={"reference_doctype": ["in", ["Quotation", "Enviro Job"]]},
 		limit=8,
 		order_by="creation desc",
 		ignore_permissions=True,
@@ -125,24 +119,48 @@ def get_recent_activities():
 	]
 
 
-def get_sales_data():
-	year = getdate().year
-	sales = frappe.db.sql(
-		"""
-        SELECT MONTH(transaction_date) as month, SUM(grand_total) as total
-        FROM `tabQuotation`
-        WHERE YEAR(transaction_date) = %s AND docstatus = 1
-        GROUP BY MONTH(transaction_date)
-    """,
-		(year,),
-		as_dict=True,
-	)
+@frappe.whitelist()
+def get_sales_data(year=None, month=None):
+	"""
+	Optimized sales data query.
+	Supports filtering by year and optionally by month.
+	"""
+	if not year:
+		year = getdate().year
 
-	months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+	# Try to use frappe.get_all for better performance and security
+	# but grand_total aggregation still needs raw SQL or heavy processing
+	# We stick to SQL but optimize the query and cache the result.
+
+	cache_key = f"sales_data_{year}_{month or 'all'}"
+	cached = frappe.cache().get_value(cache_key)
+	if cached:
+		return cached
+
+	query = """
+		SELECT MONTH(transaction_date) as month, SUM(grand_total) as total
+		FROM `tabQuotation`
+		WHERE YEAR(transaction_date) = %s AND docstatus = 1
+	"""
+	params = [year]
+
+	if month:
+		query += " AND MONTH(transaction_date) = %s"
+		params.append(month)
+
+	query += " GROUP BY MONTH(transaction_date)"
+
+	sales = frappe.db.sql(query, tuple(params), as_dict=True)
+
+	months_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 	values = [0] * 12
 	for s in sales:
-		values[s.month - 1] = flt(s.total)
-	return {"labels": months, "datasets": [{"name": "Actual Sales", "values": values}]}
+		if 1 <= s.month <= 12:
+			values[s.month - 1] = flt(s.total)
+
+	result = {"labels": months_labels, "datasets": [{"name": "Actual Sales", "values": values}]}
+	frappe.cache().set_value(cache_key, result, expires_in_sec=600)  # 10 min cache
+	return result
 
 
 def get_weather_data(city=WEATHER_CITY):
