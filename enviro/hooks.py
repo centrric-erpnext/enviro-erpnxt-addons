@@ -12,7 +12,6 @@ fixtures = [
 	"Property Setter",
 	"Client Script",
 	"Server Script",
-	"Workspace",
 	"Custom HTML Block",
 	"Warehouse Type",
 	"Custom DocPerm",
