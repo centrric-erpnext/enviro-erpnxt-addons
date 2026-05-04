@@ -1,7 +1,7 @@
 {
  "charts": [],
- "content": "[{\"id\":\"4iCJlDmrMx\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">HR</span>\",\"col\":12}},{\"id\":\"FGaKUPpX7v\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro HR Management Dashboard\",\"col\":12}}]",
- "creation": "2026-05-02 18:13:16.207542",
+ "content": "[{\"id\":\"4WYSTGInFV\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro HR Management Dashboard\",\"col\":12}}]",
+ "creation": "2026-05-02 18:39:44.499637",
  "custom_blocks": [
   {
    "custom_block_name": "Enviro HR Management Dashboard",
@@ -18,7 +18,7 @@
  "is_hidden": 0,
  "label": "Accounts",
  "links": [],
- "modified": "2026-05-02 18:25:50.678602",
+ "modified": "2026-05-02 20:19:34.927017",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "Accounts",
