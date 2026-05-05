@@ -1,0 +1,41 @@
+Email,Full Name,Roles,Password
+superadmin.test@enviro.com,Super Admin,"System Manager, Employee, Superadmin, All, Guest, Desk User",Enviro@Test#2024
+driver.fh.web@enviro.com,Driver FH Web,"Employee, Driver Factory Hand (Web), All, Guest, Desk User",Enviro@Test#2024
+driver.fh.mobile@enviro.com,Driver FH Mobile,"Employee, Driver Factory Hand (Mobile), All, Guest, Desk User",Enviro@Test#2024
+driver.lw.web@enviro.com,Driver LW Web,"Employee, Driver Liquid Waste Technician (Web), All, Guest, Desk User",Enviro@Test#2024
+driver.lw.mobile@enviro.com,Driver LW Mobile,"Employee, Driver Liquid Waste Technician (Mobile), All, Guest, Desk User",Enviro@Test#2024
+all.rounder@enviro.com,All Rounder,"Employee, All Rounder, All, Guest, Desk User",Enviro@Test#2024
+gms.assistant@enviro.com,GMS Assistant,"Employee, Gms Assistant, All, Guest, Desk User",Enviro@Test#2024
+factory.manager@enviro.com,Factory Manager,"Employee, Factory Manager, All, Guest, Desk User",Enviro@Test#2024
+whs.manager@enviro.com,WHS Manager,"Employee, Whs Manager, All, Guest, Desk User",Enviro@Test#2024
+tech.manager@enviro.com,Technical Manager,"Employee, Technical Manager, All, Guest, Desk User",Enviro@Test#2024
+pump.technician@enviro.com,Pump Technician,"Employee, Pump Technician, All, Guest, Desk User",Enviro@Test#2024
+pump.coordinator@enviro.com,Pump Coordinator,"Employee, Pump Coordinator, All, Guest, Desk User",Enviro@Test#2024
+pump.manager@enviro.com,Pump Manager,"Employee, Pump Manager, All, Guest, Desk User",Enviro@Test#2024
+sales.pumps@enviro.com,Sales Pumps,"Employee, Sales Pumps, All, Guest, Desk User",Enviro@Test#2024
+sales.manager@enviro.com,Sales Manager,"Employee, Sales Manager, All, Guest, Desk User",Enviro@Test#2024
+sales.staff@enviro.com,Sales Staff,"Employee, Sales Staff, All, Guest, Desk User",Enviro@Test#2024
+scheduler.test@enviro.com,Test Scheduler,"Employee, Scheduler, All, Guest, Desk User",Enviro@Test#2024
+supervisor.test@enviro.com,Test Supervisor,"Employee, Supervisor, All, Guest, Desk User",Enviro@Test#2024
+ops.assist@enviro.com,Ops Assist,"Employee, Operations Assistance Manager, All, Guest, Desk User",Enviro@Test#2024
+ops.manager@enviro.com,Ops Manager,"Employee, Operations Manager, All, Guest, Desk User",Enviro@Test#2024
+account.assistant@enviro.com,Account Assistant,"Employee, Account Assistant, All, Guest, Desk User",Enviro@Test#2024
+accounts.test@enviro.com,Test Accounts,"Employee, Accounts, All, Guest, Desk User",Enviro@Test#2024
+accounts.staff@enviro.com,Accounts Staff,"Employee, Accounts Staff, All, Guest, Desk User",Enviro@Test#2024
+accounts.manager@enviro.com,Accounts Manager,"Employee, Accounts Manager, All, Guest, Desk User",Enviro@Test#2024
+gm.test@enviro.com,Test GM,"Employee, General Manager, All, Guest, Desk User",Enviro@Test#2024
+manager.test@enviro.com,Test Manager,"Employee, Manager, All, Guest, Desk User",Enviro@Test#2024
+director.test@enviro.com,Test Director,"Employee, Director, All, Guest, Desk User",Enviro@Test#2024
+ops_test@enviro.com,Ops Tester,"Operations Manager, Employee, All, Guest, Desk User",Enviro@Test#2024
+accounts_test@enviro.com,Accounts Tester,"Accounts Staff, Employee, All, Guest, Desk User",Enviro@Test#2024
+driver_test@enviro.com,Driver Tester,"Driver Liquid Waste Technician (Mobile), Employee, All, Guest, Desk User",Enviro@Test#2024
+sales_test@enviro.com,Sales Tester,"Sales Staff, Employee, All, Guest, Desk User",Enviro@Test#2024
+kiran@gmail.com,kiran driver,"Driver Factory Hand (Mobile), Employee, All, Guest, Desk User",Enviro@Test#2024
+shafi01@gmail.com,shafi  centrric,"Driver Liquid Waste Technician (Mobile), Driver Factory Hand (Mobile), Employee, All, Guest, Desk User",Enviro@Test#2024
+arshad@gmail.com,arshad driver,"Driver Factory Hand (Mobile), All, Guest, Desk User",Enviro@Test#2024
+althaf@centrric.com,Althaf shaphy,"Employee, Farm Manager, All, Guest, Desk User",Enviro@Test#2024
+midhulbose0@gmail.com,Midhul Bose,"Employee, All, Guest, Desk User",Enviro@Test#2024
+midhulbose@gmail.com,Midul manager,"Supervisor, Analytics, System Manager, HR Manager, Purchase Manager, Delivery User, Sales Master Manager, Driver Factory Hand (Web), Manufacturing Manager, Stock User, Sales Manager, All Rounder, Gms Assistant, Newsletter Manager, Prepared Report User, Accounts Staff, Sales User, Sales Staff, Quality Manager, Driver Liquid Waste Technician (Mobile), Factory Manager, Pump Technician, Delivery Manager, Translator, Fulfillment User, Expense Approver, Director, Manufacturing User, Maintenance User, Account Assistant, Fleet Manager, Report Manager, Knowledge Base Editor, Accounts Manager, Workspace Manager, HR User, Knowledge Base Contributor, Interviewer, Customer, Purchase Master Manager, Sales Pumps, Support Team, Item Manager, Accounts User, Pump Manager, Maintenance Manager, Scheduler, Agriculture User, Farm Manager, Pump Coordinator, Operations Manager, Accounts, Stock Manager, Whs Manager, Script Manager, Supplier, Blogger, Superadmin, Purchase User, Operations Assistance Manager, Dashboard Manager, Website Manager, Inbox User, Projects User, Auditor, Agriculture Manager, Projects Manager, Leave Approver, Manager, Admin, Academics User, Driver Liquid Waste Technician (Web), Driver Factory Hand (Mobile), General Manager, All, Guest, Desk User",Enviro@Test#2024
+mnsoorkk@gmail.com,mansoor kkkkkkk m,"Gms Assistant, Employee, All, Guest, Desk User",Enviro@Test#2024
+mansoor@centrric.com,mansoor m,"Employee, All, Guest, Desk User",Enviro@Test#2024
+arshad@centrric.in,arshad pareed,"Driver Liquid Waste Technician (Web), All, Guest, Desk User",Enviro@Test#2024
