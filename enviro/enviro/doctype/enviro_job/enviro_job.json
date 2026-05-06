@@ -1189,7 +1189,7 @@
  "max_attachments": 0,
  "menu_index": null,
  "migration_hash": null,
- "module": "Enviro",
+ "module": "enviro",
  "name": "Enviro Job",
  "naming_rule": "Expression",
  "nsm_parent_field": null,

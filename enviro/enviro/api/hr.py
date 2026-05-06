@@ -200,99 +200,57 @@ def get_timesheets():
 	return results
 
 
+def _update_doc_state(doctype, name, status, cache_key_prefix):
+	_check_hr_access()
+	doc = frappe.get_doc(doctype, name)
+
+	if status == "Approved":
+		if doc.docstatus == 0:
+			doc.status = "Approved"
+			doc.save(ignore_permissions=True)
+			doc.submit()
+		elif doc.docstatus == 1:
+			doc.db_set("status", "Approved")
+	elif status == "Rejected":
+		if doc.docstatus == 0:
+			doc.status = "Rejected"
+			doc.save(ignore_permissions=True)
+		elif doc.docstatus == 1:
+			frappe.db.set_value(doctype, name, "status", "Rejected")
+	elif status == "Cancelled":
+		if doc.docstatus == 1:
+			doc.cancel()
+		frappe.db.set_value(doctype, name, "status", "Cancelled")
+
+	frappe.cache().delete_value(f"{cache_key_prefix}_{frappe.session.user}")
+	return status
+
+
 @frappe.whitelist()
 def approve_leave(name):
-	"""
-	Approve a leave application.
-	Submits the document and updates status.
-	"""
-	_check_hr_access()
-	doc = frappe.get_doc("Leave Application", name)
-	if doc.docstatus == 0:
-		doc.status = "Approved"
-		doc.save(ignore_permissions=True)
-		doc.submit()
-	elif doc.docstatus == 1:
-		doc.db_set("status", "Approved")
-
-	frappe.cache().delete_value(f"hr_leave_applications_{frappe.session.user}")
-	return "Approved"
+	return _update_doc_state("Leave Application", name, "Approved", "hr_leave_applications")
 
 
 @frappe.whitelist()
 def reject_leave(name):
-	"""
-	Reject a leave application by updating its status.
-	"""
-	_check_hr_access()
-	doc = frappe.get_doc("Leave Application", name)
-	if doc.docstatus == 0:
-		doc.status = "Rejected"
-		doc.save(ignore_permissions=True)
-	elif doc.docstatus == 1:
-		frappe.db.set_value("Leave Application", name, "status", "Rejected")
-
-	frappe.cache().delete_value(f"hr_leave_applications_{frappe.session.user}")
-	return "Rejected"
+	return _update_doc_state("Leave Application", name, "Rejected", "hr_leave_applications")
 
 
 @frappe.whitelist()
 def delete_leave(name):
-	"""
-	Cancel a leave application and keep it in the list (marked as Cancelled).
-	"""
-	_check_hr_access()
-	doc = frappe.get_doc("Leave Application", name)
-	if doc.docstatus == 1:
-		doc.cancel()
-
-	frappe.db.set_value("Leave Application", name, "status", "Cancelled")
-	frappe.cache().delete_value(f"hr_leave_applications_{frappe.session.user}")
-	return "Cancelled"
+	return _update_doc_state("Leave Application", name, "Cancelled", "hr_leave_applications")
 
 
 @frappe.whitelist()
 def approve_timesheet(name):
-	"""
-	Approve and submit an Enviro Weekly Timesheet.
-	"""
-	_check_hr_access()
-	doc = frappe.get_doc("Enviro Weekly Timesheet", name)
-	if doc.docstatus == 0:
-		doc.status = "Approved"
-		doc.save(ignore_permissions=True)
-		doc.submit()
-	elif doc.docstatus == 1:
-		doc.db_set("status", "Approved")
-
-	frappe.cache().delete_value(f"hr_timesheets_{frappe.session.user}")
-	return "Approved"
+	return _update_doc_state("Enviro Weekly Timesheet", name, "Approved", "hr_timesheets")
 
 
 @frappe.whitelist()
 def reject_timesheet(name):
-	"""
-	Cancel and mark an Enviro Weekly Timesheet as Rejected.
-	"""
-	_check_hr_access()
-	doc = frappe.get_doc("Enviro Weekly Timesheet", name)
-	if doc.docstatus == 1:
-		doc.cancel()
-	frappe.db.set_value("Enviro Weekly Timesheet", name, "status", "Rejected")
-	frappe.cache().delete_value(f"hr_timesheets_{frappe.session.user}")
-	return "Rejected"
+	return _update_doc_state("Enviro Weekly Timesheet", name, "Rejected", "hr_timesheets")
 
 
 @frappe.whitelist()
 def delete_timesheet(name):
-	"""
-	Cancel an Enviro Weekly Timesheet and keep it in the list (marked as Cancelled).
-	"""
-	_check_hr_access()
-	doc = frappe.get_doc("Enviro Weekly Timesheet", name)
-	if doc.docstatus == 1:
-		doc.cancel()
-
-	frappe.db.set_value("Enviro Weekly Timesheet", name, "status", "Cancelled")
-	frappe.cache().delete_value(f"hr_timesheets_{frappe.session.user}")
-	return "Cancelled"
+	return _update_doc_state("Enviro Weekly Timesheet", name, "Cancelled", "hr_timesheets")

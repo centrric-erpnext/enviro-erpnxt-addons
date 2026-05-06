@@ -13,7 +13,7 @@
  "is_hidden": 0,
  "label": "OH & S",
  "links": [],
- "modified": "2026-05-05 21:44:44.418732",
+ "modified": "2026-05-06 16:25:46.612304",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "OH & S",
@@ -46,6 +46,12 @@
   },
   {
    "role": "Scheduler"
+  },
+  {
+   "role": "Sales Staff"
+  },
+  {
+   "role": "Sales Manager"
   },
   {
    "role": "Pump Manager"

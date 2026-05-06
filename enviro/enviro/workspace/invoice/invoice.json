@@ -13,7 +13,7 @@
  "is_hidden": 0,
  "label": "Invoice",
  "links": [],
- "modified": "2026-05-05 21:44:44.496517",
+ "modified": "2026-05-06 16:25:46.691226",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "Invoice",
@@ -67,6 +67,12 @@
   },
   {
    "role": "Scheduler"
+  },
+  {
+   "role": "Sales Staff"
+  },
+  {
+   "role": "Sales Manager"
   },
   {
    "role": "Sales Pumps"

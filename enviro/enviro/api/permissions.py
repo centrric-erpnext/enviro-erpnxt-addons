@@ -203,31 +203,31 @@ MATRIX = {
 		"accounts": FULL,
 		"invoice": FULL,
 	},
-	# ── SALES STAFF (no team-add/del, no scheduling, no ohs) ──────────
+	# ── SALES STAFF ──────────
 	"Sales Staff": {
-		"team": VIEW_ONLY,
+		"team": FULL,
 		"site": FULL,
 		"home": FULL,
 		"vehicle": FULL,
 		"sales": FULL,
-		"scheduling": NO_ACCESS,
-		"ohs": NO_ACCESS,
+		"scheduling": FULL,
+		"ohs": FULL,
 		"intranet": FULL,
 		"accounts": FULL,
-		"invoice": NO_ACCESS,
+		"invoice": FULL,
 	},
-	# ── SALES MANAGER (same pattern as sales-staff) ───────────────────
+	# ── SALES MANAGER ───────────────────────────────────
 	"Sales Manager": {
-		"team": VIEW_ONLY,
+		"team": FULL,
 		"site": FULL,
 		"home": FULL,
 		"vehicle": FULL,
 		"sales": FULL,
-		"scheduling": NO_ACCESS,
-		"ohs": NO_ACCESS,
+		"scheduling": FULL,
+		"ohs": FULL,
 		"intranet": FULL,
 		"accounts": FULL,
-		"invoice": NO_ACCESS,
+		"invoice": FULL,
 	},
 	# ── SALES PUMPS (very limited — home/sales/accounts/invoice only) ─
 	"Sales Pumps": {
@@ -456,6 +456,7 @@ def apply_workspace_visibility():
 		ws.set("roles", [])
 		for role in roles:
 			ws.append("roles", {"role": role})
+
 		ws.save(ignore_permissions=True)
 		print(f"  Workspace '{ws_name}': {len(roles)} roles applied")
 
