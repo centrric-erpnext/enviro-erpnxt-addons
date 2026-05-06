@@ -61,25 +61,19 @@ def get_scheduling_data():
 	if source_quotations:
 		items = frappe.db.sql(
 			"""
-			SELECT parent, custom_waste_type
+			SELECT parent, GROUP_CONCAT(DISTINCT custom_waste_type ORDER BY custom_waste_type SEPARATOR ', ') as waste_types
 			FROM `tabQuotation Item`
 			WHERE parent IN %s AND custom_waste_type IS NOT NULL AND custom_waste_type != ''
+			GROUP BY parent
 			""",
 			(source_quotations,),
 			as_dict=True,
 		)
-		for item in items:
-			if item.parent not in waste_map:
-				waste_map[item.parent] = set()
-			waste_map[item.parent].add(item.custom_waste_type)
+		waste_map = {item.parent: item.waste_types for item in items}
 
 	for job in queue_jobs:
 		if job.source_quotation:
-			w_types = waste_map.get(job.source_quotation)
-			if w_types:
-				job.waste_type_label = ", ".join(sorted(list(w_types)))
-			else:
-				job.waste_type_label = "Standard"
+			job.waste_type_label = waste_map.get(job.source_quotation) or "Standard"
 		else:
 			job.waste_type_label = "Manual Job"
 

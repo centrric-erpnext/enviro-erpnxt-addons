@@ -13,10 +13,10 @@
  "is_hidden": 0,
  "label": "Intranet",
  "links": [],
- "modified": "2026-04-30 19:06:17.280342",
+ "modified": "2026-05-05 21:44:44.451350",
  "modified_by": "Administrator",
  "module": "enviro",
- "name": "intranet",
+ "name": "Intranet",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
@@ -49,6 +49,12 @@
   },
   {
    "role": "Account Assistant"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Enviro Accounts"
   },
   {
    "role": "Operations Manager"

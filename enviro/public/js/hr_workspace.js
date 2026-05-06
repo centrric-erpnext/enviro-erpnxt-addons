@@ -70,7 +70,7 @@
 	function api(method, args) {
 		return new Promise(function (ok, fail) {
 			frappe.call({
-				method: "enviro.enviro.api.hr_dashboard." + method,
+				method: "enviro.enviro.api.hr." + method,
 				args: args || {},
 				callback: function (r) {
 					ok(r.message || []);

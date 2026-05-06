@@ -6,6 +6,14 @@
   {
    "custom_block_name": "Enviro HR Management Dashboard",
    "label": "Enviro HR Management Dashboard"
+  },
+  {
+   "custom_block_name": "Enviro HR Management Dashboard",
+   "label": "Enviro HR Management Dashboard"
+  },
+  {
+   "custom_block_name": "Enviro HR Management Dashboard",
+   "label": "Enviro HR Management Dashboard"
   }
  ],
  "docstatus": 0,
@@ -18,16 +26,92 @@
  "is_hidden": 0,
  "label": "Accounts",
  "links": [],
- "modified": "2026-05-02 20:19:34.927017",
+ "modified": "2026-05-05 21:44:44.477070",
  "modified_by": "Administrator",
  "module": "enviro",
- "name": "accounts",
+ "name": "Accounts",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
- "roles": [],
+ "roles": [
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "Superadmin"
+  },
+  {
+   "role": "Director"
+  },
+  {
+   "role": "Manager"
+  },
+  {
+   "role": "General Manager"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts Staff"
+  },
+  {
+   "role": "Accounts"
+  },
+  {
+   "role": "Account Assistant"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Enviro Accounts"
+  },
+  {
+   "role": "Operations Manager"
+  },
+  {
+   "role": "Operations Assistance Manager"
+  },
+  {
+   "role": "Supervisor"
+  },
+  {
+   "role": "Scheduler"
+  },
+  {
+   "role": "Sales Staff"
+  },
+  {
+   "role": "Sales Manager"
+  },
+  {
+   "role": "Sales Pumps"
+  },
+  {
+   "role": "Pump Manager"
+  },
+  {
+   "role": "Pump Coordinator"
+  },
+  {
+   "role": "Pump Technician"
+  },
+  {
+   "role": "Technical Manager"
+  },
+  {
+   "role": "Whs Manager"
+  },
+  {
+   "role": "Factory Manager"
+  },
+  {
+   "role": "Gms Assistant"
+  }
+ ],
  "sequence_id": 9.0,
  "shortcuts": [],
  "title": "Accounts"

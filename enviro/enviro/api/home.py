@@ -169,35 +169,44 @@ def get_weather_data(city=WEATHER_CITY):
 	if cached_data:
 		return cached_data
 
-	geo = requests.get(
-		"https://geocoding-api.open-meteo.com/v1/search", params={"name": city, "count": 1}, timeout=2
-	).json()
-	if not geo.get("results"):
-		return {"error": "City not found"}
+	try:
+		geo_res = requests.get(
+			"https://geocoding-api.open-meteo.com/v1/search", params={"name": city, "count": 1}, timeout=3
+		)
+		geo_res.raise_for_status()
+		geo = geo_res.json()
 
-	loc = geo["results"][0]
-	wx = requests.get(
-		"https://api.open-meteo.com/v1/forecast",
-		params={
-			"latitude": loc["latitude"],
-			"longitude": loc["longitude"],
-			"current": "temperature_2m,weather_code",
-			"daily": "weather_code,temperature_2m_max",
-			"forecast_days": 7,
-			"timezone": "auto",
-		},
-		timeout=2,
-	).json()
+		if not geo.get("results"):
+			return {"error": "City not found"}
 
-	res = {
-		"city": loc["name"],
-		"current_temp": round(wx["current"]["temperature_2m"]),
-		"weather_code": wx["current"]["weather_code"],
-		"daily": {
-			"time": wx["daily"]["time"],
-			"weather_code": wx["daily"]["weather_code"],
-			"temp_max": [round(t) for t in wx["daily"]["temperature_2m_max"]],
-		},
-	}
-	frappe.cache().set_value(cache_key, res, expires_in_sec=900)
-	return res
+		loc = geo["results"][0]
+		wx_res = requests.get(
+			"https://api.open-meteo.com/v1/forecast",
+			params={
+				"latitude": loc["latitude"],
+				"longitude": loc["longitude"],
+				"current": "temperature_2m,weather_code",
+				"daily": "weather_code,temperature_2m_max",
+				"forecast_days": 7,
+				"timezone": "auto",
+			},
+			timeout=3,
+		)
+		wx_res.raise_for_status()
+		wx = wx_res.json()
+
+		res = {
+			"city": loc["name"],
+			"current_temp": round(wx["current"]["temperature_2m"]),
+			"weather_code": wx["current"]["weather_code"],
+			"daily": {
+				"time": wx["daily"]["time"],
+				"weather_code": wx["daily"]["weather_code"],
+				"temp_max": [round(t) for t in wx["daily"]["temperature_2m_max"]],
+			},
+		}
+		frappe.cache().set_value(cache_key, res, expires_in_sec=900)
+		return res
+	except Exception as e:
+		frappe.log_error(f"Weather API Failed: {e!s}")
+		return {"error": "Weather data unavailable"}

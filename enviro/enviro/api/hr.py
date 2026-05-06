@@ -55,32 +55,64 @@ def get_leave_applications():
 		limit=100,
 	)
 
+	if not leaves:
+		return []
+
+	# Bulk fetch employee photos
+	employee_names = list(set(l.employee for l in leaves))
+	photos_map = {
+		d.name: d.image
+		for d in frappe.get_all(
+			"Employee", filters={"name": ["in", employee_names]}, fields=["name", "image"]
+		)
+	}
+
+	# Bulk fetch jobs for the period
+	# We'll fetch all jobs for these employees that overlap the date range of the leaves
+	# For simplicity and performance, we fetch all jobs for these employees in the range
+	min_date = min(l.from_date for l in leaves)
+	max_date = max(l.to_date for l in leaves)
+
+	jobs = frappe.get_all(
+		"Enviro Job",
+		filters={
+			"driver": ["in", employee_names],
+			"scheduled_start_date": ["between", [min_date, max_date]],
+			"status": ["!=", "Cancelled"],
+		},
+		fields=["name", "driver", "scheduled_start_date"],
+	)
+
+	jobs_map = {}
+	for j in jobs:
+		if j.driver not in jobs_map:
+			jobs_map[j.driver] = []
+		jobs_map[j.driver].append(j)
+
+	# Bulk fetch attachments
+	leave_names = [l.name for l in leaves]
+	attachments = frappe.get_all(
+		"File",
+		filters={"attached_to_doctype": "Leave Application", "attached_to_name": ["in", leave_names]},
+		fields=["attached_to_name", "file_url"],
+	)
+	attachment_map = {}
+	for a in attachments:
+		if a.attached_to_name not in attachment_map:
+			attachment_map[a.attached_to_name] = []
+		attachment_map[a.attached_to_name].append(a.file_url)
+
 	results = []
 	for leave in leaves:
-		# Get employee photo
-		photo = frappe.db.get_value("Employee", leave.employee, "image", cache=True) or ""
+		photo = photos_map.get(leave.employee) or ""
 
-		# Check for assigned jobs overlapping the leave period
-		try:
-			jobs = frappe.get_all(
-				"Enviro Job",
-				filters={
-					"driver": leave.employee,
-					"scheduled_start_date": ["between", [leave.from_date, leave.to_date]],
-				},
-				pluck="name",
-				limit=5,
-			)
-			assigned_jobs = ", ".join(jobs) if jobs else "No Jobs Assigned."
-		except Exception:
-			assigned_jobs = "No Jobs Assigned."
-
-		# Check for file attachments
-		attachments = frappe.get_all(
-			"File",
-			filters={"attached_to_doctype": "Leave Application", "attached_to_name": leave.name},
-			pluck="file_url",
-		)
+		# Filter jobs for this specific leave period
+		relevant_jobs = [
+			j.name
+			for j in jobs_map.get(leave.employee, [])
+			if leave.from_date <= j.scheduled_start_date <= leave.to_date
+		]
+		assigned_jobs = ", ".join(relevant_jobs[:5]) if relevant_jobs else "No Jobs Assigned."
 
 		results.append(
 			{
@@ -94,7 +126,7 @@ def get_leave_applications():
 				"status": leave.status,
 				"docstatus": leave.docstatus,
 				"assigned_jobs": assigned_jobs,
-				"attachments": attachments,
+				"attachments": attachment_map.get(leave.name, []),
 			}
 		)
 
@@ -133,9 +165,21 @@ def get_timesheets():
 		limit=100,
 	)
 
+	if not sheets:
+		return []
+
+	# Bulk fetch photos
+	employee_names = list(set(ts.employee for ts in sheets))
+	photos_map = {
+		d.name: d.image
+		for d in frappe.get_all(
+			"Employee", filters={"name": ["in", employee_names]}, fields=["name", "image"]
+		)
+	}
+
 	results = []
 	for ts in sheets:
-		photo = frappe.db.get_value("Employee", ts.employee, "image", cache=True) or ""
+		photo = photos_map.get(ts.employee) or ""
 		week_end = ts.week_beginning + timedelta(days=6) if ts.week_beginning else None
 		results.append(
 			{
