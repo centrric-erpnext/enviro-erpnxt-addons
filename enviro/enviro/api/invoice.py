@@ -72,3 +72,25 @@ def get_completed_jobs(from_date=None, to_date=None, search_txt=None):
 		)
 
 	return results
+
+
+@frappe.whitelist()
+def get_quotation_waste_types(quotation):
+	"""
+	Securely fetches aggregated waste types for a quotation.
+	Used by Job Card to bypass strict client-side permission checks on child tables.
+	"""
+	if not quotation:
+		return ""
+
+	waste_types = frappe.db.sql(
+		"""
+		SELECT DISTINCT custom_waste_type
+		FROM `tabQuotation Item`
+		WHERE parent = %s AND custom_waste_type IS NOT NULL AND custom_waste_type != ''
+	""",
+		quotation,
+		pluck=True,
+	)
+
+	return ", ".join(sorted(waste_types)) if waste_types else ""
