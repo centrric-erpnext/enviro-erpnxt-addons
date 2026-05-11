@@ -39,18 +39,13 @@ frappe.ui.form.on("Enviro Job Card", {
 	source_quotation: function (frm) {
 		if (frm.doc.source_quotation) {
 			frappe.call({
-				method: "frappe.client.get_list",
+				method: "enviro.enviro.api.invoice.get_quotation_waste_types",
 				args: {
-					doctype: "Quotation Item",
-					filters: { parent: frm.doc.source_quotation },
-					fields: ["custom_waste_type"],
+					quotation: frm.doc.source_quotation,
 				},
 				callback: function (r) {
-					if (r.message && r.message.length > 0) {
-						let types = [
-							...new Set(r.message.map((i) => i.custom_waste_type).filter(Boolean)),
-						];
-						frm.set_value("custom_waste_type", types.join(", "));
+					if (r.message) {
+						frm.set_value("custom_waste_type", r.message);
 					} else {
 						frm.set_value("custom_waste_type", "");
 					}
