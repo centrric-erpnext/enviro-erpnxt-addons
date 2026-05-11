@@ -297,6 +297,12 @@
    "unique": 0,
    "width": null
   },
+   {
+    "fieldname": "custom_waste_type",
+    "fieldtype": "Data",
+    "label": "Waste Type",
+    "read_only": 0
+   },
   {
    "allow_bulk_edit": 0,
    "allow_in_quick_entry": 0,
