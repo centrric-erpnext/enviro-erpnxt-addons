@@ -10,6 +10,7 @@
   "customer",
   "site",
   "source_quotation",
+  "custom_waste_type",
   "status",
   "column_break_goks",
   "job_instructions__description",
@@ -131,6 +132,12 @@
    "fieldtype": "Link",
    "label": "Source Quotation",
    "options": "Quotation"
+  },
+  {
+   "fieldname": "custom_waste_type",
+   "fieldtype": "Data",
+   "label": "Waste Type",
+   "read_only": 1
   },
   {
    "fieldname": "status",
