@@ -65,5 +65,35 @@ def reset_test_passwords(password="Enviro@Test#2024"):
 	return f"Passwords reset for {len(users)} users."
 
 
+@frappe.whitelist()
+def get_sales_employees(doctype, txt, searchfield, start, page_len, filters):
+	"""Standard search query for employees who are Sales Staff or Managers."""
+	user_ids = frappe.get_all(
+		"Has Role", filters={"role": ["in", ["Sales Staff", "Manager"]]}, pluck="parent"
+	)
+	user_ids = list(set(user_ids))
+
+	if not user_ids:
+		return []
+
+	conditions = {"user_id": ["in", user_ids], "status": "Active"}
+
+	employees = frappe.get_all("Employee", filters=conditions, fields=["name", "employee_name"])
+
+	result = []
+	safe_txt = (txt or "").lower()
+	for emp in employees:
+		if safe_txt in emp.name.lower() or safe_txt in str(emp.employee_name or "").lower():
+			result.append([emp.name, emp.employee_name or ""])
+
+	return result
+
+
+@frappe.whitelist()
+def get_current_employee():
+	"""Returns the employee ID for the current logged-in user."""
+	return frappe.db.get_value("Employee", {"user_id": frappe.session.user}, "name")
+
+
 if __name__ == "__main__":
 	print(generate_user_report())

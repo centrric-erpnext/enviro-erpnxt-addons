@@ -417,12 +417,20 @@ WORKSPACE_MAP = {
 # Core DocTypes that receive role-level CRUD custom permissions
 # We map each workspace module to its primary DocType
 DOCTYPE_MAP = {
-	"team": "Employee",
-	"site": "Site",
-	"vehicle": "Vehicle",
-	"sales": "Quotation",
-	"scheduling": "Enviro Job",
-	"invoice": "Sales Invoice",
+	"team": ["Employee", "Role", "User"],
+	"site": ["Site", "Site Document", "Site Waste Profile"],
+	"vehicle": ["Vehicle"],
+	"sales": [
+		"Quotation",
+		"Customer",
+		"Enviro Job Card",
+		"Territory",
+		"Waste Type",
+		"Accounts Settings",
+		"Selling Settings",
+	],
+	"scheduling": ["Enviro Job", "Enviro Job Team Member"],
+	"invoice": ["Sales Invoice"],
 }
 
 
@@ -463,36 +471,37 @@ def apply_workspace_visibility():
 
 def apply_doctype_permissions():
 	"""Step 2: set Custom DocPerm records for core DocTypes."""
-	for mod_key, doctype in DOCTYPE_MAP.items():
-		# Remove existing custom perms to start fresh
-		frappe.db.delete("Custom DocPerm", {"parent": doctype})
+	for mod_key, doctypes in DOCTYPE_MAP.items():
+		for doctype in doctypes:
+			# Remove existing custom perms to start fresh
+			frappe.db.delete("Custom DocPerm", {"parent": doctype})
 
-		for role, modules in MATRIX.items():
-			if not frappe.db.exists("Role", role):
-				continue
-			perms = modules.get(mod_key, NO_ACCESS)
-			view, add, edit, delete, pre_insp = perms
+			for role, modules in MATRIX.items():
+				if not frappe.db.exists("Role", role):
+					continue
+				perms = modules.get(mod_key, NO_ACCESS)
+				view, add, edit, delete, pre_insp = perms
 
-			if not view:
-				continue  # no read = skip (role simply has no access)
+				if not view:
+					continue  # no read = skip (role simply has no access)
 
-			# Build the custom perm row
-			perm = frappe.new_doc("Custom DocPerm")
-			perm.parent = doctype
-			perm.parenttype = "DocType"
-			perm.parentfield = "permissions"
-			perm.role = role
-			perm.permlevel = 0
-			perm.read = 1
-			perm.write = 1 if edit else 0
-			perm.create = 1 if add else 0
-			perm.delete = 1 if delete else 0
-			perm.submit = 0
-			perm.cancel = 0
-			perm.amend = 0
-			perm.insert()
+				# Build the custom perm row
+				perm = frappe.new_doc("Custom DocPerm")
+				perm.parent = doctype
+				perm.parenttype = "DocType"
+				perm.parentfield = "permissions"
+				perm.role = role
+				perm.permlevel = 0
+				perm.read = 1
+				perm.write = 1 if edit else 0
+				perm.create = 1 if add else 0
+				perm.delete = 1 if delete else 0
+				perm.submit = 1 if pre_insp else 0
+				perm.cancel = 1 if pre_insp else 0
+				perm.amend = 1 if pre_insp else 0
+				perm.insert()
 
-		print(f"  DocType '{doctype}': custom perms applied")
+			print(f"  DocType '{doctype}': custom perms applied")
 
 	frappe.db.commit()
 

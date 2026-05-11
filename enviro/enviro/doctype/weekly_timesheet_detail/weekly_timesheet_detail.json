@@ -11,6 +11,7 @@
   "start",
   "finish",
   "total_hours",
+  "column_break_mpes",
   "normal_hours",
   "ot_1_5",
   "ot_2_0",
@@ -80,13 +81,17 @@
    "in_list_view": 1,
    "label": "Total Hours",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mpes",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-03-13 16:42:04.535192",
+ "modified": "2026-05-08 14:53:43.892047",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "Weekly Timesheet Detail",

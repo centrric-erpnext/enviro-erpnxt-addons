@@ -3,7 +3,13 @@ from frappe import _  # 1. ADDED: The translation function import
 
 
 @frappe.whitelist()
-def get_scheduling_data():
+def get_scheduling_data(from_date=None, to_date=None):
+	"""
+	Fetches data required for the Scheduling Dashboard:
+	1. Queue Jobs: Approved Job Cards ready for scheduling.
+	2. Scheduled Jobs: Jobs already allocated/scheduled within the date range.
+	3. Vehicle Information: Available vehicles for allocation.
+	"""
 	# Only fetch jobs where the attached quote has completely bypassed/passed Accounts
 	valid_job_ids = frappe.get_all(
 		"Quotation",
@@ -11,25 +17,14 @@ def get_scheduling_data():
 		pluck="custom_enviro_job_card",
 	)
 
-	filters = [["docstatus", "<", 2]]
-
-	# Strict locking to approved quotes ONLY:
-	if valid_job_ids:
-		filters.append(["name", "in", valid_job_ids])
-	else:
-		# If no approved quotes exist, return an empty tracking list for extreme security
-		filters.append(["name", "=", "NONE_AUTHORIZED"])
-
-	# Queue Jobs = Master Requests that aren't purely scheduled one-offs
-	# For Reoccurring: Only show if it hasn't been scheduled 'today' to keep the UI clean
-	today = frappe.utils.today()
-
 	base_filters = [["docstatus", "<", 2]]
 	if valid_job_ids:
 		base_filters.append(["name", "in", valid_job_ids])
 	else:
 		base_filters.append(["name", "=", "NONE_AUTHORIZED"])
 
+	# Queue Jobs = Master Requests that aren't purely scheduled one-offs
+	today = frappe.utils.today()
 	queue_jobs = frappe.get_all(
 		"Enviro Job Card",
 		fields=[
@@ -55,10 +50,11 @@ def get_scheduling_data():
 		],
 	)
 
-	# Calculate Waste Type for Queue Jobs
+	# Optimize Waste Type lookup using bulk query
 	source_quotations = list(set([job.source_quotation for job in queue_jobs if job.source_quotation]))
 	waste_map = {}
 	if source_quotations:
+		# Use optimized SQL to aggregate waste types per quotation
 		items = frappe.db.sql(
 			"""
 			SELECT parent, GROUP_CONCAT(DISTINCT custom_waste_type ORDER BY custom_waste_type SEPARATOR ', ') as waste_types
@@ -72,15 +68,22 @@ def get_scheduling_data():
 		waste_map = {item.parent: item.waste_types for item in items}
 
 	for job in queue_jobs:
-		if job.source_quotation:
-			job.waste_type_label = waste_map.get(job.source_quotation) or "Standard"
-		else:
-			job.waste_type_label = "Manual Job"
+		job.waste_type_label = waste_map.get(job.source_quotation) or (
+			"Standard" if job.source_quotation else "Manual Job"
+		)
 
-	# Fetch Existing Scheduled Jobs
+	# Fetch Existing Scheduled Jobs within the timeline
+	scheduled_filters = {"status": ["!=", "Cancelled"]}
+	if from_date and to_date:
+		scheduled_filters["scheduled_start_date"] = ["between", [from_date, to_date]]
+	elif from_date:
+		scheduled_filters["scheduled_start_date"] = [">=", from_date]
+	elif to_date:
+		scheduled_filters["scheduled_start_date"] = ["<=", to_date]
+
 	scheduled_jobs = frappe.get_all(
 		"Enviro Job",
-		filters={"status": ["!=", "Cancelled"]},
+		filters=scheduled_filters,
 		fields=[
 			"name",
 			"customer",
@@ -284,9 +287,20 @@ def api_schedule_job(job_id: str, payload: str):
 @frappe.whitelist()
 # 4. ADDED: Type hint for cancel function
 def cancel_job_card(job_id: str):
-	"""Archives/Cancels a Master Job Card."""
-	frappe.db.set_value("Enviro Job Card", job_id, "status", "Cancelled")
-	return "OK"
+	"""
+	If Reoccurring: 'Skips' this occurrence by hiding it from the queue today.
+	If One-Off: Permanently Archives/Cancels the Job Card.
+	"""
+	is_reoccurring = frappe.db.get_value("Enviro Job Card", job_id, "is_reoccurring_quote")
+
+	if is_reoccurring == "YES":
+		# Skip this occurrence (hides it from scheduling queue until next cycle)
+		frappe.db.set_value("Enviro Job Card", job_id, "custom_last_scheduled_date", frappe.utils.today())
+		return "Skipped"
+	else:
+		# Standard permanent cancellation
+		frappe.db.set_value("Enviro Job Card", job_id, "status", "Cancelled")
+		return "Cancelled"
 
 
 def _get_busy_resources(date: str, resource_type: str) -> set:

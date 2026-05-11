@@ -1,8 +1,13 @@
 {
  "charts": [],
- "content": "[{\"type\":\"header\",\"data\":{\"text\":\"Invoice\"}}]",
+ "content": "[{\"id\":\"8IBNTRa1ZV\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Invoice Dashboard\",\"col\":12}}]",
  "creation": "2026-04-30 18:22:35.563458",
- "custom_blocks": [],
+ "custom_blocks": [
+  {
+   "custom_block_name": "Enviro Invoice Dashboard",
+   "label": "Enviro Invoice Dashboard"
+  }
+ ],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
@@ -13,7 +18,7 @@
  "is_hidden": 0,
  "label": "Invoice",
  "links": [],
- "modified": "2026-05-06 16:25:46.691226",
+ "modified": "2026-05-11 14:47:10.555663",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "Invoice",

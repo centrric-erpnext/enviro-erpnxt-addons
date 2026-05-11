@@ -11,6 +11,7 @@
   "site",
   "source_quotation",
   "status",
+  "column_break_goks",
   "job_instructions__description",
   "sec_site_company",
   "site_name",
@@ -79,6 +80,7 @@
   "pitt_distance",
   "water_tap_location",
   "gurney_required",
+  "additional_logistics_information",
   "col_waste_logistics",
   "confined_space_required",
   "number_of_trucks",
@@ -88,7 +90,6 @@
   "weigh_bridge_required",
   "weigh_bridge_file",
   "pallets_to_be_exchanged",
-  "additional_logistics_information",
   "photo_required",
   "certification_of_destruction",
   "capacity",
@@ -103,6 +104,7 @@
   "scheduled_end_time",
   "sec_team",
   "team_members",
+  "column_break_pvmr",
   "custom_last_scheduled_date"
  ],
  "fields": [
@@ -254,8 +256,7 @@
   },
   {
    "fieldname": "sec_job_details",
-   "fieldtype": "Section Break",
-   "label": ""
+   "fieldtype": "Section Break"
   },
   {
    "fetch_from": "site.induction_type",
@@ -274,9 +275,10 @@
   {
    "fieldname": "sales_person",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "label": "Sales Person",
-   "options": "Sales Person",
+   "options": "Employee",
    "reqd": 1
   },
   {
@@ -312,16 +314,16 @@
    "label": "Additional Information & Compliance Files"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "access_restriction",
    "fieldtype": "Data",
-   "label": "Access Restriction",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Access Restriction"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)",
    "fieldname": "tc_required_comments",
    "fieldtype": "Data",
-   "label": "TC Required | Comments",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)"
+   "label": "TC Required | Comments"
   },
   {
    "fieldname": "tc_file",
@@ -329,10 +331,10 @@
    "label": "TC File"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)",
    "fieldname": "manifest_comments",
    "fieldtype": "Data",
-   "label": "Manifest | Comments",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)"
+   "label": "Manifest | Comments"
   },
   {
    "fieldname": "manifest_file",
@@ -340,11 +342,11 @@
    "label": "Manifest File"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)",
    "fieldname": "chemist_approval",
    "fieldtype": "Select",
    "label": "Chemist Approval",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
    "fieldname": "chemist_file",
@@ -356,11 +358,11 @@
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)",
    "fieldname": "safety_data_sheet_required",
    "fieldtype": "Select",
    "label": "Safety Data Sheet Required",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
    "fieldname": "sds_file",
@@ -368,10 +370,10 @@
    "label": "SDS File"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "additional_images_comment",
    "fieldtype": "Data",
-   "label": "Additional Images",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Additional Images"
   },
   {
    "fieldname": "additional_images_file",
@@ -379,11 +381,11 @@
    "label": "Image File"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)",
    "fieldname": "data_form_required",
    "fieldtype": "Select",
    "label": "Data Form Required",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
    "fieldname": "data_form_file",
@@ -391,10 +393,10 @@
    "label": "Data Form File"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "purchase_order_comment",
    "fieldtype": "Data",
-   "label": "Purchase Order Comment",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Purchase Order Comment"
   },
   {
    "fieldname": "purchase_order_file",
@@ -407,117 +409,117 @@
    "label": "Waste & Execution Logistics"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Disposal', 'Product Destruction'], doc.job_card_type)",
    "fieldname": "how_waste_packaged",
    "fieldtype": "Data",
-   "label": "How is the Waste Packaged",
-   "depends_on": "eval:in_list(['Standard', 'Disposal', 'Product Destruction'], doc.job_card_type)"
+   "label": "How is the Waste Packaged"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)",
    "fieldname": "volume_expected",
    "fieldtype": "Data",
-   "label": "Volume Expected",
-   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)"
+   "label": "Volume Expected"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)",
    "fieldname": "number_of_loads_expected",
    "fieldtype": "Data",
-   "label": "Number of Loads expected",
-   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)"
+   "label": "Number of Loads expected"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)",
    "fieldname": "sample_of_waste",
    "fieldtype": "Select",
    "label": "Sample of Waste to be collected",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)",
    "fieldname": "estimated_date_and_time_of_disposal",
    "fieldtype": "Data",
-   "label": "Estimated Date and Time of Disposal",
-   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)"
+   "label": "Estimated Date and Time of Disposal"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)",
    "fieldname": "flow_meter_required",
    "fieldtype": "Select",
    "label": "Flow Meter Required",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Disposal'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "access_height",
    "fieldtype": "Data",
-   "label": "Access Height",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Access Height"
   },
   {
    "default": "0",
+   "depends_on": "eval:in_list(['Standard', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "key_required",
    "fieldtype": "Check",
-   "label": "Key Required",
-   "depends_on": "eval:in_list(['Standard', 'Grease Trap'], doc.job_card_type)"
+   "label": "Key Required"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Grease Trap', 'Liquid Waste'], doc.job_card_type)",
    "fieldname": "pitt_distance",
    "fieldtype": "Data",
-   "label": "Pitt Distance from Truck Location",
-   "depends_on": "eval:in_list(['Standard', 'Grease Trap', 'Liquid Waste'], doc.job_card_type)"
+   "label": "Pitt Distance from Truck Location"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "water_tap_location",
    "fieldtype": "Data",
-   "label": "Water tap Location",
-   "depends_on": "eval:in_list(['Standard', 'Grease Trap'], doc.job_card_type)"
+   "label": "Water tap Location"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "gurney_required",
    "fieldtype": "Select",
    "label": "Gurney Required",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
    "fieldname": "col_waste_logistics",
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Grease Trap', 'Liquid Waste'], doc.job_card_type)",
    "fieldname": "confined_space_required",
    "fieldtype": "Select",
    "label": "Confined Space Required",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Grease Trap', 'Liquid Waste'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "number_of_trucks",
    "fieldtype": "Data",
-   "label": "Number of Trucks",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Number of Trucks"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "estimated_job_duration",
    "fieldtype": "Data",
-   "label": "Estimated Job Duration",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Estimated Job Duration"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "best_time_for_service",
    "fieldtype": "Data",
-   "label": "Best time for service",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Best time for service"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "specific_ppe",
    "fieldtype": "Select",
    "label": "Specific PPE",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)",
    "fieldname": "weigh_bridge_required",
    "fieldtype": "Select",
    "label": "Weigh Bridge Required",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
    "fieldname": "weigh_bridge_file",
@@ -525,54 +527,54 @@
    "label": "Weigh Bridge File"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap', 'Disposal'], doc.job_card_type)",
    "fieldname": "pallets_to_be_exchanged",
    "fieldtype": "Data",
-   "label": "Number and type of pallets to be exchanged",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap', 'Disposal'], doc.job_card_type)"
+   "label": "Number and type of pallets to be exchanged"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap', 'Disposal'], doc.job_card_type)",
    "fieldname": "additional_logistics_information",
    "fieldtype": "Text",
-   "label": "Additional Information",
-   "depends_on": "eval:in_list(['Standard', 'Packaged Waste', 'Product Destruction', 'Liquid Waste', 'Grease Trap', 'Disposal'], doc.job_card_type)"
+   "label": "Additional Information"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Product Destruction'], doc.job_card_type)",
    "fieldname": "photo_required",
    "fieldtype": "Select",
    "label": "Photo Required",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Product Destruction'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Product Destruction'], doc.job_card_type)",
    "fieldname": "certification_of_destruction",
    "fieldtype": "Select",
    "label": "Certification of Destruction Required",
-   "options": "\nYES\nNO",
-   "depends_on": "eval:in_list(['Standard', 'Product Destruction'], doc.job_card_type)"
+   "options": "\nYES\nNO"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "capacity",
    "fieldtype": "Data",
-   "label": "Capacity",
-   "depends_on": "eval:in_list(['Standard', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Capacity"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "barcode",
    "fieldtype": "Data",
-   "label": "Barcode",
-   "depends_on": "eval:in_list(['Standard', 'Grease Trap'], doc.job_card_type)"
+   "label": "Barcode"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "pit_location",
    "fieldtype": "Data",
-   "label": "Pit Location",
-   "depends_on": "eval:in_list(['Standard', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Pit Location"
   },
   {
+   "depends_on": "eval:in_list(['Standard', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)",
    "fieldname": "smoke_alarm",
    "fieldtype": "Data",
-   "label": "Smoke Alarm",
-   "depends_on": "eval:in_list(['Standard', 'Liquid Waste', 'Grease Trap'], doc.job_card_type)"
+   "label": "Smoke Alarm"
   },
   {
    "depends_on": "eval:doc.is_reoccurring_quote=='YES'",
@@ -687,12 +689,20 @@
    "hidden": 1,
    "label": "Last Scheduled Date",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_goks",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_pvmr",
+   "fieldtype": "Column Break"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-07 19:18:55.506743",
+ "modified": "2026-05-08 14:52:33.986828",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "Enviro Job Card",

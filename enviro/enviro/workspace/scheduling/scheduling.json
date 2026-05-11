@@ -1,16 +1,8 @@
 {
  "charts": [],
- "content": "[{\"id\":\"CMqMW7R8am\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Scheduling</span>\",\"col\":12}},{\"id\":\"Kq6lWHs-v_\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Scheduling Workspace\",\"col\":12}}]",
+ "content": "[{\"id\":\"Kq6lWHs-v_\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Scheduling Workspace\",\"col\":12}}]",
  "creation": "2026-04-30 18:22:35.552830",
  "custom_blocks": [
-  {
-   "custom_block_name": "Enviro Scheduling Workspace",
-   "label": "Enviro Scheduling Workspace"
-  },
-  {
-   "custom_block_name": "Enviro Scheduling Workspace",
-   "label": "Enviro Scheduling Workspace"
-  },
   {
    "custom_block_name": "Enviro Scheduling Workspace",
    "label": "Enviro Scheduling Workspace"
@@ -26,7 +18,7 @@
  "is_hidden": 0,
  "label": "Scheduling",
  "links": [],
- "modified": "2026-05-06 16:25:46.574299",
+ "modified": "2026-05-11 14:44:23.655459",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "Scheduling",

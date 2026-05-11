@@ -9,10 +9,10 @@ def execute_daily_operations():
 	"""
 	frappe.logger().info("Starting Enviro Scheduled Reoccurring Operations")
 
-	# Fetch all Master templates
+	# Fetch all Master templates (Excluding Cancelled and Completed ones)
 	master_jobs = frappe.get_all(
 		"Enviro Job Card",
-		filters={"is_reoccurring_quote": "YES"},
+		filters={"is_reoccurring_quote": "YES", "status": ["not in", ["Cancelled", "Completed"]]},
 		fields=[
 			"name",
 			"source_quotation",
