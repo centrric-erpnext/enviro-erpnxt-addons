@@ -38,21 +38,24 @@ frappe.ui.form.on("Enviro Job Card", {
 	},
 	source_quotation: function (frm) {
 		if (frm.doc.source_quotation) {
-			frappe.db
-				.get_list("Quotation Item", {
+			frappe.call({
+				method: "frappe.client.get_list",
+				args: {
+					doctype: "Quotation Item",
 					filters: { parent: frm.doc.source_quotation },
 					fields: ["custom_waste_type"],
-				})
-				.then((data) => {
-					if (data && data.length > 0) {
+				},
+				callback: function (r) {
+					if (r.message && r.message.length > 0) {
 						let types = [
-							...new Set(data.map((i) => i.custom_waste_type).filter(Boolean)),
+							...new Set(r.message.map((i) => i.custom_waste_type).filter(Boolean)),
 						];
 						frm.set_value("custom_waste_type", types.join(", "));
 					} else {
 						frm.set_value("custom_waste_type", "");
 					}
-				});
+				},
+			});
 		} else {
 			frm.set_value("custom_waste_type", "");
 		}
