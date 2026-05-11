@@ -13,6 +13,27 @@ class EnviroJob(Document):
 	def validate(self):
 		"""Triggers hard database validation for driver/vehicle availability."""
 		self.check_availability()
+		self.fetch_waste_type()
+
+	def fetch_waste_type(self):
+		"""Aggregates all unique waste types from the linked quotation's items."""
+		if self.quotation:
+			# Use SQL to aggregate to handle multiple items efficiently
+			waste_types = frappe.db.sql(
+				"""
+				SELECT DISTINCT custom_waste_type
+				FROM `tabQuotation Item`
+				WHERE parent = %s AND custom_waste_type IS NOT NULL AND custom_waste_type != ''
+			""",
+				self.quotation,
+				pluck=True,
+			)
+
+			if waste_types:
+				# Store as a sorted comma-separated string
+				self.custom_waste_type = ", ".join(sorted(waste_types))
+			else:
+				self.custom_waste_type = ""
 
 	def check_availability(self):
 		"""
