@@ -12,14 +12,20 @@ class EnviroJobCard(Document):
 	def fetch_waste_type(self):
 		"""Aggregates all unique waste types from the linked quotation's items."""
 		if self.source_quotation:
-			waste_types = frappe.get_all(
-				"Quotation Item",
-				filters={"parent": self.source_quotation, "custom_waste_type": ["is", "set"]},
-				pluck="custom_waste_type",
+			# Use SQL to aggregate to handle multiple items efficiently
+			waste_types = frappe.db.sql(
+				"""
+				SELECT DISTINCT custom_waste_type
+				FROM `tabQuotation Item`
+				WHERE parent = %s AND custom_waste_type IS NOT NULL AND custom_waste_type != ''
+			""",
+				self.source_quotation,
+				pluck=True,
 			)
+
 			if waste_types:
-				# Store as a comma-separated string
-				self.custom_waste_type = ", ".join(sorted(list(set(waste_types))))
+				# Store as a sorted comma-separated string
+				self.custom_waste_type = ", ".join(sorted(waste_types))
 			else:
 				self.custom_waste_type = ""
 

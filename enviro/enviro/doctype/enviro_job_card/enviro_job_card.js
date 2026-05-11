@@ -21,6 +21,12 @@ frappe.ui.form.on("Enviro Job Card", {
 			});
 		}
 	},
+	refresh: function (frm) {
+		// If it's a new record and quotation is already linked (e.g. via 'Create Job Card' button), fetch waste type
+		if (frm.is_new() && frm.doc.source_quotation && !frm.doc.custom_waste_type) {
+			frm.trigger("source_quotation");
+		}
+	},
 	site: function (frm) {
 		if (frm.doc.site) {
 			frappe.db.get_value("Site", frm.doc.site, "industry_type", (r) => {
@@ -32,22 +38,21 @@ frappe.ui.form.on("Enviro Job Card", {
 	},
 	source_quotation: function (frm) {
 		if (frm.doc.source_quotation) {
-			frappe.call({
-				method: "frappe.client.get_list",
-				args: {
-					doctype: "Quotation Item",
+			frappe.db
+				.get_list("Quotation Item", {
 					filters: { parent: frm.doc.source_quotation },
 					fields: ["custom_waste_type"],
-				},
-				callback: function (r) {
-					if (r.message) {
+				})
+				.then((data) => {
+					if (data && data.length > 0) {
 						let types = [
-							...new Set(r.message.map((i) => i.custom_waste_type).filter(Boolean)),
+							...new Set(data.map((i) => i.custom_waste_type).filter(Boolean)),
 						];
 						frm.set_value("custom_waste_type", types.join(", "));
+					} else {
+						frm.set_value("custom_waste_type", "");
 					}
-				},
-			});
+				});
 		} else {
 			frm.set_value("custom_waste_type", "");
 		}
