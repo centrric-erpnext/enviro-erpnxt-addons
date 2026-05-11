@@ -37,7 +37,6 @@
   "induction_type",
   "industry_type",
   "sales_person",
-  "job_creation_date",
   "col_job_details",
   "is_outsourced_job",
   "is_reoccurring_quote",
@@ -136,8 +135,7 @@
   {
    "fieldname": "custom_waste_type",
    "fieldtype": "Data",
-   "label": "Waste Type",
-   "read_only": 0
+   "label": "Waste Type"
   },
   {
    "fieldname": "status",
@@ -287,11 +285,6 @@
    "label": "Sales Person",
    "options": "Employee",
    "reqd": 1
-  },
-  {
-   "fieldname": "job_creation_date",
-   "fieldtype": "Date",
-   "label": "Date"
   },
   {
    "fieldname": "col_job_details",
@@ -709,7 +702,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-08 14:52:33.986828",
+ "modified": "2026-05-11 21:26:14.045517",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "Enviro Job Card",
