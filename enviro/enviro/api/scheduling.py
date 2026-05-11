@@ -234,6 +234,7 @@ def api_schedule_job(job_id: str, payload: str):
 		new_job.scheduled_end_time = data.get("scheduled_end_time")
 		new_job.vehicle = data.get("vehicle")
 		new_job.driver = data.get("driver")
+		new_job.custom_waste_type = job_card.custom_waste_type
 		new_job.status = "Allocated"
 
 		team = data.get("team_members")
@@ -268,6 +269,7 @@ def api_schedule_job(job_id: str, payload: str):
 	new_job.scheduled_end_time = data.get("scheduled_end_time")
 	new_job.vehicle = data.get("vehicle")
 	new_job.driver = data.get("driver")
+	new_job.custom_waste_type = job_card.custom_waste_type
 	new_job.status = "Scheduled"
 
 	team = data.get("team_members")

@@ -64,6 +64,7 @@ def get_assigned_jobs():
 				"scheduled_start_time",
 				"status",
 				"vehicle",
+				"custom_waste_type",
 			],
 		)
 
