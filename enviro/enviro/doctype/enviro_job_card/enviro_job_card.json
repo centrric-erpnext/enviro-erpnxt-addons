@@ -137,7 +137,7 @@
    "fieldname": "custom_waste_type",
    "fieldtype": "Data",
    "label": "Waste Type",
-   "read_only": 1
+   "read_only": 0
   },
   {
    "fieldname": "status",
