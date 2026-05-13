@@ -3,15 +3,8 @@ from frappe import _
 from frappe.exceptions import ValidationError
 from frappe.utils import now_datetime, today
 
+from enviro.enviro.utils.api_utils import get_request_params
 from enviro.enviro.utils.response_handler import ResponseHandler
-
-
-def get_request_params():
-	"""Helper to get parameters from form-data or JSON body"""
-	params = frappe.form_dict.copy()
-	if frappe.request.json:
-		params.update(frappe.request.json)
-	return params
 
 
 @frappe.whitelist()
@@ -60,6 +53,11 @@ def get_assigned_jobs():
 				"name",
 				"customer",
 				"site",
+				"site_name",
+				"site_address",
+				"site_contact_name",
+				"site_contact_phone",
+				"site_contact_email",
 				"scheduled_start_date",
 				"scheduled_start_time",
 				"status",

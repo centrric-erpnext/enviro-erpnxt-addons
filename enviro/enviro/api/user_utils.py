@@ -89,11 +89,7 @@ def get_sales_employees(doctype, txt, searchfield, start, page_len, filters):
 	return result
 
 
-@frappe.whitelist()
-def get_current_employee():
-	"""Returns the employee ID for the current logged-in user."""
-	return frappe.db.get_value("Employee", {"user_id": frappe.session.user}, "name")
-
+from enviro.enviro.utils.api_utils import get_current_employee
 
 if __name__ == "__main__":
 	print(generate_user_report())

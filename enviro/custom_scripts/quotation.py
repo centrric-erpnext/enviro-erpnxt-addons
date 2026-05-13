@@ -206,38 +206,73 @@ def submit_quote_approval():
 		site_details = json.loads(data.get("site_details", "{}"))
 		if doc.custom_site and site_details:
 			site = frappe.get_doc("Site", doc.custom_site)
-			if site_details.get("site_name"):
-				site.site_name = site_details.get("site_name")
 			if site_details.get("site_address"):
 				site.site_address = site_details.get("site_address")
 			if site_details.get("contact_name"):
 				site.site_contact_person = site_details.get("contact_name")
+			if site_details.get("site_email"):
+				site.site_email_address = site_details.get("site_email")
+			if site_details.get("site_phone"):
+				site.site_phone = site_details.get("site_phone")
 			site.save(ignore_permissions=True)
+
+			# PROPAGATE TO ENVIRO JOB CARD & JOBS
+			if getattr(doc, "custom_enviro_job_card", None):
+				frappe.db.set_value(
+					"Enviro Job Card",
+					doc.custom_enviro_job_card,
+					{
+						"site_name": site.site_name,
+						"site_address": site.site_address,
+						"site_contact_name": site.site_contact_person,
+						"site_contact_phone": site.site_phone,
+						"site_contact_email": site.site_email_address,
+					},
+					update_modified=True,
+				)
+
+			# PROPAGATE TO ACTIVE JOBS
+			frappe.db.sql(
+				"""
+				UPDATE `tabEnviro Job`
+				SET site_name = %s, site_address = %s, site_contact_name = %s,
+					site_contact_phone = %s, site_contact_email = %s, modified = NOW()
+				WHERE quotation = %s AND status IN ('Scheduled', 'In Transit', 'On Site')
+			""",
+				(
+					site.site_name,
+					site.site_address,
+					site.site_contact_person,
+					site.site_phone,
+					site.site_email_address,
+					name,
+				),
+			)
 
 		# Save Signature
 		signature_b64 = data.get("signature")
 		if signature_b64:
-			import base64
+			from enviro.enviro.utils.api_utils import save_signature
 
-			# The base64 usually starts with data:image/png;base64,...
-			if "," in signature_b64:
-				signature_b64 = signature_b64.split(",")[1]
+			file_url = save_signature("Quotation", name, signature_b64)
+			doc.custom_customer_signature = file_url
 
-			file_doc = frappe.new_doc("File")
-			file_doc.file_name = f"signature_{name}.png"
-			file_doc.is_private = 1
-			file_doc.content = base64.b64decode(signature_b64)
-			file_doc.attached_to_doctype = "Quotation"
-			file_doc.attached_to_name = name
-			file_doc.insert(ignore_permissions=True)
+			# PROPAGATE SIGNATURE
+			if getattr(doc, "custom_enviro_job_card", None):
+				frappe.db.set_value(
+					"Enviro Job Card", doc.custom_enviro_job_card, "custom_customer_signature", file_url
+				)
 
-			doc.custom_customer_signature = file_doc.file_url
+			frappe.db.sql(
+				"UPDATE `tabEnviro Job` SET contact_signature = %s, modified = NOW() WHERE quotation = %s AND status IN ('Scheduled', 'In Transit', 'On Site')",
+				(file_url, name),
+			)
 
 		doc.custom_client_approval_status = "Approved"
 		doc.custom_accounts_approval_status = "Pending"
 		doc.custom_approval_token = ""
 		doc.save(ignore_permissions=True)
-		frappe.db.commit()  # nosemgrep
+		frappe.db.commit()
 		return {"status": "success", "message": "Approved"}
 
 	return {"status": "error", "message": "Unknown action"}
