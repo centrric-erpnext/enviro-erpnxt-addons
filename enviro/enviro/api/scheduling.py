@@ -212,12 +212,8 @@ def api_schedule_job(job_id: str, payload: str):
 		new_quote.custom_intended_team = json.dumps(data.get("team_members") or [])
 
 		# 3. Reset workflow status
-		if new_quote.custom_requires_client_approval == 1:
-			new_quote.custom_client_approval_status = "Pending"
-			new_quote.custom_accounts_approval_status = ""
-		else:
-			new_quote.custom_client_approval_status = "Not Required"
-			new_quote.custom_accounts_approval_status = "Pending"
+		new_quote.custom_client_approval_status = "Pending"
+		new_quote.custom_accounts_approval_status = "Pending"
 
 		new_quote.insert(ignore_permissions=True)
 
@@ -248,12 +244,7 @@ def api_schedule_job(job_id: str, payload: str):
 		job_card.custom_last_scheduled_date = frappe.utils.today()
 		job_card.save(ignore_permissions=True)
 
-		# 6. Global Action: Trigger Email if needed
-		if new_quote.custom_requires_client_approval == 1:
-			from enviro.custom_scripts.quotation import send_approval_email
-
-			send_approval_email(new_quote.name)
-
+		# 6. Global Action: Removed auto-trigger email logic since it's now manual via the button.
 		return {"status": "OK", "type": "reoccurring", "quote": new_quote.name, "job": new_job.name}
 
 	# --- CASE 2: ONE-OFF JOB (Direct Scheduling) ---

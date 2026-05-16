@@ -1,7 +1,7 @@
 {
  "attach_print": 0,
  "channel": "Email",
- "condition": "doc.custom_requires_client_approval == 1 and doc.custom_client_approval_status == 'Pending'",
+ "condition": "doc.custom_client_approval_status == 'Pending'",
  "creation": "2026-03-27 18:35:00.190513",
  "days_in_advance": 0,
  "docstatus": 0,

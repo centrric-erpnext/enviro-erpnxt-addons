@@ -9,6 +9,7 @@ def get_request_params():
 	return params
 
 
+@frappe.whitelist()
 def get_current_employee():
 	"""Returns the employee record linked to the current user"""
 	return frappe.db.get_value(

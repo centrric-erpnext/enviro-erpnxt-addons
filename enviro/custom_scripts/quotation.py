@@ -18,28 +18,17 @@ def before_save(doc, method=None):
 				"❌ You must create and link an <b>Enviro Job Card</b> before confirming this Quotation internally."
 			)
 
-	# If the user checks 'Requires Client Approval'
-	if doc.custom_requires_client_approval:
-		# Check if the client has already signed the web form or clicked the email button
-		if doc.custom_customer_signature or doc.custom_client_approval_status == "Approved":
-			# Client has signed it!
-			doc.custom_client_approval_status = "Approved"
+	# Check if the client has already signed the web form or clicked the email button
+	if doc.custom_customer_signature or doc.custom_client_approval_status == "Approved":
+		# Client has signed it!
+		doc.custom_client_approval_status = "Approved"
 
-			# Now it proceeds to the Accounts Review stage (if not already approved)
-			if doc.custom_accounts_approval_status not in ["Approved", "Rejected"]:
-				doc.custom_accounts_approval_status = "Pending"
-
-		else:
-			# Client hasn't signed it yet
-			doc.custom_client_approval_status = "Pending"
-			# Explicitly blank out the accounts status so they know it's not ready for them
-			doc.custom_accounts_approval_status = ""
-
-	# If the user DOES NOT require client approval
+		# Now it proceeds to the Accounts Review stage (if not already approved)
+		if doc.custom_accounts_approval_status not in ["Approved", "Rejected"]:
+			doc.custom_accounts_approval_status = "Pending"
 	else:
-		doc.custom_client_approval_status = "Not Required"
-
-		# It goes straight to the Accounts Review stage
+		# Client hasn't signed it yet
+		doc.custom_client_approval_status = "Pending"
 		if doc.custom_accounts_approval_status not in ["Approved", "Rejected"]:
 			doc.custom_accounts_approval_status = "Pending"
 
@@ -129,7 +118,7 @@ def spawn_job_from_intent(doc):
 
 
 @frappe.whitelist()
-def send_approval_email(docname: str):
+def send_approval_email(docname, cc=None, bcc=None, custom_message=None):
 	doc = frappe.get_doc("Quotation", docname)
 
 	if not doc.custom_site_email:
@@ -148,6 +137,11 @@ def send_approval_email(docname: str):
 
 	view_link = f"{get_url()}/quote_view?name={doc.name}&token={doc.custom_approval_token}"
 
+	if custom_message:
+		custom_message_html = f'<p style="color: #374151; font-size: 14px; text-align: left; margin-bottom: 20px; white-space: pre-wrap; padding: 15px; background-color: #f3f4f6; border-radius: 6px;">{custom_message}</p>'
+	else:
+		custom_message_html = ""
+
 	message = f"""
     <div style="font-family: Inter, Arial, sans-serif; max-width: 600px; padding: 25px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <div style="text-align: center; margin-bottom: 20px;">
@@ -156,6 +150,7 @@ def send_approval_email(docname: str):
         </div>
         <div style="background-color: #0ea5e9; height: 10px; width: 100%; border-radius: 4px;"></div>
         <h2 style="color: #111827; text-align: center; margin-top: 20px;">Enviro Quotation</h2>
+        {custom_message_html}
         <p style="color: #374151; font-size: 14px; text-align: center; margin-bottom: 30px;">
             This is your most recent quote. Kindly click the button below to access the quote details and optionally customize your site information.
         </p>
@@ -168,8 +163,13 @@ def send_approval_email(docname: str):
     </div>
     """
 
+	cc_list = [email.strip() for email in cc.split(",") if email.strip()] if cc else []
+	bcc_list = [email.strip() for email in bcc.split(",") if email.strip()] if bcc else []
+
 	frappe.sendmail(
 		recipients=[doc.custom_site_email],
+		cc=cc_list,
+		bcc=bcc_list,
 		subject=f"Action Required: Quotation {doc.name} Approval",
 		message=message,
 		reference_doctype="Quotation",
@@ -286,7 +286,7 @@ def submit_quotation(name):
 
 
 @frappe.whitelist()
-def make_enviro_job_card(source_name: str, target_doc: dict | None = None):
+def make_enviro_job_card(source_name, target_doc=None):
 	from frappe.model.mapper import get_mapped_doc
 
 	def build_metadata(source, target, source_parent=None):

@@ -90,19 +90,6 @@ def duplicate_and_schedule(master_job):
 	new_quote.custom_enviro_job_card = master_job.name
 
 	# Reset workflow/approval statuses
-	if new_quote.custom_requires_client_approval == 1:
-		new_quote.custom_client_approval_status = "Pending"
-	else:
-		new_quote.custom_client_approval_status = "Not Required"
-
+	new_quote.custom_client_approval_status = "Pending"
 	new_quote.custom_accounts_approval_status = "Pending"
 	new_quote.insert(ignore_permissions=True)
-
-	# Email Pipeline Logic
-	if new_quote.custom_requires_client_approval == 1:
-		try:
-			from enviro.custom_scripts.quotation import send_approval_email
-
-			send_approval_email(new_quote.name)
-		except Exception as e:
-			frappe.log_error(f"Failed to auto-dispatch clone email: {e!s}")
