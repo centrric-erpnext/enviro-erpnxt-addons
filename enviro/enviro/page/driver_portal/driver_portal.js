@@ -22,7 +22,7 @@ function render_portal($container) {
 	$container.html('<div class="empty-state">Loading your schedule...</div>');
 
 	frappe.call({
-		method: "enviro.enviro.api.mobile.get_driver_context",
+		method: "enviro.api.mobile.get_driver_context",
 		callback: (r) => {
 			const context = r.message;
 			render_header($container, context);
@@ -71,7 +71,7 @@ function render_vpi_alert($container) {
 
 function fetch_and_render_jobs($container, context) {
 	frappe.call({
-		method: "enviro.enviro.api.mobile.get_assigned_jobs",
+		method: "enviro.api.mobile.get_assigned_jobs",
 		callback: (r) => {
 			const jobs = r.message || [];
 			if (jobs.length === 0) {
@@ -134,7 +134,7 @@ function get_job_buttons(job, vpi_done) {
 
 window.update_job = function (job_name, action) {
 	frappe.call({
-		method: "enviro.enviro.api.mobile.update_job_status",
+		method: "enviro.api.mobile.update_job_status",
 		args: { job_name: job_name, action: action },
 		freeze: true,
 		callback: (r) => {

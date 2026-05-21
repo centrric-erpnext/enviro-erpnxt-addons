@@ -3,7 +3,7 @@ from frappe import _  # 1. ADDED: The translation function import
 
 
 @frappe.whitelist()
-def get_scheduling_data(from_date=None, to_date=None):
+def get_scheduling_data(from_date=None, to_date=None, include_terminated=0):
 	"""
 	Fetches data required for the Scheduling Dashboard:
 	1. Queue Jobs: Approved Job Cards ready for scheduling.
@@ -95,9 +95,37 @@ def get_scheduling_data(from_date=None, to_date=None):
 		],
 	)
 
+	scheduled_job_names = [j.name for j in scheduled_jobs]
+	if scheduled_job_names:
+		team_members = frappe.get_all(
+			"Enviro Job Team Member",
+			filters={"parent": ["in", scheduled_job_names]},
+			fields=["parent", "employee"],
+		)
+		tm_map = {}
+		for tm in team_members:
+			tm_map.setdefault(tm.parent, []).append(tm.employee)
+		for j in scheduled_jobs:
+			j.team_members = tm_map.get(j.name, [])
+
 	vehicles = frappe.get_all("Vehicle", fields=["name", "license_plate"])
 
-	return {"queue_jobs": queue_jobs, "scheduled_jobs": scheduled_jobs, "vehicles": vehicles}
+	employee_status_filter = ["Active"]
+	if frappe.utils.cint(include_terminated):
+		employee_status_filter = ["Active", "Left", "Suspended"]
+
+	employees = frappe.get_all(
+		"Employee",
+		filters={"status": ["in", employee_status_filter]},
+		fields=["name", "employee_name", "image", "status"],
+	)
+
+	return {
+		"queue_jobs": queue_jobs,
+		"scheduled_jobs": scheduled_jobs,
+		"vehicles": vehicles,
+		"employees": employees,
+	}
 
 
 def check_resource_availability(driver, vehicle, date, exclude_job=None, exclude_quote=None):

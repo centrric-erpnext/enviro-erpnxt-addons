@@ -8,7 +8,7 @@ frappe.ui.form.on("Enviro Job", {
 	quotation: function (frm) {
 		if (frm.doc.quotation) {
 			frappe.call({
-				method: "enviro.enviro.api.invoice.get_quotation_waste_types",
+				method: "enviro.api.invoice.get_quotation_waste_types",
 				args: {
 					quotation: frm.doc.quotation,
 				},

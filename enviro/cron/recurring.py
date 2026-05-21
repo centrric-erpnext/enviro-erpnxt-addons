@@ -9,6 +9,9 @@ def execute_daily_operations():
 	"""
 	frappe.logger().info("Starting Enviro Scheduled Reoccurring Operations")
 
+	# Auto-terminate expired employees
+	terminate_expired_employees()
+
 	# Fetch all Master templates (Excluding Cancelled and Completed ones)
 	master_jobs = frappe.get_all(
 		"Enviro Job Card",
@@ -93,3 +96,29 @@ def duplicate_and_schedule(master_job):
 	new_quote.custom_client_approval_status = "Pending"
 	new_quote.custom_accounts_approval_status = "Pending"
 	new_quote.insert(ignore_permissions=True)
+
+
+def terminate_expired_employees():
+	"""
+	Automatically terminate employees whose custom_termination_date is today or in the past
+	and whose status is not 'Left'.
+	"""
+	frappe.logger().info("Starting Enviro Scheduled Auto-Termination")
+	today = frappe.utils.today()
+
+	# Fetch employees where custom_termination_date <= today and status is not 'Left'
+	employees = frappe.get_all(
+		"Employee",
+		filters={"custom_termination_date": ["<=", today], "status": ["!=", "Left"]},
+		fields=["name", "employee_name", "custom_termination_date"],
+	)
+
+	for emp in employees:
+		try:
+			doc = frappe.get_doc("Employee", emp.name)
+			doc.status = "Left"
+			doc.relieving_date = emp.custom_termination_date
+			doc.save(ignore_permissions=True)
+			frappe.logger().info(f"Automatically terminated employee: {emp.employee_name} ({emp.name})")
+		except Exception as e:
+			frappe.log_error(f"Error terminating employee {emp.name}: {e!s}", "Enviro Auto-Termination Error")

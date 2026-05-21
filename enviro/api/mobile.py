@@ -3,8 +3,8 @@ from frappe import _
 from frappe.exceptions import ValidationError
 from frappe.utils import now_datetime, today
 
-from enviro.enviro.utils.api_utils import get_request_params
-from enviro.enviro.utils.response_handler import ResponseHandler
+from enviro.utils.api_utils import get_request_params
+from enviro.utils.response_handler import ResponseHandler
 
 
 @frappe.whitelist()

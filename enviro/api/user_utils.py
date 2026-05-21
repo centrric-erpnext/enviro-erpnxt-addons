@@ -89,7 +89,7 @@ def get_sales_employees(doctype, txt, searchfield, start, page_len, filters):
 	return result
 
 
-from enviro.enviro.utils.api_utils import get_current_employee
+from enviro.utils.api_utils import get_current_employee
 
 if __name__ == "__main__":
 	print(generate_user_report())

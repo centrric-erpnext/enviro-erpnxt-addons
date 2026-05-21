@@ -21,6 +21,10 @@ fixtures = [
 # ------------------
 required_apps = ["erpnext"]
 
+# App Include JS
+# ------------------
+app_include_js = "/assets/enviro/js/global_back_v4.js"
+
 # DocType JS
 # ------------------
 doctype_list_js = {"Role": "public/js/role_list.js"}

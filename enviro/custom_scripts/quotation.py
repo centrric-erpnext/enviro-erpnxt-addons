@@ -34,7 +34,7 @@ def before_save(doc, method=None):
 
 	# 4. RESOURCE AVAILABILITY CHECK (FOR REOCCURRING/INTENDED SCHEDULES)
 	if doc.custom_intended_start_date:
-		from enviro.enviro.api.scheduling import check_resource_availability
+		from enviro.api.scheduling import check_resource_availability
 
 		# Exclude the job already linked to this quotation to avoid self-conflict
 		linked_job = frappe.db.get_value(
@@ -252,7 +252,7 @@ def submit_quote_approval():
 		# Save Signature
 		signature_b64 = data.get("signature")
 		if signature_b64:
-			from enviro.enviro.utils.api_utils import save_signature
+			from enviro.utils.api_utils import save_signature
 
 			file_url = save_signature("Quotation", name, signature_b64)
 			doc.custom_customer_signature = file_url

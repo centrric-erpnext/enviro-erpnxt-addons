@@ -112,5 +112,24 @@
   "reference_doctype": "Enviro Job",
   "script": "\n# v11.2 - Fixed notification trigger logic\ndef log_activity(sbj, d):\n    # Check if we already logged this milestone to avoid duplicates\n    if not frappe.db.exists('Activity Log', {'subject': sbj, 'reference_name': d.name}):\n        al = frappe.get_doc({\n            'doctype': 'Activity Log',\n            'subject': sbj,\n            'reference_doctype': 'Enviro Job',\n            'reference_name': d.name,\n            'timeline_doctype': 'Enviro Job',\n            'timeline_name': d.name,\n            'status': 'Success'\n        })\n        al.insert(ignore_permissions=True)\n\n# Trigger for new jobs or status transitions\nis_new = doc.get_db_value('name') is None\ncurrent_status = doc.status\nold_status = doc.get_db_value('status')\n\nif is_new or (current_status == 'Scheduled' and old_status != 'Scheduled'):\n    log_activity('Job Scheduled: ' + str(doc.name), doc)\n",
   "script_type": "DocType Event"
+ },
+ {
+  "allow_guest": 0,
+  "api_method": null,
+  "cron_format": null,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Server Script",
+  "doctype_event": "Before Save",
+  "enable_rate_limit": 0,
+  "event_frequency": "All",
+  "modified": "2026-05-19 18:21:35.121880",
+  "module": null,
+  "name": "Auto Terminate Employee on Save",
+  "rate_limit_count": 5,
+  "rate_limit_seconds": 86400,
+  "reference_doctype": "Employee",
+  "script": "\nif doc.custom_termination_date:\n    if doc.custom_termination_date <= frappe.utils.today():\n        doc.status = 'Left'\n        if not doc.relieving_date:\n            doc.relieving_date = doc.custom_termination_date\n",
+  "script_type": "DocType Event"
  }
 ]

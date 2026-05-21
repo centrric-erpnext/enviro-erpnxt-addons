@@ -14,14 +14,14 @@
  "hide_custom": 0,
  "icon": "expenses",
  "idx": 0,
- "indicator_color": "green",
+ "indicator_color": "",
  "is_hidden": 0,
- "label": "Invoice",
+ "label": "Jobs",
  "links": [],
- "modified": "2026-05-11 14:47:10.555663",
+ "modified": "2026-05-20 16:50:06.883169",
  "modified_by": "Administrator",
  "module": "enviro",
- "name": "Invoice",
+ "name": "Jobs",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
@@ -57,9 +57,6 @@
   },
   {
    "role": "Accounts User"
-  },
-  {
-   "role": "Enviro Accounts"
   },
   {
    "role": "Operations Manager"
@@ -106,5 +103,5 @@
  ],
  "sequence_id": 17.0,
  "shortcuts": [],
- "title": "Invoice"
+ "title": "Jobs"
 }

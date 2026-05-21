@@ -24,12 +24,12 @@
  "idx": 0,
  "indicator_color": "",
  "is_hidden": 0,
- "label": "Accounts",
+ "label": "HR Home",
  "links": [],
- "modified": "2026-05-11 14:44:23.745510",
+ "modified": "2026-05-20 16:50:38.528777",
  "modified_by": "Administrator",
  "module": "enviro",
- "name": "Accounts",
+ "name": "HR Home",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
@@ -65,9 +65,6 @@
   },
   {
    "role": "Accounts User"
-  },
-  {
-   "role": "Enviro Accounts"
   },
   {
    "role": "Operations Manager"
@@ -114,5 +111,5 @@
  ],
  "sequence_id": 9.0,
  "shortcuts": [],
- "title": "Accounts"
+ "title": "HR Home"
 }
