@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-05-20 21:40:24.966989",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "vehicle",
+  "date",
+  "time",
+  "truck_rego",
+  "current_reading_before",
+  "reading_after_filling",
+  "filled_by",
+  "volume_used_in_liters",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Vehicle",
+   "options": "Vehicle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Time"
+  },
+  {
+   "fetch_from": "vehicle.license_plate",
+   "fieldname": "truck_rego",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Truck Rego"
+  },
+  {
+   "fieldname": "current_reading_before",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Current Reading Before"
+  },
+  {
+   "fieldname": "reading_after_filling",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Reading After Filling"
+  },
+  {
+   "fieldname": "filled_by",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Filled By"
+  },
+  {
+   "fieldname": "volume_used_in_liters",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Volume used in Liters"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Vehicle Fuel Expense",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-05-22 15:28:50.970378",
+ "modified_by": "Administrator",
+ "module": "enviro",
+ "name": "Vehicle Fuel Expense",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

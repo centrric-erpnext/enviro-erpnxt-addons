@@ -1,0 +1,42 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:folder_name",
+ "creation": "2026-05-13 14:34:25.059854",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "folder_name",
+  "is_system_folder"
+ ],
+ "fields": [
+  {
+   "fieldname": "folder_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Folder Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_system_folder",
+   "fieldtype": "Check",
+   "label": "Is System Folder"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-22 15:27:47.127930",
+ "modified_by": "Administrator",
+ "module": "enviro",
+ "name": "Enviro Team Folder",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
