@@ -1,27 +1,35 @@
 {
  "charts": [],
- "content": "[{\"id\":\"8IBNTRa1ZV\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Invoice Dashboard\",\"col\":12}}]",
- "creation": "2026-04-30 18:22:35.563458",
+ "content": "[{\"id\":\"4WYSTGInFV\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro HR Management Dashboard\",\"col\":12}}]",
+ "creation": "2026-05-02 18:39:44.499637",
  "custom_blocks": [
   {
-   "custom_block_name": "Enviro Invoice Dashboard",
-   "label": "Enviro Invoice Dashboard"
+   "custom_block_name": "Enviro HR Management Dashboard",
+   "label": "Enviro HR Management Dashboard"
+  },
+  {
+   "custom_block_name": "Enviro HR Management Dashboard",
+   "label": "Enviro HR Management Dashboard"
+  },
+  {
+   "custom_block_name": "Enviro HR Management Dashboard",
+   "label": "Enviro HR Management Dashboard"
   }
  ],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
  "hide_custom": 0,
- "icon": "expenses",
+ "icon": "hr",
  "idx": 0,
  "indicator_color": "",
  "is_hidden": 0,
- "label": "Jobs",
+ "label": "Accounts",
  "links": [],
- "modified": "2026-05-20 16:50:06.883169",
+ "modified": "2026-05-21 21:24:10.963211",
  "modified_by": "Administrator",
  "module": "enviro",
- "name": "Jobs",
+ "name": "Accounts",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
@@ -101,7 +109,7 @@
    "role": "Gms Assistant"
   }
  ],
- "sequence_id": 17.0,
+ "sequence_id": 9.0,
  "shortcuts": [],
- "title": "Jobs"
+ "title": "Accounts"
 }
