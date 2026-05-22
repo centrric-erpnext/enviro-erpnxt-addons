@@ -3,15 +3,8 @@ from frappe import _
 from frappe.exceptions import ValidationError
 from frappe.utils import now_datetime, today
 
-from enviro.enviro.utils.response_handler import ResponseHandler
-
-
-def get_request_params():
-	"""Helper to get parameters from form-data or JSON body"""
-	params = frappe.form_dict.copy()
-	if frappe.request.json:
-		params.update(frappe.request.json)
-	return params
+from enviro.utils.api_utils import get_request_params
+from enviro.utils.response_handler import ResponseHandler
 
 
 @frappe.whitelist()
@@ -60,10 +53,16 @@ def get_assigned_jobs():
 				"name",
 				"customer",
 				"site",
+				"site_name",
+				"site_address",
+				"site_contact_name",
+				"site_contact_phone",
+				"site_contact_email",
 				"scheduled_start_date",
 				"scheduled_start_time",
 				"status",
 				"vehicle",
+				"custom_waste_type",
 			],
 		)
 
@@ -150,7 +149,26 @@ def submit_vehicle_checklist():
 		vpi.insert(ignore_permissions=True)
 		vpi.submit()
 
-		ResponseHandler.success({"vpi_name": vpi.name, "message": "Checklist submitted successfully."})
+		# Explicitly trigger the fault reporting logic for the mobile app
+		faults = str(params.get("any_fault_to_report", ""))
+		is_fault = faults in ["1", "true", "True"]
+		message = "Checklist submitted successfully."
+
+		if is_fault:
+			frappe.get_doc(
+				{
+					"doctype": "ToDo",
+					"description": f"URGENT: Vehicle {vpi.vehicle} reported faults on {vpi.date} by {vpi.driver}.",
+					"reference_type": "Vehicle Pre-Inspection Check",
+					"reference_name": vpi.name,
+					"assigned_by": vpi.driver,
+				}
+			).insert(ignore_permissions=True)
+			message = (
+				"Checklist submitted. ⚠️ A fault report has been automatically sent to the management team."
+			)
+
+		ResponseHandler.success({"vpi_name": vpi.name, "message": message, "fault_reported": is_fault})
 	except ValidationError as e:
 		frappe.db.rollback()
 		error_title = getattr(e, "title", "Validation Error")
@@ -173,10 +191,8 @@ def get_all_drivers():
 		]
 
 		# Find all User IDs that have these roles
-		users_with_roles = frappe.get_all(
-			"Has Role", filters={"role": ["in", valid_roles]}, fields=["parent"]
-		)
-		user_ids = list(set([u.parent for u in users_with_roles]))
+		user_ids = frappe.get_all("Has Role", filters={"role": ["in", valid_roles]}, pluck="parent")
+		user_ids = list(set(user_ids))
 
 		if not user_ids:
 			ResponseHandler.success([])
@@ -280,3 +296,81 @@ def update_account_info():
 		frappe.db.rollback()
 		frappe.log_error(title="update_account_info API Failed", message=frappe.get_traceback())
 		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
+
+
+@frappe.whitelist()
+def get_all_vehicles():
+	"""Returns a list of all vehicles available to the driver"""
+	try:
+		# Optionally, you can add filters here like {"docstatus": 0} if you only want active ones
+		vehicles = frappe.get_all("Vehicle", fields=["name", "license_plate", "make", "model"])
+
+		ResponseHandler.success(vehicles)
+	except Exception:
+		frappe.db.rollback()
+		frappe.log_error(title="get_all_vehicles API Failed", message=frappe.get_traceback())
+		ResponseHandler.error(
+			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
+		)
+
+
+@frappe.whitelist()
+def get_vehicle_details():
+	"""Returns the full details of a specific vehicle"""
+	try:
+		params = get_request_params()
+		vehicle_name = params.get("vehicle_name")
+
+		if not vehicle_name:
+			frappe.throw(_("Missing 'vehicle_name' parameter."), title=_("Missing Information"))
+
+		if not frappe.db.exists("Vehicle", vehicle_name):
+			frappe.throw(_("Vehicle {0} not found.").format(vehicle_name), title=_("Not Found"))
+
+		vehicle = frappe.get_doc("Vehicle", vehicle_name)
+
+		ResponseHandler.success(vehicle)
+	except ValidationError as e:
+		frappe.db.rollback()
+		error_title = getattr(e, "title", "Validation Error")
+		ResponseHandler.error(status_code=400, title=error_title, message=str(e))
+	except Exception:
+		frappe.db.rollback()
+		frappe.log_error(title="get_vehicle_details API Failed", message=frappe.get_traceback())
+		ResponseHandler.error(
+			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
+		)
+
+
+@frappe.whitelist()
+def get_vpi_schema():
+	"""Returns the form fields and options so the mobile app can build the VPI form dynamically"""
+	try:
+		meta = frappe.get_meta("Vehicle Pre-Inspection Check")
+		fields = []
+
+		for f in meta.fields:
+			# Skip pure layout elements but keep data fields
+			if f.fieldtype not in ("HTML", "Column Break"):
+				options = f.options
+				if f.fieldtype == "Select" and f.options:
+					options = f.options.split("\n")
+
+				fields.append(
+					{
+						"fieldname": f.fieldname,
+						"label": f.label,
+						"fieldtype": f.fieldtype,
+						"options": options,
+						"mandatory": f.reqd,
+						"hidden": f.hidden,
+					}
+				)
+
+		ResponseHandler.success(fields)
+	except Exception:
+		frappe.db.rollback()
+		frappe.log_error(title="get_vpi_schema API Failed", message=frappe.get_traceback())
+		ResponseHandler.error(
+			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
+		)

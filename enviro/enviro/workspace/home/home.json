@@ -1,35 +1,27 @@
 {
  "charts": [],
- "content": "[{\"id\":\"yqSCzUBQ_X\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Sales Dashboard\",\"col\":12}}]",
- "creation": "2026-04-30 18:22:35.546055",
+ "content": "[{\"id\":\"UvnE2ZbhoT\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Unified Dashboard Master\",\"col\":12}}]",
+ "creation": "2026-05-02 18:39:44.523269",
  "custom_blocks": [
   {
-   "custom_block_name": "Enviro Sales Dashboard",
-   "label": "Enviro Sales Dashboard"
-  },
-  {
-   "custom_block_name": "Enviro Sales Dashboard",
-   "label": "Enviro Sales Dashboard"
-  },
-  {
-   "custom_block_name": "Enviro Sales Dashboard",
-   "label": "Enviro Sales Dashboard"
+   "custom_block_name": "Enviro Unified Dashboard Master",
+   "label": "Enviro Unified Dashboard Master"
   }
  ],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
  "hide_custom": 0,
- "icon": "income",
+ "icon": "organization",
  "idx": 0,
  "indicator_color": "green",
  "is_hidden": 0,
- "label": "Sales",
+ "label": "Home",
  "links": [],
- "modified": "2026-05-11 14:44:23.615147",
+ "modified": "2026-05-11 14:44:23.545345",
  "modified_by": "Administrator",
  "module": "enviro",
- "name": "Sales",
+ "name": "Home",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
@@ -110,9 +102,24 @@
   },
   {
    "role": "Gms Assistant"
+  },
+  {
+   "role": "All Rounder"
+  },
+  {
+   "role": "Driver Liquid Waste Technician (Mobile)"
+  },
+  {
+   "role": "Driver Liquid Waste Technician (Web)"
+  },
+  {
+   "role": "Driver Factory Hand (Mobile)"
+  },
+  {
+   "role": "Driver Factory Hand (Web)"
   }
  ],
- "sequence_id": 2.0,
+ "sequence_id": 1.0,
  "shortcuts": [],
- "title": "Sales"
+ "title": "Home"
 }

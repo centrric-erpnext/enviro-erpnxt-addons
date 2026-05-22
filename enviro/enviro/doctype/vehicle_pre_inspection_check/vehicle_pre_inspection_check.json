@@ -12,12 +12,12 @@
   "date",
   "current_odometer",
   "hour_meter_start",
-  "driver_signature",
   "col_break_header",
   "fitness_label",
   "fit_for_work",
   "valid_license",
   "appropriate_ppe",
+  "driver_signature",
   "sec_checklist_header",
   "checklist_details_label",
   "col_checklist_1",
@@ -75,7 +75,8 @@
   "manager_review_label",
   "manager_reviewed",
   "faults_status",
-  "maintenance_issues_notified"
+  "maintenance_issues_notified",
+  "amended_from"
  ],
  "fields": [
   {
@@ -132,16 +133,19 @@
    "label": "Wellness Declaration"
   },
   {
+   "default": "0",
    "fieldname": "fit_for_work",
    "fieldtype": "Check",
    "label": "I am Fit for Work"
   },
   {
+   "default": "0",
    "fieldname": "valid_license",
    "fieldtype": "Check",
    "label": "I have the appropriate valid driving license"
   },
   {
+   "default": "0",
    "fieldname": "appropriate_ppe",
    "fieldtype": "Check",
    "label": "Appropriate PPE for operation of this vehicle"
@@ -155,7 +159,7 @@
    "fieldname": "checklist_details_label",
    "fieldtype": "HTML",
    "label": "Checklist Details",
-   "options": "<div style='color:red; font-size:11px;'>Category 'A' Fault: Vehicle MUST NOT be operated until fault is rectified<br/>Category 'B' Fault: Vehicle May be operated Corrective action is required</div>"
+   "options": "<div style=\"color:red; font-size:11px;\">Category 'A' Fault: Vehicle MUST NOT be operated until fault is rectified<br>Category 'B' Fault: Vehicle May be operated Corrective action is required</div>"
   },
   {
    "fieldname": "col_checklist_1",
@@ -349,26 +353,31 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "0",
    "fieldname": "hoses",
    "fieldtype": "Check",
    "label": "Hoses"
   },
   {
+   "default": "0",
    "fieldname": "fittings",
    "fieldtype": "Check",
    "label": "Fittings"
   },
   {
+   "default": "0",
    "fieldname": "first_aid_kit",
    "fieldtype": "Check",
    "label": "First Aid Kit"
   },
   {
+   "default": "0",
    "fieldname": "ppe_accessory",
    "fieldtype": "Check",
    "label": "PPE"
   },
   {
+   "default": "0",
    "fieldname": "fire_extinguisher",
    "fieldtype": "Check",
    "label": "Fire Extinguisher"
@@ -383,21 +392,25 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "0",
    "fieldname": "garden_hoses",
    "fieldtype": "Check",
    "label": "Garden Hoses"
   },
   {
+   "default": "0",
    "fieldname": "gattic_lifters",
    "fieldtype": "Check",
    "label": "Gattic Lifters"
   },
   {
+   "default": "0",
    "fieldname": "bucket_rags",
    "fieldtype": "Check",
    "label": "Bucket / Rags"
   },
   {
+   "default": "0",
    "fieldname": "spill_kit",
    "fieldtype": "Check",
    "label": "Spill Kit"
@@ -429,11 +442,13 @@
    "label": "Declarations"
   },
   {
+   "default": "0",
    "fieldname": "conducted_check",
    "fieldtype": "Check",
    "label": "I have conducted the above pre-start checklist and satisfied that the vehicle is safe and ready to operate."
   },
   {
+   "default": "0",
    "fieldname": "reported_faults",
    "fieldtype": "Check",
    "label": "I have reported all faults in appropriate section and notified the authorized personnel."
@@ -449,6 +464,7 @@
    "label": "Manager Declaration"
   },
   {
+   "default": "0",
    "fieldname": "manager_reviewed",
    "fieldtype": "Check",
    "label": "I have reviewed this form and satisfied that required maintenance or safety related items have been addressed."
@@ -460,15 +476,27 @@
    "options": "Corrected\nSchedule for repair\nNo Action"
   },
   {
+   "default": "0",
    "fieldname": "maintenance_issues_notified",
    "fieldtype": "Check",
    "label": "Issues scheduled for maintenance or repair do not affect the safe operation of this vehicle"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Vehicle Pre-Inspection Check",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "modified": "2026-04-20 17:50:00.000000",
+ "links": [],
+ "modified": "2026-05-07 16:01:51.977661",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "Vehicle Pre-Inspection Check",

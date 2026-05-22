@@ -1,28 +1,106 @@
 {
  "charts": [],
- "content": "[{\"type\":\"header\",\"data\":{\"text\":\"Invoice\"}}]",
- "creation": "2026-04-13 18:01:27.845240",
- "custom_blocks": [],
+ "content": "[{\"id\":\"8IBNTRa1ZV\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Enviro Invoice Dashboard\",\"col\":12}}]",
+ "creation": "2026-04-30 18:22:35.563458",
+ "custom_blocks": [
+  {
+   "custom_block_name": "Enviro Invoice Dashboard",
+   "label": "Enviro Invoice Dashboard"
+  }
+ ],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
  "hide_custom": 0,
  "icon": "expenses",
  "idx": 0,
- "indicator_color": "green",
+ "indicator_color": "",
  "is_hidden": 0,
  "label": "Invoice",
  "links": [],
- "modified": "2026-04-16 14:32:24.190128",
+ "modified": "2026-05-21 21:24:21.144742",
  "modified_by": "Administrator",
- "module": "Enviro",
+ "module": "enviro",
  "name": "Invoice",
  "number_cards": [],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
- "roles": [],
+ "roles": [
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "Superadmin"
+  },
+  {
+   "role": "Director"
+  },
+  {
+   "role": "Manager"
+  },
+  {
+   "role": "General Manager"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts Staff"
+  },
+  {
+   "role": "Accounts"
+  },
+  {
+   "role": "Account Assistant"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Operations Manager"
+  },
+  {
+   "role": "Operations Assistance Manager"
+  },
+  {
+   "role": "Supervisor"
+  },
+  {
+   "role": "Scheduler"
+  },
+  {
+   "role": "Sales Staff"
+  },
+  {
+   "role": "Sales Manager"
+  },
+  {
+   "role": "Sales Pumps"
+  },
+  {
+   "role": "Pump Manager"
+  },
+  {
+   "role": "Pump Coordinator"
+  },
+  {
+   "role": "Pump Technician"
+  },
+  {
+   "role": "Technical Manager"
+  },
+  {
+   "role": "Whs Manager"
+  },
+  {
+   "role": "Factory Manager"
+  },
+  {
+   "role": "Gms Assistant"
+  }
+ ],
  "sequence_id": 17.0,
  "shortcuts": [],
  "title": "Invoice"

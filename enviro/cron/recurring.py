@@ -3,12 +3,19 @@ from frappe.utils import getdate
 
 
 def execute_daily_operations():
+	"""
+	Main daily task to process reoccurring master job templates.
+	Handles Daily and Weekly frequency logic.
+	"""
 	frappe.logger().info("Starting Enviro Scheduled Reoccurring Operations")
 
-	# Fetch all Master templates
+	# Auto-terminate expired employees
+	terminate_expired_employees()
+
+	# Fetch all Master templates (Excluding Cancelled and Completed ones)
 	master_jobs = frappe.get_all(
 		"Enviro Job Card",
-		filters={"is_reoccurring_quote": "YES"},
+		filters={"is_reoccurring_quote": "YES", "status": ["not in", ["Cancelled", "Completed"]]},
 		fields=[
 			"name",
 			"source_quotation",
@@ -26,7 +33,6 @@ def execute_daily_operations():
 	)
 
 	today = getdate()
-	# monday=0, ..., sunday=6
 	day_map = {
 		0: "monday",
 		1: "tuesday",
@@ -40,9 +46,12 @@ def execute_daily_operations():
 
 	for job in master_jobs:
 		try:
+			# Daily frequency check (based on checkboxes for days of week)
 			if job.type_of_reoccurring == "in Daily":
 				if not job.get(today_field):
 					continue
+
+			# Weekly frequency check (based on weeks count from creation date)
 			elif job.type_of_reoccurring == "in Weeks Only":
 				if not job.job_creation_date or not job.frequency_in_weeks:
 					continue
@@ -57,47 +66,59 @@ def execute_daily_operations():
 		except Exception as e:
 			frappe.log_error(f"Error processing master job {job.name}: {e!s}", "Enviro Cron Error")
 
+	# Batch commit after all operations are queued
+	frappe.db.commit()
+
 
 def duplicate_and_schedule(master_job):
-	# Retrieve Source Quotation
+	"""
+	Duplicates the source quotation of a master job and creates a new instance.
+	Includes duplicate protection to ensure a master job isn't cloned twice on the same day.
+	"""
 	if not master_job.source_quotation:
 		return
 
-	# 0. Duplicate protection
-	existing_quote = frappe.db.get_all(
-		"Quotation",
-		filters={"custom_enviro_job_card": master_job.name, "transaction_date": frappe.utils.today()},
-	)
-	if existing_quote:
+	# Duplicate protection using exists() for speed
+	if frappe.db.exists(
+		"Quotation", {"custom_enviro_job_card": master_job.name, "transaction_date": frappe.utils.today()}
+	):
 		frappe.logger().info(f"Duplicate protection: Master {master_job.name} already cloned today.")
 		return
 
 	original_quote = frappe.get_doc("Quotation", master_job.source_quotation)
 
-	# 1. Duplicate Quotation
+	# Clone the Quotation
 	new_quote = frappe.copy_doc(original_quote)
 	new_quote.transaction_date = frappe.utils.today()
-
-	# Link the newly generated quote directly back to the original Old Master Job Card!
 	new_quote.custom_enviro_job_card = master_job.name
 
-	# We must reset statuses so it hits the workflow normally
-	if new_quote.custom_requires_client_approval == 1:
-		new_quote.custom_client_approval_status = "Pending"
-	else:
-		new_quote.custom_client_approval_status = "Not Required"
-
+	# Reset workflow/approval statuses
+	new_quote.custom_client_approval_status = "Pending"
 	new_quote.custom_accounts_approval_status = "Pending"
 	new_quote.insert(ignore_permissions=True)
 
-	# Commit immediately so the DB has it
-	frappe.db.commit()
 
-	# 2. Email Pipeline Logic
-	if new_quote.custom_requires_client_approval == 1:
+def terminate_expired_employees():
+	"""
+	Automatically terminate employees whose custom_termination_date is today or in the past
+	and whose status is not 'Left'.
+	"""
+	frappe.logger().info("Starting Enviro Scheduled Auto-Termination")
+	today = frappe.utils.today()
+
+	# Fetch employees where custom_termination_date <= today and status is not 'Left'
+	employees = frappe.get_all(
+		"Employee",
+		filters={"custom_termination_date": ["<=", today], "status": ["!=", "Left"]},
+		fields=["name", "employee_name", "custom_termination_date"],
+	)
+
+	for emp in employees:
 		try:
-			from enviro.custom_scripts.quotation import send_approval_email
-
-			send_approval_email(new_quote.name)
+			doc = frappe.get_doc("Employee", emp.name)
+			doc.status = "Left"
+			doc.relieving_date = emp.custom_termination_date
+			doc.save(ignore_permissions=True)
+			frappe.logger().info(f"Automatically terminated employee: {emp.employee_name} ({emp.name})")
 		except Exception as e:
-			frappe.log_error(f"Failed to auto-dispatch clone email: {e!s}")
+			frappe.log_error(f"Error terminating employee {emp.name}: {e!s}", "Enviro Auto-Termination Error")
