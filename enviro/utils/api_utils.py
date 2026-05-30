@@ -13,7 +13,10 @@ def get_request_params():
 def get_current_employee():
 	"""Returns the employee record linked to the current user"""
 	return frappe.db.get_value(
-		"Employee", {"user_id": frappe.session.user}, ["name", "employee_name", "image"], as_dict=True
+		"Employee",
+		{"user_id": frappe.session.user},
+		["name", "employee_name", "image"],
+		as_dict=True,
 	)
 
 

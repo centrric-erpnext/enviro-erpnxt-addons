@@ -10,6 +10,12 @@ def get_scheduling_data(from_date=None, to_date=None, include_terminated=0):
 	2. Scheduled Jobs: Jobs already allocated/scheduled within the date range.
 	3. Vehicle Information: Available vehicles for allocation.
 	"""
+	# Apply Redis caching
+	cache_key = f"scheduling_data_{from_date}_{to_date}_{include_terminated}"
+	cached = frappe.cache().get_value(cache_key)
+	if cached:
+		return cached
+
 	# Only fetch jobs where the attached quote has completely bypassed/passed Accounts
 	valid_job_ids = frappe.get_all(
 		"Quotation",
@@ -120,12 +126,14 @@ def get_scheduling_data(from_date=None, to_date=None, include_terminated=0):
 		fields=["name", "employee_name", "image", "status"],
 	)
 
-	return {
+	result = {
 		"queue_jobs": queue_jobs,
 		"scheduled_jobs": scheduled_jobs,
 		"vehicles": vehicles,
 		"employees": employees,
 	}
+	frappe.cache().set_value(cache_key, result, expires_in_sec=60)
+	return result
 
 
 def check_resource_availability(driver, vehicle, date, exclude_job=None, exclude_quote=None):
@@ -241,7 +249,8 @@ def api_schedule_job(job_id: str, payload: str):
 
 		# 3. Reset workflow status
 		new_quote.custom_client_approval_status = "Pending"
-		new_quote.custom_accounts_approval_status = "Pending"
+		new_quote.custom_sales_approval_status = "Pending"
+		new_quote.custom_accounts_approval_status = "Not Required"
 
 		new_quote.insert(ignore_permissions=True)
 
@@ -260,6 +269,33 @@ def api_schedule_job(job_id: str, payload: str):
 		new_job.driver = data.get("driver")
 		new_job.custom_waste_type = job_card.custom_waste_type
 		new_job.status = "Allocated"
+		new_job.job_card_created_date = frappe.utils.getdate(job_card.creation)
+
+		# Automate recurring logic fields
+		new_job.frequency_weeks = job_card.frequency_in_weeks
+		if job_card.type_of_reoccurring == "in Weeks Only" and job_card.frequency_in_weeks:
+			freq = frappe.utils.cint(job_card.frequency_in_weeks)
+			if freq > 0:
+				new_job.next_recurring_date = frappe.utils.add_days(
+					data.get("scheduled_start_date"), freq * 7
+				)
+		elif job_card.type_of_reoccurring == "in Daily":
+			start_date = frappe.utils.getdate(data.get("scheduled_start_date"))
+			days = [
+				"monday",
+				"tuesday",
+				"wednesday",
+				"thursday",
+				"friday",
+				"saturday",
+				"sunday",
+			]
+			current_idx = start_date.weekday()
+			for i in range(1, 8):
+				next_idx = (current_idx + i) % 7
+				if job_card.get(days[next_idx]):
+					new_job.next_recurring_date = frappe.utils.add_days(start_date, i)
+					break
 
 		team = data.get("team_members")
 		if team:
@@ -273,7 +309,12 @@ def api_schedule_job(job_id: str, payload: str):
 		job_card.save(ignore_permissions=True)
 
 		# 6. Global Action: Removed auto-trigger email logic since it's now manual via the button.
-		return {"status": "OK", "type": "reoccurring", "quote": new_quote.name, "job": new_job.name}
+		return {
+			"status": "OK",
+			"type": "reoccurring",
+			"quote": new_quote.name,
+			"job": new_job.name,
+		}
 
 	# --- CASE 2: ONE-OFF JOB (Direct Scheduling) ---
 	new_job = frappe.new_doc("Enviro Job")
@@ -290,6 +331,31 @@ def api_schedule_job(job_id: str, payload: str):
 	new_job.driver = data.get("driver")
 	new_job.custom_waste_type = job_card.custom_waste_type
 	new_job.status = "Scheduled"
+	new_job.job_card_created_date = frappe.utils.getdate(job_card.creation)
+
+	# Automate recurring logic fields for direct scheduling as well
+	new_job.frequency_weeks = job_card.frequency_in_weeks
+	if job_card.type_of_reoccurring == "in Weeks Only" and job_card.frequency_in_weeks:
+		freq = frappe.utils.cint(job_card.frequency_in_weeks)
+		if freq > 0:
+			new_job.next_recurring_date = frappe.utils.add_days(data.get("scheduled_start_date"), freq * 7)
+	elif job_card.type_of_reoccurring == "in Daily":
+		start_date = frappe.utils.getdate(data.get("scheduled_start_date"))
+		days = [
+			"monday",
+			"tuesday",
+			"wednesday",
+			"thursday",
+			"friday",
+			"saturday",
+			"sunday",
+		]
+		current_idx = start_date.weekday()
+		for i in range(1, 8):
+			next_idx = (current_idx + i) % 7
+			if job_card.get(days[next_idx]):
+				new_job.next_recurring_date = frappe.utils.add_days(start_date, i)
+				break
 
 	team = data.get("team_members")
 	if team:
@@ -316,7 +382,12 @@ def cancel_job_card(job_id: str):
 
 	if is_reoccurring == "YES":
 		# Skip this occurrence (hides it from scheduling queue until next cycle)
-		frappe.db.set_value("Enviro Job Card", job_id, "custom_last_scheduled_date", frappe.utils.today())
+		frappe.db.set_value(
+			"Enviro Job Card",
+			job_id,
+			"custom_last_scheduled_date",
+			frappe.utils.today(),
+		)
 		return "Skipped"
 	else:
 		# Standard permanent cancellation
@@ -356,7 +427,12 @@ def _get_busy_resources(date: str, resource_type: str) -> set:
 @frappe.whitelist()
 # 5. ADDED: Type hints for the query function
 def get_driver_employees(
-	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict | None = None
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int,
+	page_len: int,
+	filters: dict | None = None,
 ):
 	"""Standard search query for drivers, excluding those busy on the selected date."""
 	valid_roles = [
@@ -366,13 +442,7 @@ def get_driver_employees(
 		"Driver Liquid Waste Technician (Mobile)",
 	]
 
-	user_emails = frappe.get_all("Has Role", filters={"role": ["in", valid_roles]}, pluck="parent")
-	user_emails = list(set(user_emails))
-
-	if not user_emails:
-		return []
-
-	conditions = {"user_id": ["in", user_emails], "status": "Active"}
+	conditions = {"custom_position_title": ["in", valid_roles], "status": "Active"}
 
 	# FILTER BY DATE AVAILABILITY
 	date = filters.get("date") if filters else None
@@ -394,7 +464,12 @@ def get_driver_employees(
 
 @frappe.whitelist()
 def get_available_vehicles(
-	doctype: str, txt: str, searchfield: str, start: int, page_len: int, filters: dict | None = None
+	doctype: str,
+	txt: str,
+	searchfield: str,
+	start: int,
+	page_len: int,
+	filters: dict | None = None,
 ):
 	"""Standard search query for vehicles, excluding those busy on the selected date."""
 	conditions = {}

@@ -4,11 +4,6 @@
 frappe.ui.form.on("Enviro Job Card", {
 	setup: function (frm) {
 		frm.is_new_job_card = frm.is_new();
-		frm.set_query("sales_person", function () {
-			return {
-				query: "enviro.api.user_utils.get_sales_employees",
-			};
-		});
 	},
 	onload: function (frm) {
 		if (frm.is_new() && !frm.doc.sales_person) {

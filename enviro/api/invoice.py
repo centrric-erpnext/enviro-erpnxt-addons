@@ -10,7 +10,10 @@ def get_completed_jobs(from_date=None, to_date=None, search_txt=None):
 	filters = {"status": "Completed"}
 
 	if from_date and to_date and from_date != "undefined" and to_date != "undefined":
-		filters["job_finished_time"] = ["between", [from_date + " 00:00:00", to_date + " 23:59:59"]]
+		filters["job_finished_time"] = [
+			"between",
+			[from_date + " 00:00:00", to_date + " 23:59:59"],
+		]
 	elif from_date and from_date != "undefined":
 		filters["job_finished_time"] = [">=", from_date + " 00:00:00"]
 	elif to_date and to_date != "undefined":
@@ -20,7 +23,14 @@ def get_completed_jobs(from_date=None, to_date=None, search_txt=None):
 	jobs = frappe.get_all(
 		"Enviro Job",
 		filters=filters,
-		fields=["name", "quotation", "job_finished_time", "customer", "status", "owner"],
+		fields=[
+			"name",
+			"quotation",
+			"job_finished_time",
+			"customer",
+			"status",
+			"owner",
+		],
 		order_by="job_finished_time desc",
 		limit=100,  # Safety limit for performance
 	)

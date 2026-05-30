@@ -10,14 +10,26 @@ def generate_user_report(output_path=None):
 	"""
 	users = frappe.get_all(
 		"User",
-		filters={"enabled": 1, "user_type": "System User", "name": ["!=", "Administrator"]},
+		filters={
+			"enabled": 1,
+			"user_type": "System User",
+			"name": ["!=", "Administrator"],
+		},
 		fields=["name", "first_name", "last_name"],
 	)
 
 	if not output_path:
 		output_path = frappe.get_site_path("public", "files", "enviro_user_report.csv")
 
-	generic_roles = ["Employee", "All", "Guest", "Desk User", "Desk Access", "System Manager", "Superadmin"]
+	generic_roles = [
+		"Employee",
+		"All",
+		"Guest",
+		"Desk User",
+		"Desk Access",
+		"System Manager",
+		"Superadmin",
+	]
 
 	results = []
 	for u in users:
@@ -54,7 +66,11 @@ def reset_test_passwords(password="Enviro@Test#2024"):
 
 	users = frappe.get_all(
 		"User",
-		filters={"enabled": 1, "user_type": "System User", "name": ["!=", "Administrator"]},
+		filters={
+			"enabled": 1,
+			"user_type": "System User",
+			"name": ["!=", "Administrator"],
+		},
 		pluck="name",
 	)
 

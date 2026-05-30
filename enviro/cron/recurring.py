@@ -15,7 +15,10 @@ def execute_daily_operations():
 	# Fetch all Master templates (Excluding Cancelled and Completed ones)
 	master_jobs = frappe.get_all(
 		"Enviro Job Card",
-		filters={"is_reoccurring_quote": "YES", "status": ["not in", ["Cancelled", "Completed"]]},
+		filters={
+			"is_reoccurring_quote": "YES",
+			"status": ["not in", ["Cancelled", "Completed"]],
+		},
 		fields=[
 			"name",
 			"source_quotation",
@@ -80,7 +83,11 @@ def duplicate_and_schedule(master_job):
 
 	# Duplicate protection using exists() for speed
 	if frappe.db.exists(
-		"Quotation", {"custom_enviro_job_card": master_job.name, "transaction_date": frappe.utils.today()}
+		"Quotation",
+		{
+			"custom_enviro_job_card": master_job.name,
+			"transaction_date": frappe.utils.today(),
+		},
 	):
 		frappe.logger().info(f"Duplicate protection: Master {master_job.name} already cloned today.")
 		return
@@ -94,7 +101,8 @@ def duplicate_and_schedule(master_job):
 
 	# Reset workflow/approval statuses
 	new_quote.custom_client_approval_status = "Pending"
-	new_quote.custom_accounts_approval_status = "Pending"
+	new_quote.custom_sales_approval_status = "Pending"
+	new_quote.custom_accounts_approval_status = "Not Required"
 	new_quote.insert(ignore_permissions=True)
 
 
@@ -121,4 +129,7 @@ def terminate_expired_employees():
 			doc.save(ignore_permissions=True)
 			frappe.logger().info(f"Automatically terminated employee: {emp.employee_name} ({emp.name})")
 		except Exception as e:
-			frappe.log_error(f"Error terminating employee {emp.name}: {e!s}", "Enviro Auto-Termination Error")
+			frappe.log_error(
+				f"Error terminating employee {emp.name}: {e!s}",
+				"Enviro Auto-Termination Error",
+			)

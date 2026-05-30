@@ -14,23 +14,38 @@ def before_save(doc, method=None):
 	# Enforce Enviro Job Card linkage
 	if getattr(doc, "custom_accounts_approval_status", "") == "Approved":
 		if not getattr(doc, "custom_enviro_job_card", None):
-			frappe.throw(
-				"❌ You must create and link an <b>Enviro Job Card</b> before confirming this Quotation internally."
-			)
+			if not getattr(frappe.flags, "in_import", False):
+				frappe.throw(
+					"❌ You must create and link an <b>Enviro Job Card</b> before confirming this Quotation internally."
+				)
 
-	# Check if the client has already signed the web form or clicked the email button
+	# --- PIPELINE STATE MACHINE ---
+	# 1. CLIENT APPROVAL
+	# If client signature or email approval happened:
 	if doc.custom_customer_signature or doc.custom_client_approval_status == "Approved":
-		# Client has signed it!
 		doc.custom_client_approval_status = "Approved"
+	# Or if client approval isn't required at all:
+	elif not doc.get("custom_requires_client_approval"):
+		doc.custom_client_approval_status = "Approved"
+	else:
+		doc.custom_client_approval_status = "Pending"
 
-		# Now it proceeds to the Accounts Review stage (if not already approved)
+	# 2. SALES TEAM APPROVAL
+	if doc.custom_client_approval_status == "Approved":
+		if not getattr(doc, "custom_sales_approval_status", None) or doc.custom_sales_approval_status not in [
+			"Approved",
+			"Rejected",
+		]:
+			doc.custom_sales_approval_status = "Pending"
+	else:
+		doc.custom_sales_approval_status = "Pending"
+
+	# 3. ACCOUNTS TEAM APPROVAL
+	if getattr(doc, "custom_sales_approval_status", "") == "Approved":
 		if doc.custom_accounts_approval_status not in ["Approved", "Rejected"]:
 			doc.custom_accounts_approval_status = "Pending"
 	else:
-		# Client hasn't signed it yet
-		doc.custom_client_approval_status = "Pending"
-		if doc.custom_accounts_approval_status not in ["Approved", "Rejected"]:
-			doc.custom_accounts_approval_status = "Pending"
+		doc.custom_accounts_approval_status = "Not Required"
 
 	# 4. RESOURCE AVAILABILITY CHECK (FOR REOCCURRING/INTENDED SCHEDULES)
 	if doc.custom_intended_start_date:
@@ -119,6 +134,19 @@ def spawn_job_from_intent(doc):
 
 @frappe.whitelist()
 def send_approval_email(docname, cc=None, bcc=None, custom_message=None):
+	frappe.enqueue(
+		"enviro.custom_scripts.quotation.send_approval_email_background",
+		docname=docname,
+		cc=cc,
+		bcc=bcc,
+		custom_message=custom_message,
+		queue="short",
+		timeout=300,
+	)
+	return "Queued"
+
+
+def send_approval_email_background(docname, cc=None, bcc=None, custom_message=None):
 	doc = frappe.get_doc("Quotation", docname)
 
 	if not doc.custom_site_email:
@@ -232,22 +260,27 @@ def submit_quote_approval():
 				)
 
 			# PROPAGATE TO ACTIVE JOBS
-			frappe.db.sql(
-				"""
-				UPDATE `tabEnviro Job`
-				SET site_name = %s, site_address = %s, site_contact_name = %s,
-					site_contact_phone = %s, site_contact_email = %s, modified = NOW()
-				WHERE quotation = %s AND status IN ('Scheduled', 'In Transit', 'On Site')
-			""",
-				(
-					site.site_name,
-					site.site_address,
-					site.site_contact_person,
-					site.site_phone,
-					site.site_email_address,
-					name,
-				),
+			active_jobs = frappe.get_all(
+				"Enviro Job",
+				filters={
+					"quotation": name,
+					"status": ["in", ["Scheduled", "In Transit", "On Site"]],
+				},
+				pluck="name",
 			)
+			for job_name in active_jobs:
+				frappe.db.set_value(
+					"Enviro Job",
+					job_name,
+					{
+						"site_name": site.site_name,
+						"site_address": site.site_address,
+						"site_contact_name": site.site_contact_person,
+						"site_contact_phone": site.site_phone,
+						"site_contact_email": site.site_email_address,
+					},
+					update_modified=True,
+				)
 
 		# Save Signature
 		signature_b64 = data.get("signature")
@@ -260,16 +293,32 @@ def submit_quote_approval():
 			# PROPAGATE SIGNATURE
 			if getattr(doc, "custom_enviro_job_card", None):
 				frappe.db.set_value(
-					"Enviro Job Card", doc.custom_enviro_job_card, "custom_customer_signature", file_url
+					"Enviro Job Card",
+					doc.custom_enviro_job_card,
+					"custom_customer_signature",
+					file_url,
 				)
 
-			frappe.db.sql(
-				"UPDATE `tabEnviro Job` SET contact_signature = %s, modified = NOW() WHERE quotation = %s AND status IN ('Scheduled', 'In Transit', 'On Site')",
-				(file_url, name),
+			active_jobs = frappe.get_all(
+				"Enviro Job",
+				filters={
+					"quotation": name,
+					"status": ["in", ["Scheduled", "In Transit", "On Site"]],
+				},
+				pluck="name",
 			)
+			for job_name in active_jobs:
+				frappe.db.set_value(
+					"Enviro Job",
+					job_name,
+					"contact_signature",
+					file_url,
+					update_modified=True,
+				)
 
 		doc.custom_client_approval_status = "Approved"
-		doc.custom_accounts_approval_status = "Pending"
+		doc.custom_sales_approval_status = "Pending"
+		doc.custom_accounts_approval_status = "Not Required"
 		doc.custom_approval_token = ""
 		doc.save(ignore_permissions=True)
 		frappe.db.commit()
@@ -281,6 +330,8 @@ def submit_quote_approval():
 @frappe.whitelist()
 def submit_quotation(name):
 	doc = frappe.get_doc("Quotation", name)
+	doc.custom_sales_approval_status = "Approved"
+	doc.save(ignore_permissions=True)
 	doc.submit()
 	return "Submitted"
 
@@ -307,6 +358,7 @@ def make_enviro_job_card(source_name, target_doc=None):
 					"company_email",
 					"industry_type",
 					"induction_type",
+					"sales_person",
 				],
 				as_dict=True,
 			)
@@ -322,11 +374,15 @@ def make_enviro_job_card(source_name, target_doc=None):
 				target.company_contact_email = site_fields.company_email
 				target.industry_type = site_fields.industry_type
 				target.induction_type = site_fields.induction_type
+				target.sales_person = site_fields.sales_person
 
 		# 2. Safely pull Customer Metadata
 		if target.customer:
 			cust_fields = frappe.db.get_value(
-				"Customer", target.customer, ["customer_name", "customer_primary_address"], as_dict=True
+				"Customer",
+				target.customer,
+				["customer_name", "customer_primary_address"],
+				as_dict=True,
 			)
 			if cust_fields:
 				# Overwrite "company_name" with the Customer Name (not the ERPNext Tenant)
@@ -339,7 +395,11 @@ def make_enviro_job_card(source_name, target_doc=None):
 		{
 			"Quotation": {
 				"doctype": "Enviro Job Card",
-				"field_map": {"name": "source_quotation", "party_name": "customer", "custom_site": "site"},
+				"field_map": {
+					"name": "source_quotation",
+					"party_name": "customer",
+					"custom_site": "site",
+				},
 				"postprocess": build_metadata,
 			}
 		},

@@ -12,19 +12,34 @@ def get_driver_context():
 	"""Returns the current driver's employee record and basic stats"""
 	try:
 		user = frappe.session.user
+		cache_key = f"driver_context_{user}"
+		cached = frappe.cache().get_value(cache_key)
+		if cached:
+			ResponseHandler.success(cached)
+			return
+
 		employee = frappe.db.get_value(
-			"Employee", {"user_id": user}, ["name", "employee_name", "designation"], as_dict=True
+			"Employee",
+			{"user_id": user},
+			["name", "employee_name", "designation"],
+			as_dict=True,
 		)
 
 		if not employee:
-			frappe.throw(_("No Employee record linked to user {0}").format(user), title=_("User Not Found"))
+			frappe.throw(
+				_("No Employee record linked to user {0}").format(user),
+				title=_("User Not Found"),
+			)
 
 		# Check if vehicle check for today is done
 		vpi_done = frappe.db.exists(
-			"Vehicle Pre-Inspection Check", {"driver": employee.name, "date": [">=", today()]}
+			"Vehicle Pre-Inspection Check",
+			{"driver": employee.name, "date": [">=", today()]},
 		)
 
-		ResponseHandler.success({"employee": employee, "vpi_done": bool(vpi_done)})
+		result = {"employee": employee, "vpi_done": bool(vpi_done)}
+		frappe.cache().set_value(cache_key, result, expires_in_sec=60)
+		ResponseHandler.success(result)
 	except ValidationError as e:
 		frappe.db.rollback()
 		error_title = getattr(e, "title", "Validation Error")
@@ -32,7 +47,11 @@ def get_driver_context():
 	except Exception:
 		frappe.db.rollback()
 		frappe.log_error(title="get_driver_context API Failed", message=frappe.get_traceback())
-		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
+		ResponseHandler.error(
+			status_code=500,
+			title="Server Error",
+			message="An unexpected error occurred.",
+		)
 
 
 @frappe.whitelist()
@@ -40,6 +59,12 @@ def get_assigned_jobs():
 	"""Returns all 'Scheduled', 'In Transit', or 'On Site' jobs for the current driver"""
 	try:
 		user = frappe.session.user
+		cache_key = f"driver_jobs_{user}"
+		cached = frappe.cache().get_value(cache_key)
+		if cached:
+			ResponseHandler.success(cached)
+			return
+
 		employee_name = frappe.db.get_value("Employee", {"user_id": user}, "name")
 
 		if not employee_name:
@@ -48,7 +73,10 @@ def get_assigned_jobs():
 
 		jobs = frappe.get_all(
 			"Enviro Job",
-			filters={"driver": employee_name, "status": ["in", ["Scheduled", "In Transit", "On Site"]]},
+			filters={
+				"driver": employee_name,
+				"status": ["in", ["Scheduled", "In Transit", "On Site"]],
+			},
 			fields=[
 				"name",
 				"customer",
@@ -66,6 +94,7 @@ def get_assigned_jobs():
 			],
 		)
 
+		frappe.cache().set_value(cache_key, jobs, expires_in_sec=60)
 		ResponseHandler.success(jobs)
 	except ValidationError as e:
 		frappe.db.rollback()
@@ -74,7 +103,11 @@ def get_assigned_jobs():
 	except Exception:
 		frappe.db.rollback()
 		frappe.log_error(title="get_assigned_jobs API Failed", message=frappe.get_traceback())
-		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
+		ResponseHandler.error(
+			status_code=500,
+			title="Server Error",
+			message="An unexpected error occurred.",
+		)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -86,7 +119,10 @@ def update_job_status():
 		action = params.get("action")
 
 		if not job_name or not action:
-			frappe.throw(_("Missing 'job_name' or 'action' parameter."), title=_("Missing Information"))
+			frappe.throw(
+				_("Missing 'job_name' or 'action' parameter."),
+				title=_("Missing Information"),
+			)
 
 		from enviro.enviro.doctype.enviro_job.enviro_job import (
 			arrive_at_depot,
@@ -117,6 +153,10 @@ def update_job_status():
 		else:
 			frappe.throw(_("Invalid action: {0}").format(action), title=_("Invalid Action"))
 
+		# Invalidate driver cache to reflect the new status immediately
+		frappe.cache().delete_value(f"driver_jobs_{frappe.session.user}")
+		frappe.cache().delete_value(f"driver_context_{frappe.session.user}")
+
 		ResponseHandler.success(result)
 
 	except ValidationError as e:
@@ -126,7 +166,11 @@ def update_job_status():
 	except Exception:
 		frappe.db.rollback()
 		frappe.log_error(title="update_job_status API Failed", message=frappe.get_traceback())
-		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
+		ResponseHandler.error(
+			status_code=500,
+			title="Server Error",
+			message="An unexpected error occurred.",
+		)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -176,7 +220,11 @@ def submit_vehicle_checklist():
 	except Exception:
 		frappe.db.rollback()
 		frappe.log_error(title="submit_vehicle_checklist API Failed", message=frappe.get_traceback())
-		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
+		ResponseHandler.error(
+			status_code=500,
+			title="Server Error",
+			message="An unexpected error occurred.",
+		)
 
 
 @frappe.whitelist()
@@ -213,7 +261,11 @@ def get_all_drivers():
 	except Exception:
 		frappe.db.rollback()
 		frappe.log_error(title="get_all_drivers API Failed", message=frappe.get_traceback())
-		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
+		ResponseHandler.error(
+			status_code=500,
+			title="Server Error",
+			message="An unexpected error occurred.",
+		)
 
 
 @frappe.whitelist(methods=["POST"])
@@ -223,7 +275,10 @@ def update_account_info():
 		params = get_request_params()
 		user_id = frappe.session.user
 		if user_id == "Guest":
-			frappe.throw(_("Please login to update your account."), title=_("Authentication Required"))
+			frappe.throw(
+				_("Please login to update your account."),
+				title=_("Authentication Required"),
+			)
 
 		user = frappe.get_doc("User", user_id)
 
@@ -233,7 +288,8 @@ def update_account_info():
 		if new_password:
 			if not old_password:
 				frappe.throw(
-					_("Current password is required to set a new password."), title=_("Missing Information")
+					_("Current password is required to set a new password."),
+					title=_("Missing Information"),
 				)
 
 			# Verify old password
@@ -252,7 +308,8 @@ def update_account_info():
 		if username and username != user.username:
 			if frappe.db.exists("User", {"username": username}):
 				frappe.throw(
-					_("Username '{0}' is already taken.").format(username), title=_("Username Unavailable")
+					_("Username '{0}' is already taken.").format(username),
+					title=_("Username Unavailable"),
 				)
 			user.username = username
 
@@ -287,6 +344,10 @@ def update_account_info():
 
 		frappe.db.commit()  # ensure the writes are persisted if all went well
 
+		# Invalidate cache
+		frappe.cache().delete_value(f"driver_context_{user_id}")
+		frappe.cache().delete_value(f"driver_jobs_{user_id}")
+
 		ResponseHandler.success({"message": "Account info updated successfully."})
 	except ValidationError as e:
 		frappe.db.rollback()
@@ -295,7 +356,11 @@ def update_account_info():
 	except Exception:
 		frappe.db.rollback()
 		frappe.log_error(title="update_account_info API Failed", message=frappe.get_traceback())
-		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
+		ResponseHandler.error(
+			status_code=500,
+			title="Server Error",
+			message="An unexpected error occurred.",
+		)
 
 
 @frappe.whitelist()
@@ -310,7 +375,9 @@ def get_all_vehicles():
 		frappe.db.rollback()
 		frappe.log_error(title="get_all_vehicles API Failed", message=frappe.get_traceback())
 		ResponseHandler.error(
-			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
+			status_code=500,
+			title=_("Server Error"),
+			message="An unexpected error occurred.",
 		)
 
 
@@ -338,7 +405,9 @@ def get_vehicle_details():
 		frappe.db.rollback()
 		frappe.log_error(title="get_vehicle_details API Failed", message=frappe.get_traceback())
 		ResponseHandler.error(
-			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
+			status_code=500,
+			title=_("Server Error"),
+			message="An unexpected error occurred.",
 		)
 
 
@@ -372,5 +441,7 @@ def get_vpi_schema():
 		frappe.db.rollback()
 		frappe.log_error(title="get_vpi_schema API Failed", message=frappe.get_traceback())
 		ResponseHandler.error(
-			status_code=500, title=_("Server Error"), message="An unexpected error occurred."
+			status_code=500,
+			title=_("Server Error"),
+			message="An unexpected error occurred.",
 		)
