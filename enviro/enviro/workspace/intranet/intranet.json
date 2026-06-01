@@ -1,8 +1,13 @@
 {
  "charts": [],
- "content": "[{\"type\":\"header\",\"data\":{\"text\":\"Intranet\"}}]",
+ "content": "[{\"id\":\"6QGPYRhLs2\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Intranet Dashboard\",\"col\":12}}]",
  "creation": "2026-04-30 18:22:35.561777",
- "custom_blocks": [],
+ "custom_blocks": [
+  {
+   "custom_block_name": "Intranet Dashboard",
+   "label": "Intranet Dashboard"
+  }
+ ],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
@@ -13,7 +18,7 @@
  "is_hidden": 0,
  "label": "Intranet",
  "links": [],
- "modified": "2026-05-11 14:44:23.716868",
+ "modified": "2026-06-01 17:01:27.226726",
  "modified_by": "Administrator",
  "module": "enviro",
  "name": "Intranet",
@@ -22,98 +27,7 @@
  "parent_page": "",
  "public": 1,
  "quick_lists": [],
- "roles": [
-  {
-   "role": "Administrator"
-  },
-  {
-   "role": "Superadmin"
-  },
-  {
-   "role": "Director"
-  },
-  {
-   "role": "Manager"
-  },
-  {
-   "role": "General Manager"
-  },
-  {
-   "role": "Accounts Manager"
-  },
-  {
-   "role": "Accounts Staff"
-  },
-  {
-   "role": "Accounts"
-  },
-  {
-   "role": "Account Assistant"
-  },
-  {
-   "role": "Accounts User"
-  },
-  {
-   "role": "Enviro Accounts"
-  },
-  {
-   "role": "Operations Manager"
-  },
-  {
-   "role": "Operations Assistance Manager"
-  },
-  {
-   "role": "Supervisor"
-  },
-  {
-   "role": "Scheduler"
-  },
-  {
-   "role": "Sales Staff"
-  },
-  {
-   "role": "Sales Manager"
-  },
-  {
-   "role": "Sales Pumps"
-  },
-  {
-   "role": "Pump Manager"
-  },
-  {
-   "role": "Pump Coordinator"
-  },
-  {
-   "role": "Pump Technician"
-  },
-  {
-   "role": "Technical Manager"
-  },
-  {
-   "role": "Whs Manager"
-  },
-  {
-   "role": "Factory Manager"
-  },
-  {
-   "role": "Gms Assistant"
-  },
-  {
-   "role": "All Rounder"
-  },
-  {
-   "role": "Driver Liquid Waste Technician (Mobile)"
-  },
-  {
-   "role": "Driver Liquid Waste Technician (Web)"
-  },
-  {
-   "role": "Driver Factory Hand (Mobile)"
-  },
-  {
-   "role": "Driver Factory Hand (Web)"
-  }
- ],
+ "roles": [],
  "sequence_id": 8.0,
  "shortcuts": [],
  "title": "Intranet"
