@@ -1214,7 +1214,6 @@ def get_user_permissions():
 def get_vehicle_folders():
 	"""Returns folders and files for vehicles."""
 	try:
-		params = get_request_params()
 		# Return a mocked folder structure or read from File doctype if available
 		# For now, return empty folders to prevent UI crash
 		return raw_json({"folders": []})
