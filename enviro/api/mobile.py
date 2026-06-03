@@ -44,10 +44,15 @@ def get_driver_context():
 			{"driver": employee.name, "date": [">=", today()]},
 		)
 
+		emp_int_id = zlib.crc32(employee.name.encode("utf-8"))
+		emp_id_map = frappe.cache().get_value("emp_int_to_str_map") or {}
+		emp_id_map[str(emp_int_id)] = employee.name
+		frappe.cache().set_value("emp_int_to_str_map", emp_id_map)
+
 		# Map to Flutter's expected ProfileRespModel
 		result = {
-			"id": 1,  # Dummy ID to prevent null exceptions in Flutter
-			"employee_id": 1,
+			"id": emp_int_id,
+			"employee_id": emp_int_id,
 			"username": user,
 			"name": employee.employee_name,
 			"user_type": "Driver",
@@ -714,8 +719,8 @@ def get_team_employees(status="all", page=1, limit=10):
 	try:
 		user = frappe.session.user
 		roles = frappe.get_roles(user)
-		is_driver = any(role.startswith("Driver") for role in roles)
-		is_manager = ("System Manager" in roles or "Administrator" in roles) if not is_driver else False
+		is_manager = "System Manager" in roles or "Administrator" in roles
+		is_driver = any(role.startswith("Driver") for role in roles) and not is_manager
 
 		filters = {}
 		if status == "current":
@@ -1174,11 +1179,11 @@ def get_user_permissions():
 	try:
 		user = frappe.session.user
 		roles = frappe.get_roles(user)
-		is_driver = any(role.startswith("Driver") for role in roles)
-		is_manager = ("System Manager" in roles or "Administrator" in roles) if not is_driver else False
+		is_manager = "System Manager" in roles or "Administrator" in roles
+		is_driver = any(role.startswith("Driver") for role in roles) and not is_manager
 
 		team_perms = {
-			"view": True,
+			"view": is_manager,
 			"add": is_manager,
 			"edit": is_manager,
 			"delete": False,
