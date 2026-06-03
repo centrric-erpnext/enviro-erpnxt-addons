@@ -24,7 +24,13 @@ def get_home_dashboard_data():
 		"weather": {"error": "Unavailable"},
 		"sales_data": None,
 		"safety_data": {
-			"people": {"mtd": 0, "ytd": 4, "lti": "no Data", "mtd_val": "no Data", "fti": 0},
+			"people": {
+				"mtd": 0,
+				"ytd": 4,
+				"lti": "no Data",
+				"mtd_val": "no Data",
+				"fti": 0,
+			},
 			"vehicle": {"mtd": 1, "ytd": 3, "fault": 0, "non_fault": 0},
 		},
 	}
@@ -63,7 +69,11 @@ def get_all_jobs_summary():
 	)
 
 	result = [
-		{"code": j.name, "title": j.get("customer") or "No Customer", "status": j.get("status", "Pending")}
+		{
+			"code": j.name,
+			"title": j.get("customer") or "No Customer",
+			"status": j.get("status", "Pending"),
+		}
 		for j in jobs
 	]
 	frappe.cache().set_value(cache_key, result, expires_in_sec=120)
@@ -74,7 +84,13 @@ def get_todays_appointments():
 	current_date = today()
 	appointments = frappe.get_list(
 		"Enviro Job",
-		fields=["name", "customer", "status", "scheduled_start_time", "scheduled_end_time"],
+		fields=[
+			"name",
+			"customer",
+			"status",
+			"scheduled_start_time",
+			"scheduled_end_time",
+		],
 		filters={"scheduled_start_date": current_date},
 		limit=6,
 		order_by="scheduled_start_time asc",
@@ -137,76 +153,127 @@ def get_sales_data(year=None, month=None):
 	if cached:
 		return cached
 
+	start_date = f"{year}-01-01"
+	end_date = f"{year}-12-31"
+
 	query = """
 		SELECT MONTH(transaction_date) as month, SUM(grand_total) as total
 		FROM `tabQuotation`
-		WHERE YEAR(transaction_date) = %s AND docstatus = 1
+		WHERE transaction_date >= %s AND transaction_date <= %s AND docstatus = 1
 	"""
-	params = [year]
+	params = [start_date, end_date]
 
 	if month:
-		query += " AND MONTH(transaction_date) = %s"
-		params.append(month)
+		m_str = str(month).zfill(2)
+		start_date = f"{year}-{m_str}-01"
+		# Get the last day of the month
+		import calendar
+
+		last_day = calendar.monthrange(int(year), int(month))[1]
+		end_date = f"{year}-{m_str}-{last_day}"
+
+		query = """
+			SELECT MONTH(transaction_date) as month, SUM(grand_total) as total
+			FROM `tabQuotation`
+			WHERE transaction_date >= %s AND transaction_date <= %s AND docstatus = 1
+		"""
+		params = [start_date, end_date]
 
 	query += " GROUP BY MONTH(transaction_date)"
 
 	sales = frappe.db.sql(query, tuple(params), as_dict=True)
 
-	months_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+	months_labels = [
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec",
+	]
 	values = [0] * 12
 	for s in sales:
 		if 1 <= s.month <= 12:
 			values[s.month - 1] = flt(s.total)
 
-	result = {"labels": months_labels, "datasets": [{"name": "Actual Sales", "values": values}]}
+	result = {
+		"labels": months_labels,
+		"datasets": [{"name": "Actual Sales", "values": values}],
+	}
 	frappe.cache().set_value(cache_key, result, expires_in_sec=600)  # 10 min cache
 	return result
 
 
 def get_weather_data(city=WEATHER_CITY):
-	cache_key = f"enviro_weather_{city.lower().replace(' ', '_')}"
+	cache_key = f"enviro_weather_{city.lower().replace(' ', '_')}_wttr"
 	cached_data = frappe.cache().get_value(cache_key)
 	if cached_data:
 		return cached_data
 
 	try:
-		geo_res = requests.get(
-			"https://geocoding-api.open-meteo.com/v1/search", params={"name": city, "count": 1}, timeout=3
-		)
-		geo_res.raise_for_status()
-		geo = geo_res.json()
+		res = requests.get(f"https://wttr.in/{city}?format=j1", timeout=5)
+		res.raise_for_status()
+		data = res.json()
 
-		if not geo.get("results"):
-			return {"error": "City not found"}
+		# WWO to WMO mapping approximation
+		def wwo_to_wmo(code):
+			c = str(code)
+			if c in ["113"]:
+				return 0  # Clear
+			if c in ["116"]:
+				return 2  # Partly cloudy
+			if c in ["119", "122"]:
+				return 3  # Overcast
+			if c in ["143", "248", "260"]:
+				return 45  # Fog
+			if c in ["176", "263", "266", "293", "296", "299", "302", "305", "308"]:
+				return 61  # Rain
+			if c in ["200", "386", "389", "392", "395"]:
+				return 95  # Thunderstorm
+			if c in ["227", "230", "323", "326", "329", "332", "335", "338"]:
+				return 71  # Snow
+			return 3  # Default cloudy
 
-		loc = geo["results"][0]
-		wx_res = requests.get(
-			"https://api.open-meteo.com/v1/forecast",
-			params={
-				"latitude": loc["latitude"],
-				"longitude": loc["longitude"],
-				"current": "temperature_2m,weather_code",
-				"daily": "weather_code,temperature_2m_max",
-				"forecast_days": 7,
-				"timezone": "auto",
-			},
-			timeout=3,
-		)
-		wx_res.raise_for_status()
-		wx = wx_res.json()
+		curr = data["current_condition"][0]
+		w_code = wwo_to_wmo(curr.get("weatherCode", "113"))
 
-		res = {
-			"city": loc["name"],
-			"current_temp": round(wx["current"]["temperature_2m"]),
-			"weather_code": wx["current"]["weather_code"],
-			"daily": {
-				"time": wx["daily"]["time"],
-				"weather_code": wx["daily"]["weather_code"],
-				"temp_max": [round(t) for t in wx["daily"]["temperature_2m_max"]],
-			},
+		times = []
+		codes = []
+		temps = []
+
+		# wttr.in returns 3 days
+		for day in data.get("weather", []):
+			times.append(day.get("date"))
+			hourly = day.get("hourly", [{}])[0]
+			codes.append(wwo_to_wmo(hourly.get("weatherCode", "113")))
+			temps.append(round(float(day.get("maxtempC", 0))))
+
+		# Pad to 7 days
+		if len(times) > 0:
+			while len(times) < 7:
+				from datetime import datetime, timedelta
+
+				last_date = datetime.strptime(times[-1], "%Y-%m-%d")
+				next_date = (last_date + timedelta(days=1)).strftime("%Y-%m-%d")
+				times.append(next_date)
+				codes.append(codes[-1])
+				temps.append(temps[-1])
+
+		res_data = {
+			"city": city,
+			"current_temp": round(float(curr.get("temp_C", 0))),
+			"weather_code": w_code,
+			"daily": {"time": times, "weather_code": codes, "temp_max": temps},
 		}
-		frappe.cache().set_value(cache_key, res, expires_in_sec=900)
-		return res
+
+		frappe.cache().set_value(cache_key, res_data, expires_in_sec=900)
+		return res_data
 	except Exception as e:
-		frappe.log_error(f"Weather API Failed: {e!s}")
+		frappe.log_error(title="Weather API Failed", message=str(e))
 		return {"error": "Weather data unavailable"}

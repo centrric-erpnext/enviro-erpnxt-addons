@@ -4,8 +4,12 @@ import frappe
 def get_request_params():
 	"""Helper to get parameters from form-data or JSON body"""
 	params = frappe.form_dict.copy()
-	if frappe.request.json:
-		params.update(frappe.request.json)
+	try:
+		json_body = frappe.request.get_json(silent=True, force=True)
+		if json_body and isinstance(json_body, dict):
+			params.update(json_body)
+	except Exception:
+		pass
 	return params
 
 
@@ -13,7 +17,10 @@ def get_request_params():
 def get_current_employee():
 	"""Returns the employee record linked to the current user"""
 	return frappe.db.get_value(
-		"Employee", {"user_id": frappe.session.user}, ["name", "employee_name", "image"], as_dict=True
+		"Employee",
+		{"user_id": frappe.session.user},
+		["name", "employee_name", "image"],
+		as_dict=True,
 	)
 
 

@@ -90,7 +90,8 @@
    "in_list_view": 1,
    "label": "Vehicle Registration",
    "options": "Vehicle",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "driver",
@@ -98,13 +99,15 @@
    "in_list_view": 1,
    "label": "Drivers Name",
    "options": "Employee",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "date",
    "fieldtype": "Datetime",
    "label": "Date & Time",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "current_odometer",

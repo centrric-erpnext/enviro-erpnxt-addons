@@ -142,7 +142,8 @@
    "fieldtype": "Select",
    "label": "Status",
    "options": "Open\nAssigned\nIn Progress\nCompleted\nCancelled",
-   "read_only": 1
+   "read_only": 1,
+   "search_index": 1
   },
   {
    "fieldname": "job_instructions__description",
@@ -651,7 +652,8 @@
   {
    "fieldname": "scheduled_start_date",
    "fieldtype": "Date",
-   "label": "Scheduled Start Date"
+   "label": "Scheduled Start Date",
+   "search_index": 1
   },
   {
    "fieldname": "scheduled_start_time",
@@ -688,7 +690,8 @@
    "fieldtype": "Date",
    "hidden": 1,
    "label": "Last Scheduled Date",
-   "read_only": 1
+   "read_only": 1,
+   "search_index": 1
   },
   {
    "fieldname": "column_break_goks",

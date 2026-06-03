@@ -63,7 +63,9 @@ def get_leave_applications():
 	photos_map = {
 		d.name: d.image
 		for d in frappe.get_all(
-			"Employee", filters={"name": ["in", employee_names]}, fields=["name", "image"]
+			"Employee",
+			filters={"name": ["in", employee_names]},
+			fields=["name", "image"],
 		)
 	}
 
@@ -93,7 +95,10 @@ def get_leave_applications():
 	leave_names = [l.name for l in leaves]
 	attachments = frappe.get_all(
 		"File",
-		filters={"attached_to_doctype": "Leave Application", "attached_to_name": ["in", leave_names]},
+		filters={
+			"attached_to_doctype": "Leave Application",
+			"attached_to_name": ["in", leave_names],
+		},
 		fields=["attached_to_name", "file_url"],
 	)
 	attachment_map = {}
@@ -173,7 +178,9 @@ def get_timesheets():
 	photos_map = {
 		d.name: d.image
 		for d in frappe.get_all(
-			"Employee", filters={"name": ["in", employee_names]}, fields=["name", "image"]
+			"Employee",
+			filters={"name": ["in", employee_names]},
+			fields=["name", "image"],
 		)
 	}
 
