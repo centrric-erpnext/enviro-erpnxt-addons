@@ -32,11 +32,32 @@ def get_driver_context():
 			as_dict=True,
 		)
 
+		roles = frappe.get_roles(user)
+		is_manager = "System Manager" in roles or "Administrator" in roles
+
 		if not employee:
-			frappe.throw(
-				_("No Employee record linked to user {0}").format(user),
-				title=_("User Not Found"),
-			)
+			if is_manager:
+				# Return a dummy context for the Administrator so they can use the app without an Employee profile
+				result = {
+					"id": 1,
+					"employee_id": 1,
+					"username": user,
+					"name": "Administrator",
+					"user_type": "Manager",
+					"permission_type": "Manager",
+					"contact_number": "",
+					"dp": frappe.db.get_value("User", user, "user_image") or "",
+					"email": user,
+					"active_status": True,
+					"vpi_done": True,
+				}
+				frappe.cache().set_value(cache_key, result, expires_in_sec=60)
+				return raw_json(result)
+			else:
+				frappe.throw(
+					_("No Employee record linked to user {0}").format(user),
+					title=_("User Not Found"),
+				)
 
 		# Check if vehicle check for today is done
 		vpi_done = frappe.db.exists(
@@ -781,6 +802,34 @@ def get_team_employee_details(employee_id):
 		emp_id_map = frappe.cache().get_value("emp_int_to_str_map") or {}
 		actual_emp_id = emp_id_map.get(clean_employee_id, clean_employee_id)
 
+		if actual_emp_id == "1":
+			# Dummy response for Administrator
+			user = frappe.session.user
+			return raw_json(
+				{
+					"id": 1,
+					"employee_id": 1,
+					"name": "Administrator",
+					"username": user,
+					"user_type": "Manager",
+					"permission_type": "Manager",
+					"contact_number": "",
+					"active_status": True,
+					"dp": frappe.db.get_value("User", user, "user_image") or "",
+					"bio": "System Administrator",
+					"email": user,
+					"personal_email": "",
+					"emergency_contact_name": "",
+					"emergency_contact": "",
+					"employement_status": "Active",
+					"address": "",
+					"date_joined": "",
+					"date_of_birth": "",
+					"termination_date": "",
+					"is_occupied": False,
+				}
+			)
+
 		try:
 			employee = frappe.get_doc("Employee", actual_emp_id)
 		except frappe.DoesNotExistError:
@@ -801,7 +850,9 @@ def get_team_employee_details(employee_id):
 			"bio": "",
 			"email": employee.personal_email or employee.company_email or "",
 			"personal_email": employee.personal_email or "",
-			"emergency_contact_name": employee.emergency_contact_name or "",
+			"emergency_contact_name": getattr(
+				employee, "emergency_contact_name", getattr(employee, "person_to_be_contacted", "")
+			),
 			"emergency_contact": employee.emergency_phone_number or "",
 			"employement_status": employee.status,
 			"address": employee.current_address or "",
@@ -921,10 +972,35 @@ def get_team_leaves(date=None):
 
 
 @frappe.whitelist()
-def get_all_clients():
+def get_all_clients(page=1, limit=10, site_type=None, status=None, search=None):
 	try:
+		try:
+			page = int(page)
+			limit = int(limit)
+		except (ValueError, TypeError):
+			page = 1
+			limit = 10
+
+		filters = {}
+		if status == "deleted":
+			filters["disabled"] = 1
+		elif status == "active":
+			filters["disabled"] = 0
+
+		if site_type:
+			filters["site_type"] = site_type
+
+		or_filters = {}
+		if search:
+			search_str = f"%{search}%"
+			or_filters["site_name"] = ["like", search_str]
+			or_filters["customer"] = ["like", search_str]
+			or_filters["site_address"] = ["like", search_str]
+
 		sites = frappe.get_all(
 			"Site",
+			filters=filters,
+			or_filters=or_filters,
 			fields=[
 				"name",
 				"customer",
@@ -935,7 +1011,11 @@ def get_all_clients():
 				"site_contact_mobile",
 				"industry_type",
 				"account_status",
+				"site_type",
 			],
+			start=(page - 1) * limit,
+			page_length=limit,
+			order_by="creation desc",
 		)
 
 		site_map = frappe.cache().get_value("site_int_to_str_map") or {}
@@ -1069,7 +1149,6 @@ def get_mobile_folders(folder_type):
 		# Example logic mapping Enviro Team Folder to FolderListModel
 		root_folders = frappe.get_all(
 			"Enviro Team Folder",
-			filters={"parent_folder": ["is", "not set"], "visibility": "Public"},
 			fields=["name", "folder_name"],
 		)
 
