@@ -153,11 +153,15 @@ def get_assigned_jobs():
 				"creation",
 				"status",
 				"vehicle",
+				"driver",
+				"driver.employee_name as driver_name",
 				"custom_waste_type",
 			],
 		)
 
 		import zlib
+
+		from frappe.utils import nowdate
 
 		formatted_jobs = []
 		for job in jobs:
@@ -169,13 +173,31 @@ def get_assigned_jobs():
 			start_dt = str(job.scheduled_start_date) if job.scheduled_start_date else "2024-01-01"
 			end_dt = str(job.scheduled_end_date) if job.get("scheduled_end_date") else start_dt
 
+			# Determine status string for Flutter based on timestamps
+			flutter_status = "Pending"
+			if job.get("arrive_facility_time"):
+				flutter_status = "arrived_at_enviro_facility"
+			elif job.get("depart_depot_time"):
+				flutter_status = "departed_waste_depot"
+			elif job.get("arrive_depot_time"):
+				flutter_status = "arrived_at_waste_depot"
+			elif job.get("contact_signature"):
+				flutter_status = "completed"
+			elif job.get("job_finished_time"):
+				flutter_status = "job_finished"
+			elif job.get("job_started_time"):
+				flutter_status = "job_started"
+			elif job.get("depart_facility_time"):
+				flutter_status = "departed_enviro_facility"
+
 			formatted_jobs.append(
 				{
 					"id": job_int_id,
 					"job": job_int_id,
 					"quote_id": job_int_id,
 					"job_card_code": job.name,
-					"status": job.status,
+					"status": flutter_status,
+					"sales_person": job.site_contact_name,
 					"vehicle": job.vehicle,
 					"start_date": start_dt,
 					"end_date": end_dt,
@@ -211,6 +233,30 @@ def get_assigned_jobs():
 						"add_info_button": False,
 						"weigh_bridge_required_multiple_file": [],
 					},
+					"drivers": [
+						{
+							"id": 1,
+							"name": job.driver_name,
+							"designation": "Driver",
+							"vehicle_id": 1,
+							"dp": "",
+							"registration": job.vehicle,
+							"preinspectioncheck": bool(
+								frappe.db.exists(
+									"Vehicle Pre-Inspection Check",
+									{
+										"vehicle": job.vehicle,
+										"driver": job.driver,
+										"creation": ["like", f"{nowdate()}%"],
+									},
+								)
+							),
+							"preinspection_required": True,
+							"type": "Primary Driver",
+						}
+					]
+					if job.driver
+					else [],
 					"primary_vehicle_driver": True,
 					"tab_type": "truck",
 					"before_pics": [],
@@ -999,7 +1045,9 @@ def _map_site_to_flutter(site, site_int_id):
 		"invoice_purchase_no": site.get("purchase_order_no") or "",
 		"price": str(site.get("price")) if site.get("price") else "0.00",
 		"sales_person": site.get("sales_person") or "",
-		"industry_type": int(site.get("industry_type")) if site.get("industry_type") and str(site.get("industry_type")).isdigit() else None,
+		"industry_type": int(site.get("industry_type"))
+		if site.get("industry_type") and str(site.get("industry_type")).isdigit()
+		else None,
 		"dp_thumbnail": None,
 		"sales_person_name": None,
 		"tab_type": None,
@@ -1033,8 +1081,9 @@ def _map_site_to_flutter(site, site_int_id):
 		"terms_of_account": site.get("terms_of_account") or None,
 		"key_required_type_str": None,
 		"weigh_bridge_required": None,
-		"waste_type": []
+		"waste_type": [],
 	}
+
 
 @frappe.whitelist()
 def get_all_clients(page=1, limit=10, site_type=None, status=None, search=None):
@@ -1067,12 +1116,30 @@ def get_all_clients(page=1, limit=10, site_type=None, status=None, search=None):
 			filters=filters,
 			or_filters=or_filters,
 			fields=[
-				"name", "customer", "site_name", "site_address", "site_email_address",
-				"site_phone", "site_contact_mobile", "industry_type", "account_status",
-				"site_type", "site_postcode", "site_contact_person", "induction_required",
-				"induction_type", "abn_number", "company_phone", "company_email",
-				"terms_of_account", "reasons_for_cancelling", "payment_type",
-				"purchase_order_no", "price", "sales_person", "customer.customer_name"
+				"name",
+				"customer",
+				"site_name",
+				"site_address",
+				"site_email_address",
+				"site_phone",
+				"site_contact_mobile",
+				"industry_type",
+				"account_status",
+				"site_type",
+				"site_postcode",
+				"site_contact_person",
+				"induction_required",
+				"induction_type",
+				"abn_number",
+				"company_phone",
+				"company_email",
+				"terms_of_account",
+				"reasons_for_cancelling",
+				"payment_type",
+				"purchase_order_no",
+				"price",
+				"sales_person",
+				"customer.customer_name",
 			],
 			start=(page - 1) * limit,
 			page_length=limit,
@@ -1085,7 +1152,7 @@ def get_all_clients(page=1, limit=10, site_type=None, status=None, search=None):
 		for site in sites:
 			site_int_id = zlib.crc32(site.name.encode("utf-8"))
 			site_map[str(site_int_id)] = site.name
-			
+
 			result.append(_map_site_to_flutter(site, site_int_id))
 
 		frappe.cache().set_value("site_int_to_str_map", site_map)
@@ -1093,6 +1160,7 @@ def get_all_clients(page=1, limit=10, site_type=None, status=None, search=None):
 	except Exception:
 		frappe.log_error(title="get_all_clients API Failed", message=frappe.get_traceback())
 		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
+
 
 @frappe.whitelist()
 def get_number_of_clients():
@@ -1104,13 +1172,12 @@ def get_number_of_clients():
 		result = {
 			"totalPermanentClients": total_permanent,
 			"totalTempClients": total_temp,
-			"totalDeletedClients": total_deleted
+			"totalDeletedClients": total_deleted,
 		}
 		return raw_json(result)
 	except Exception:
 		frappe.log_error(title="get_number_of_clients API Failed", message=frappe.get_traceback())
 		ResponseHandler.error(status_code=500, title="Server Error", message="An unexpected error occurred.")
-
 
 
 @frappe.whitelist()
@@ -1128,7 +1195,9 @@ def get_site_details(site_id=None):
 			clean_site_id = str(site_id)
 
 		actual_site_name = clean_site_id
-		db_site_name = frappe.db.sql("SELECT name FROM `tabSite` WHERE CRC32(name) = %s LIMIT 1", (clean_site_id,))
+		db_site_name = frappe.db.sql(
+			"SELECT name FROM `tabSite` WHERE CRC32(name) = %s LIMIT 1", (clean_site_id,)
+		)
 		if db_site_name:
 			actual_site_name = db_site_name[0][0]
 
@@ -1196,6 +1265,8 @@ def get_mobile_folders(folder_type):
 		# For now, we return empty folders to satisfy the JSON parsing.
 		result = {"folders": []}
 
+		root_folders_list = []
+
 		# Example logic mapping Enviro Team Folder to FolderListModel
 		root_folders = frappe.get_all(
 			"Enviro Team Folder",
@@ -1223,7 +1294,7 @@ def get_mobile_folders(folder_type):
 					}
 				)
 
-			result["folders"].append(
+			root_folders_list.append(
 				{
 					"id": rf_int_id,
 					"name": rf.folder_name,
@@ -1234,6 +1305,19 @@ def get_mobile_folders(folder_type):
 					"files": file_list,
 				}
 			)
+
+		result["folders"].append(
+			{
+				"id": 1,
+				"name": "Root",
+				"type": "Folder",
+				"url": None,
+				"expiry_date": None,
+				"folders": root_folders_list,
+				"files": [],
+			}
+		)
+
 		return raw_json(result)
 	except Exception:
 		frappe.log_error(title="get_mobile_folders API Failed", message=frappe.get_traceback())
@@ -1243,6 +1327,7 @@ def get_mobile_folders(folder_type):
 # ==========================================
 # SITE FOLDERS & FILES API
 # ==========================================
+
 
 @frappe.whitelist()
 def get_site_folders(site_id=None):
@@ -1257,7 +1342,9 @@ def get_site_folders(site_id=None):
 			pass
 
 		actual_site_name = clean_site_id
-		db_site_name = frappe.db.sql("SELECT name FROM `tabSite` WHERE CRC32(name) = %s LIMIT 1", (clean_site_id,))
+		db_site_name = frappe.db.sql(
+			"SELECT name FROM `tabSite` WHERE CRC32(name) = %s LIMIT 1", (clean_site_id,)
+		)
 		if db_site_name:
 			actual_site_name = db_site_name[0][0]
 
@@ -1272,7 +1359,7 @@ def get_site_folders(site_id=None):
 			filters={"attached_to_doctype": "Site", "attached_to_name": actual_site_name},
 			fields=["name", "file_name", "file_url"],
 		)
-		
+
 		file_list = []
 		for f in files:
 			f_int_id = zlib.crc32(f.name.encode("utf-8"))
@@ -1309,17 +1396,21 @@ def add_site_folder():
 	# Dummy implementation since we use a flat "Site Attachments" folder
 	return raw_json({"message": "Folder created successfully."})
 
+
 @frappe.whitelist()
 def edit_site_folder():
 	return raw_json({"message": "Folder edited successfully."})
+
 
 @frappe.whitelist()
 def delete_site_folder():
 	return raw_json({"message": "Folder deleted successfully."})
 
+
 @frappe.whitelist()
 def add_site_file():
 	return raw_json({"message": "File added successfully."})
+
 
 @frappe.whitelist()
 def delete_site_file():
@@ -1329,6 +1420,7 @@ def delete_site_file():
 # ==========================================
 # PREVIOUS SALES API
 # ==========================================
+
 
 @frappe.whitelist()
 def get_site_previous_sales(site_id=None, page=1, limit=10):
@@ -1343,7 +1435,9 @@ def get_site_previous_sales(site_id=None, page=1, limit=10):
 			pass
 
 		actual_site_name = clean_site_id
-		db_site_name = frappe.db.sql("SELECT name FROM `tabSite` WHERE CRC32(name) = %s LIMIT 1", (clean_site_id,))
+		db_site_name = frappe.db.sql(
+			"SELECT name FROM `tabSite` WHERE CRC32(name) = %s LIMIT 1", (clean_site_id,)
+		)
 		if db_site_name:
 			actual_site_name = db_site_name[0][0]
 
@@ -1356,33 +1450,36 @@ def get_site_previous_sales(site_id=None, page=1, limit=10):
 
 		jobs = frappe.get_all(
 			"Enviro Job",
-			filters={
-				"site": actual_site_name,
-				"status": ["in", ["Completed", "Closed"]]
-			},
+			filters={"site": actual_site_name, "status": ["in", ["Completed", "Closed"]]},
 			fields=[
-				"name", "customer", "custom_waste_type", "arrive_waste_depot_time",
-				"job_card_created_date", "status"
+				"name",
+				"customer",
+				"custom_waste_type",
+				"arrive_waste_depot_time",
+				"job_card_created_date",
+				"status",
 			],
 			start=(page - 1) * limit,
 			page_length=limit,
-			order_by="creation desc"
+			order_by="creation desc",
 		)
 
 		result = []
 		for job in jobs:
 			job_int_id = zlib.crc32(job.name.encode("utf-8"))
-			result.append({
-				"id": job_int_id,
-				"client_name": job.customer,
-				"code": job.name,
-				"amount": "0.00",
-				"paid_status": "Paid" if job.status == "Closed" else "Unpaid",
-				"waste_type_str": job.custom_waste_type,
-				"job_type": "Sale",
-				"active_status": False,
-				"job_card_code": job.name,
-			})
+			result.append(
+				{
+					"id": job_int_id,
+					"client_name": job.customer,
+					"code": job.name,
+					"amount": "0.00",
+					"paid_status": "Paid" if job.status == "Closed" else "Unpaid",
+					"waste_type_str": job.custom_waste_type,
+					"job_type": "Sale",
+					"active_status": False,
+					"job_card_code": job.name,
+				}
+			)
 
 		return raw_json(result)
 	except Exception:
@@ -1393,6 +1490,7 @@ def get_site_previous_sales(site_id=None, page=1, limit=10):
 # ==========================================
 # WASTE TYPES API
 # ==========================================
+
 
 @frappe.whitelist()
 def get_waste_types_in_site(site_id=None):
@@ -1407,27 +1505,22 @@ def get_waste_types_in_site(site_id=None):
 			pass
 
 		actual_site_name = clean_site_id
-		db_site_name = frappe.db.sql("SELECT name FROM `tabSite` WHERE CRC32(name) = %s LIMIT 1", (clean_site_id,))
+		db_site_name = frappe.db.sql(
+			"SELECT name FROM `tabSite` WHERE CRC32(name) = %s LIMIT 1", (clean_site_id,)
+		)
 		if db_site_name:
 			actual_site_name = db_site_name[0][0]
 
-		jobs = frappe.get_all(
-			"Enviro Job",
-			filters={"site": actual_site_name},
-			fields=["custom_waste_type"]
-		)
-		
+		jobs = frappe.get_all("Enviro Job", filters={"site": actual_site_name}, fields=["custom_waste_type"])
+
 		waste_types = set()
 		for job in jobs:
 			if job.custom_waste_type:
 				waste_types.add(job.custom_waste_type)
-				
+
 		result = []
 		for i, wt in enumerate(waste_types):
-			result.append({
-				"id": i + 1,
-				"name": wt
-			})
+			result.append({"id": i + 1, "name": wt})
 
 		return raw_json(result)
 	except Exception:
@@ -1786,9 +1879,9 @@ def add_vehicle_pre_inspection():
 			if val is None:
 				return "Pass"
 			s = str(val).strip().lower()
-			if s in ("true",):       # Category A → Fail
+			if s in ("true",):  # Category A → Fail
 				return "Fail"
-			if s in ("false",):      # Category B → Fail as well (both = problem)
+			if s in ("false",):  # Category B → Fail as well (both = problem)
 				return "Fail"
 			if s in ("null", "none", ""):
 				return "Pass"
@@ -1822,9 +1915,9 @@ def add_vehicle_pre_inspection():
 		doc.date = frappe.utils.now_datetime()
 
 		# ── Wellness check boxes ─────────────────────────────────────────────
-		doc.fit_for_work         = to_bool(params.get("fit_for_work"))
-		doc.valid_license        = to_bool(params.get("Valid_driving_license"))
-		doc.appropriate_ppe      = to_bool(params.get("appropriate_ppe"))
+		doc.fit_for_work = to_bool(params.get("fit_for_work"))
+		doc.valid_license = to_bool(params.get("Valid_driving_license"))
+		doc.appropriate_ppe = to_bool(params.get("appropriate_ppe"))
 
 		# ── Numeric fields ───────────────────────────────────────────────────
 		try:
@@ -1837,51 +1930,51 @@ def add_vehicle_pre_inspection():
 			doc.hour_meter_start = 0
 
 		# ── Select / checklist fields ────────────────────────────────────────
-		doc.engine_oil_level  = to_select(params.get("engine_oil_level"))
-		doc.warning_system    = to_select(params.get("warning_system"))
-		doc.steering          = to_select(params.get("steering"))
+		doc.engine_oil_level = to_select(params.get("engine_oil_level"))
+		doc.warning_system = to_select(params.get("warning_system"))
+		doc.steering = to_select(params.get("steering"))
 		doc.safety_emerg_stops = to_select(params.get("safety_emerg_stop"))
-		doc.hand_brake_alarm  = to_select(params.get("handbreak_alarm"))
-		doc.pto_vac_pump      = to_select(params.get("pto_vacpump"))
-		doc.horn              = to_select(params.get("horn"))
-		doc.rev_alarm_camera  = to_select(params.get("rev_alarm_camera"))
-		doc.lights_head       = to_select(params.get("lights_head"))
-		doc.lights_tail       = to_select(params.get("lights_tail"))
-		doc.light_beacons     = to_select(params.get("light_beacons"))
-		doc.hazards_light     = to_select(params.get("hazard_light"))
-		doc.rims_wheel_nuts   = to_select(params.get("rims_wheelnut"))
-		doc.coolant           = to_select(params.get("coolant"))
-		doc.wheels_tyres      = to_select(params.get("wheels"))
+		doc.hand_brake_alarm = to_select(params.get("handbreak_alarm"))
+		doc.pto_vac_pump = to_select(params.get("pto_vacpump"))
+		doc.horn = to_select(params.get("horn"))
+		doc.rev_alarm_camera = to_select(params.get("rev_alarm_camera"))
+		doc.lights_head = to_select(params.get("lights_head"))
+		doc.lights_tail = to_select(params.get("lights_tail"))
+		doc.light_beacons = to_select(params.get("light_beacons"))
+		doc.hazards_light = to_select(params.get("hazard_light"))
+		doc.rims_wheel_nuts = to_select(params.get("rims_wheelnut"))
+		doc.coolant = to_select(params.get("coolant"))
+		doc.wheels_tyres = to_select(params.get("wheels"))
 		doc.mirrors_windscreen = to_select(params.get("mirror_windowscreen"))
 		doc.structure_bodywork = to_select(params.get("structure_bodywork"))
-		doc.wipers            = to_select(params.get("wipers"))
-		doc.fuel_level_pump   = to_select(params.get("fuel_levelpump"))
-		doc.fuel_level_truck  = to_select(params.get("fuel_leveltruck"))
-		doc.seat_belt         = to_select(params.get("seat_seatbelt"))
+		doc.wipers = to_select(params.get("wipers"))
+		doc.fuel_level_pump = to_select(params.get("fuel_levelpump"))
+		doc.fuel_level_truck = to_select(params.get("fuel_leveltruck"))
+		doc.seat_belt = to_select(params.get("seat_seatbelt"))
 		doc.park_brake_trailer = to_select(params.get("parkbrake_trailer"))
-		doc.foot_brake        = to_select(params.get("foot_brake"))
-		doc.electrical        = to_select(params.get("electrical"))
-		doc.pin_retainers     = to_select(params.get("pin_retainers"))
+		doc.foot_brake = to_select(params.get("foot_brake"))
+		doc.electrical = to_select(params.get("electrical"))
+		doc.pin_retainers = to_select(params.get("pin_retainers"))
 
 		# ── Accessories (Check fields) ───────────────────────────────────────
-		doc.hoses             = to_bool(params.get("hoses"))
-		doc.fittings          = to_bool(params.get("fittings"))
-		doc.first_aid_kit     = to_bool(params.get("first_aid_kit"))
-		doc.ppe_accessory     = to_bool(params.get("ppe"))
+		doc.hoses = to_bool(params.get("hoses"))
+		doc.fittings = to_bool(params.get("fittings"))
+		doc.first_aid_kit = to_bool(params.get("first_aid_kit"))
+		doc.ppe_accessory = to_bool(params.get("ppe"))
 		doc.fire_extinguisher = to_bool(params.get("fire_extinguisher"))
-		doc.fire_ext_date     = params.get("fire_extinguisher_date") or None
-		doc.garden_hoses      = to_bool(params.get("garden_hose"))
-		doc.gattic_lifters    = to_bool(params.get("gatic_lifters"))
-		doc.bucket_rags       = to_bool(params.get("bucket_rags"))
-		doc.spill_kit         = to_bool(params.get("spill_kit"))
+		doc.fire_ext_date = params.get("fire_extinguisher_date") or None
+		doc.garden_hoses = to_bool(params.get("garden_hose"))
+		doc.gattic_lifters = to_bool(params.get("gatic_lifters"))
+		doc.bucket_rags = to_bool(params.get("bucket_rags"))
+		doc.spill_kit = to_bool(params.get("spill_kit"))
 
 		# ── Fault text ───────────────────────────────────────────────────────
 		doc.any_fault_to_report = str(params.get("reported_fault_string") or "")
 
 		# ── Declarations ────────────────────────────────────────────────────
-		doc.conducted_check          = to_bool(params.get("safe_ready_to_operate"))
-		doc.reported_faults          = to_bool(params.get("reported_faults"))
-		doc.manager_reviewed         = to_bool(params.get("reviewed_form"))
+		doc.conducted_check = to_bool(params.get("safe_ready_to_operate"))
+		doc.reported_faults = to_bool(params.get("reported_faults"))
+		doc.manager_reviewed = to_bool(params.get("reviewed_form"))
 		doc.maintenance_issues_notified = to_bool(params.get("do_not_affect_safe_operation"))
 
 		# Faults status (mutually exclusive radio buttons)
@@ -1893,10 +1986,7 @@ def add_vehicle_pre_inspection():
 			doc.faults_status = "No Action"
 
 		# DEBUG: log all params received from Flutter
-		frappe.log_error(
-			title="Pre-Inspection DEBUG Params",
-			message=str(params)
-		)
+		frappe.log_error(title="Pre-Inspection DEBUG Params", message=str(params))
 
 		doc.insert(ignore_permissions=True, ignore_mandatory=True, ignore_links=True)
 		frappe.db.commit()
@@ -1910,7 +2000,6 @@ def add_vehicle_pre_inspection():
 # ==========================================
 # VEHICLE MAINTENANCE APIS
 # ==========================================
-
 
 
 @frappe.whitelist()
@@ -2139,6 +2228,7 @@ def get_job_card():
 			frappe.throw(_("Missing Job ID"))
 
 		import zlib
+
 		job_name = frappe.cache().get_value(f"job_map_{job_int_id}")
 		if not job_name:
 			# Fallback: scan recent jobs if cache missed
@@ -2191,8 +2281,12 @@ def get_job_card():
 			"pit_location": "",
 			"contact_name": job.get("site_contact_name"),
 			"phone_number": job.get("site_contact_phone"),
-			"created_date_time": str(job.creation) if job.get("creation") and str(job.creation).strip() else "2024-01-01",
-			"date": str(job.scheduled_start_date) if job.get("scheduled_start_date") and str(job.scheduled_start_date).strip() else "2024-01-01",
+			"created_date_time": str(job.creation)
+			if job.get("creation") and str(job.creation).strip()
+			else "2024-01-01",
+			"date": str(job.scheduled_start_date)
+			if job.get("scheduled_start_date") and str(job.scheduled_start_date).strip()
+			else "2024-01-01",
 		}
 		return raw_json(result)
 	except Exception:
@@ -2265,34 +2359,34 @@ def delete_job_video():
 		ResponseHandler.error(status_code=500, title="Server Error", message="Failed to delete video.")
 
 
-import zlib
-
 # ==========================================
 # SALES PAGE APIS
 # ==========================================
+
 
 @frappe.whitelist()
 def get_sales_register(year, month):
 	try:
 		import calendar
+
 		last_day = calendar.monthrange(int(year), int(month))[1]
 		month_str = str(month).zfill(2)
-		
+
 		quotes = frappe.get_all(
 			"Quotation",
 			filters={
 				"transaction_date": ["between", [f"{year}-{month_str}-01", f"{year}-{month_str}-{last_day}"]],
-				"docstatus": 1
+				"docstatus": 1,
 			},
-			fields=["name", "owner", "status"]
+			fields=["name", "owner", "status"],
 		)
-		
+
 		owner_stats = {}
 		for q in quotes:
 			owner = q.owner
 			if owner not in owner_stats:
 				owner_stats[owner] = {"won": 0, "lost": 0, "pending": 0, "total": 0}
-			
+
 			owner_stats[owner]["total"] += 1
 			if q.status in ["Ordered", "Partially Ordered", "Accepted"]:
 				owner_stats[owner]["won"] += 1
@@ -2302,26 +2396,28 @@ def get_sales_register(year, month):
 				owner_stats[owner]["pending"] += 1
 
 		owner_map = frappe.cache().get_value("owner_int_to_str_map") or {}
-		
+
 		result = []
 		for owner, stats in owner_stats.items():
 			user = frappe.get_value("User", owner, ["full_name", "user_image"], as_dict=True)
 			if not user:
 				user = {"full_name": owner, "user_image": None}
-				
+
 			owner_int_id = zlib.crc32(owner.encode("utf-8"))
 			owner_map[str(owner_int_id)] = owner
-			
-			result.append({
-				"id": owner_int_id,
-				"name": user.full_name or owner,
-				"profile": user.user_image or "",
-				"won": stats["won"],
-				"lost": stats["lost"],
-				"pending": stats["pending"],
-				"total": stats["total"]
-			})
-			
+
+			result.append(
+				{
+					"id": owner_int_id,
+					"name": user.full_name or owner,
+					"profile": user.user_image or "",
+					"won": stats["won"],
+					"lost": stats["lost"],
+					"pending": stats["pending"],
+					"total": stats["total"],
+				}
+			)
+
 		frappe.cache().set_value("owner_int_to_str_map", owner_map)
 		return {"app_data": result}
 	except Exception:
@@ -2338,39 +2434,45 @@ def get_sales_quote_details(quote_id, page=1, limit=10, year=None, month=None):
 		except (ValueError, TypeError):
 			page = 1
 			limit = 10
-			
+
 		owner_map = frappe.cache().get_value("owner_int_to_str_map") or {}
 		actual_owner = owner_map.get(str(quote_id)) or quote_id
-		
+
 		filters = {"owner": actual_owner, "docstatus": 1}
 		if year and month:
 			import calendar
+
 			last_day = calendar.monthrange(int(year), int(month))[1]
 			month_str = str(month).zfill(2)
-			filters["transaction_date"] = ["between", [f"{year}-{month_str}-01", f"{year}-{month_str}-{last_day}"]]
+			filters["transaction_date"] = [
+				"between",
+				[f"{year}-{month_str}-01", f"{year}-{month_str}-{last_day}"],
+			]
 
 		quotes = frappe.get_all(
 			"Quotation",
 			filters=filters,
-			fields=[
-				"name", "customer_name", "transaction_date", "status", "grand_total", "creation"
-			],
+			fields=["name", "customer_name", "transaction_date", "status", "grand_total", "creation"],
 			start=(page - 1) * limit,
 			page_length=limit,
-			order_by="creation desc"
+			order_by="creation desc",
 		)
 
 		result = []
 		for quote in quotes:
 			quote_int_id = zlib.crc32(quote.name.encode("utf-8"))
-			result.append({
-				"id": quote_int_id,
-				"job_code": quote.name,
-				"client_name": quote.customer_name,
-				"date": quote.transaction_date.strftime("%Y-%m-%d") if hasattr(quote.transaction_date, "strftime") else str(quote.transaction_date),
-				"status": quote.status,
-				"amount": str(quote.grand_total) if quote.grand_total else "0.00"
-			})
+			result.append(
+				{
+					"id": quote_int_id,
+					"job_code": quote.name,
+					"client_name": quote.customer_name,
+					"date": quote.transaction_date.strftime("%Y-%m-%d")
+					if hasattr(quote.transaction_date, "strftime")
+					else str(quote.transaction_date),
+					"status": quote.status,
+					"amount": str(quote.grand_total) if quote.grand_total else "0.00",
+				}
+			)
 
 		return result
 	except Exception:
@@ -2400,18 +2502,24 @@ def get_quote_register(page=1, limit=10, search=None):
 			filters=filters,
 			or_filters=or_filters,
 			fields=[
-				"name", "customer_name", "transaction_date", "status", "grand_total", "creation",
-				"custom_client_approval_status", "custom_requires_client_approval"
+				"name",
+				"customer_name",
+				"transaction_date",
+				"status",
+				"grand_total",
+				"creation",
+				"custom_client_approval_status",
+				"custom_requires_client_approval",
 			],
 			start=(page - 1) * limit,
 			page_length=limit,
-			order_by="creation desc"
+			order_by="creation desc",
 		)
 
 		result = []
 		for quote in quotes:
 			quote_int_id = zlib.crc32(quote.name.encode("utf-8"))
-			
+
 			effective_client_status = quote.custom_client_approval_status
 			if str(quote.custom_requires_client_approval) == "0":
 				effective_client_status = "Approved"
@@ -2425,14 +2533,18 @@ def get_quote_register(page=1, limit=10, search=None):
 			else:
 				status_text = "Internal Draft"
 
-			result.append({
-				"id": quote_int_id,
-				"job_code": quote.name,
-				"client_name": quote.customer_name,
-				"date": quote.transaction_date.strftime("%Y-%m-%d") if hasattr(quote.transaction_date, "strftime") else str(quote.transaction_date),
-				"status": status_text,
-				"amount": str(quote.grand_total) if quote.grand_total else "0.00"
-			})
+			result.append(
+				{
+					"id": quote_int_id,
+					"job_code": quote.name,
+					"client_name": quote.customer_name,
+					"date": quote.transaction_date.strftime("%Y-%m-%d")
+					if hasattr(quote.transaction_date, "strftime")
+					else str(quote.transaction_date),
+					"status": status_text,
+					"amount": str(quote.grand_total) if quote.grand_total else "0.00",
+				}
+			)
 
 		return result
 	except Exception:
@@ -2462,29 +2574,31 @@ def get_sales_job_list(page=1, limit=10, search=None):
 			"Enviro Job",
 			filters=filters,
 			or_filters=or_filters,
-			fields=[
-				"name", "customer", "site_name", "creation", "status", "custom_waste_type"
-			],
+			fields=["name", "customer", "site_name", "creation", "status", "custom_waste_type"],
 			start=(page - 1) * limit,
 			page_length=limit,
-			order_by="creation desc"
+			order_by="creation desc",
 		)
 
 		result = []
 		for job in jobs:
 			job_int_id = zlib.crc32(job.name.encode("utf-8"))
 			frappe.cache().set_value(f"job_map_{job_int_id}", job.name)
-			result.append({
-				"id": job_int_id,
-				"quote": job_int_id,
-				"job_code": job.name,
-				"client_name": job.customer,
-				"date": job.creation.strftime("%Y-%m-%d %H:%M:%S") if hasattr(job.creation, "strftime") else str(job.creation),
-				"status": job.status,
-				"job_card_code": job.name,
-				"waste_type_str": job.custom_waste_type or "",
-				"paid_status": "Paid" if job.status == "Completed" else "Unpaid"
-			})
+			result.append(
+				{
+					"id": job_int_id,
+					"quote": job_int_id,
+					"job_code": job.name,
+					"client_name": job.customer,
+					"date": job.creation.strftime("%Y-%m-%d %H:%M:%S")
+					if hasattr(job.creation, "strftime")
+					else str(job.creation),
+					"status": job.status,
+					"job_card_code": job.name,
+					"waste_type_str": job.custom_waste_type or "",
+					"paid_status": "Paid" if job.status == "Completed" else "Unpaid",
+				}
+			)
 
 		return result
 	except Exception:
@@ -2496,23 +2610,11 @@ def get_sales_job_list(page=1, limit=10, search=None):
 def get_sales_quote_reg_details(id):
 	try:
 		# ID is crc32 string, need to resolve real Quote ID
-		actual_quote_name = str(id)
-		db_quote_name = frappe.db.sql("SELECT name FROM `tabQuotation` WHERE CRC32(name) = %s LIMIT 1", (str(id),))
-		if db_quote_name:
-			actual_quote_name = db_quote_name[0][0]
-
 		result = {
-			"quote": {
-				"quote_file": "",
-				"received_file": "",
-				"attached_files": [],
-				"template_response": []
-			},
-			"schedule": {
-				"team": []
-			}
+			"quote": {"quote_file": "", "received_file": "", "attached_files": [], "template_response": []},
+			"schedule": {"team": []},
 		}
-		
+
 		# Return empty data for now so the UI doesn't crash if it tries to parse.
 		return {"data": result}
 	except Exception:
@@ -2525,30 +2627,22 @@ def get_sales_job_details(id):
 	try:
 		# Resolve crc32 Job ID
 		actual_job_name = str(id)
-		db_job_name = frappe.db.sql("SELECT name FROM `tabEnviro Job` WHERE CRC32(name) = %s LIMIT 1", (str(id),))
+		db_job_name = frappe.db.sql(
+			"SELECT name FROM `tabEnviro Job` WHERE CRC32(name) = %s LIMIT 1", (str(id),)
+		)
 		if db_job_name:
 			actual_job_name = db_job_name[0][0]
 
 		result = {
-			"quote": {
-				"quote_file": "",
-				"received_file": "",
-				"attached_files": [],
-				"template_response": []
-			},
-			"schedule": {
-				"team": []
-			}
+			"quote": {"quote_file": "", "received_file": "", "attached_files": [], "template_response": []},
+			"schedule": {"team": []},
 		}
 
 		if frappe.db.exists("Enviro Job", actual_job_name):
 			job = frappe.get_doc("Enviro Job", actual_job_name)
 			for tm in getattr(job, "team_members", []):
-				result["schedule"]["team"].append({
-					"id": tm.name,
-					"team_member_name": tm.team_member
-				})
-			
+				result["schedule"]["team"].append({"id": tm.name, "team_member_name": tm.team_member})
+
 		return {"data": result}
 	except Exception:
 		frappe.log_error(title="get_sales_job_details API Failed", message=frappe.get_traceback())

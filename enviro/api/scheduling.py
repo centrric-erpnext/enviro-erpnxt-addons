@@ -23,7 +23,7 @@ def get_scheduling_data(from_date=None, to_date=None, include_terminated=0):
 		pluck="custom_enviro_job_card",
 	)
 
-	base_filters = [["docstatus", "<", 2]]
+	base_filters = [["docstatus", "<", 2], ["status", "!=", "Assigned"]]
 	if valid_job_ids:
 		base_filters.append(["name", "in", valid_job_ids])
 	else:
@@ -308,6 +308,9 @@ def api_schedule_job(job_id: str, payload: str):
 		job_card.custom_last_scheduled_date = frappe.utils.today()
 		job_card.save(ignore_permissions=True)
 
+		# Clear scheduling data cache
+		frappe.cache().delete_keys("scheduling_data_*")
+
 		# 6. Global Action: Removed auto-trigger email logic since it's now manual via the button.
 		return {
 			"status": "OK",
@@ -368,6 +371,9 @@ def api_schedule_job(job_id: str, payload: str):
 	job_card.status = "Assigned"
 	job_card.save(ignore_permissions=True)
 
+	# Clear scheduling data cache
+	frappe.cache().delete_keys("scheduling_data_*")
+
 	return {"status": "OK", "type": "one-off", "job": new_job.name}
 
 
@@ -388,10 +394,12 @@ def cancel_job_card(job_id: str):
 			"custom_last_scheduled_date",
 			frappe.utils.today(),
 		)
+		frappe.cache().delete_keys("scheduling_data_*")
 		return "Skipped"
 	else:
 		# Standard permanent cancellation
 		frappe.db.set_value("Enviro Job Card", job_id, "status", "Cancelled")
+		frappe.cache().delete_keys("scheduling_data_*")
 		return "Cancelled"
 
 
