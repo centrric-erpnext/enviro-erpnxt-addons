@@ -25,7 +25,7 @@ def before_save(doc, method=None):
 	if doc.custom_customer_signature or doc.custom_client_approval_status == "Approved":
 		doc.custom_client_approval_status = "Approved"
 	# Or if client approval isn't required at all:
-	elif not doc.get("custom_requires_client_approval"):
+	elif not frappe.utils.cint(doc.get("custom_requires_client_approval")):
 		doc.custom_client_approval_status = "Approved"
 	else:
 		doc.custom_client_approval_status = "Pending"
@@ -407,3 +407,54 @@ def make_enviro_job_card(source_name, target_doc=None):
 	)
 
 	return doclist
+
+
+@frappe.whitelist()
+def approve_on_behalf_of_client(name):
+	doc = frappe.get_doc("Quotation", name)
+	doc.custom_client_approval_status = "Approved"
+	doc.add_comment(
+		"Comment",
+		f"Client Approval was manually bypassed/approved internally by {frappe.session.user} on behalf of the client.",
+	)
+	doc.save(ignore_permissions=True)
+	return "Approved"
+
+
+@frappe.whitelist()
+def on_submit(doc, method=None):
+	if getattr(doc, "custom_site", None):
+		site = frappe.get_doc("Site", doc.custom_site)
+		if site.site_type == "Temporary Site":
+			site_name = site.site_name or site.name
+
+			# Check if customer already exists with this name
+			if frappe.db.exists("Customer", site_name):
+				customer_name = site_name
+			else:
+				# Create a permanent customer from this temporary site
+				new_cust = frappe.get_doc(
+					{
+						"doctype": "Customer",
+						"customer_name": site_name,
+						"customer_group": "Commercial",
+						"territory": "Australia",
+						"email_id": site.company_email,
+						"mobile_no": site.company_phone,
+					}
+				)
+				new_cust.insert(ignore_permissions=True)
+				customer_name = new_cust.name
+
+			# Upgrade the site to Permanent and link to the Customer
+			site.db_set("site_type", "Permanent Site")
+			site.db_set("customer", customer_name)
+
+			# Set Quotation's party to the real customer too
+			doc.db_set("party_name", customer_name)
+
+			frappe.msgprint(
+				f"The attached site {site.name} has been upgraded to a Permanent Site and linked to Company {customer_name}!",
+				indicator="green",
+				title="Site Upgraded 🚀",
+			)

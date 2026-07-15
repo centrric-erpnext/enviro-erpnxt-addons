@@ -199,7 +199,6 @@
    "label": "Site Contact Mob"
   },
   {
-   "fetch_from": "site.site_email_address",
    "fieldname": "site_contact_email",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -245,7 +244,6 @@
    "label": "Company Contact Mob"
   },
   {
-   "fetch_from": "site.company_email",
    "fieldname": "company_contact_email",
    "fieldtype": "Data",
    "label": "Company Contact Email"
