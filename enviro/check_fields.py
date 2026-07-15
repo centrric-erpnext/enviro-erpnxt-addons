@@ -1,11 +1,24 @@
+import json
+
 import frappe
 
 
 def run():
 	print(
-		[
-			(f.fieldname, f.fieldtype, f.options, f.label)
-			for f in frappe.get_meta("Quotation").fields
-			if "party" in f.fieldname or "customer" in f.fieldname or "site" in f.fieldname
-		]
+		json.dumps(
+			[
+				{"fieldname": f.fieldname, "label": f.label, "allow_on_submit": f.allow_on_submit}
+				for f in frappe.get_meta("Quotation").fields
+				if f.fieldname == "company"
+			]
+		)
+	)
+	print(
+		json.dumps(
+			[
+				{"fieldname": f.fieldname, "label": f.label, "allow_on_submit": f.allow_on_submit}
+				for f in frappe.get_meta("Quotation").fields
+				if f.label == "Company Name" or f.label == "Company"
+			]
+		)
 	)

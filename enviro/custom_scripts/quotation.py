@@ -447,9 +447,8 @@ def on_submit(doc, method=None):
 				customer_name = new_cust.name
 
 			# Upgrade the site to Permanent and link to the Customer
-			site.site_type = "Permanent Site"
-			site.customer = customer_name
-			site.save(ignore_permissions=True)
+			site.db_set("site_type", "Permanent Site")
+			site.db_set("customer", customer_name)
 
 			# Set Quotation's party to the real customer too
 			doc.db_set("party_name", customer_name)
