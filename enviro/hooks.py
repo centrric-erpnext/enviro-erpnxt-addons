@@ -35,6 +35,7 @@ doc_events = {
 	"Quotation": {
 		"before_save": "enviro.custom_scripts.quotation.before_save",
 		"on_update": "enviro.custom_scripts.quotation.on_update",
+		"on_submit": "enviro.custom_scripts.quotation.on_submit",
 	}
 }
 
