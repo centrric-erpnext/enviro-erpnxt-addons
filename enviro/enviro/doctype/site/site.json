@@ -69,7 +69,7 @@
    "fieldname": "company_email",
    "fieldtype": "Data",
    "label": "Company Email",
-   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'"
+   "reqd": 1
   },
   {
    "fieldname": "company_phone",
@@ -104,8 +104,9 @@
    "fieldname": "site_email_address",
    "fieldtype": "Data",
    "label": "Site Email Address",
-   "mandatory_depends_on": "eval:doc.site_type == 'Permanent Site'",
-   "options": "Email"
+   "options": "Email",
+   "allow_in_quick_entry": 1,
+   "reqd": 1
   },
   {
    "fieldname": "site_address",

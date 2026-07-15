@@ -141,11 +141,20 @@ frappe.ui.form.on("Enviro Job Card", {
 	},
 	site: function (frm) {
 		if (frm.doc.site) {
-			frappe.db.get_value("Site", frm.doc.site, "industry_type", (r) => {
-				if (r && r.industry_type) {
-					frm.set_value("industry_type", r.industry_type);
+			frappe.db.get_value(
+				"Site",
+				frm.doc.site,
+				["industry_type", "site_email_address", "company_email"],
+				(r) => {
+					if (r) {
+						if (r.industry_type) frm.set_value("industry_type", r.industry_type);
+						if (r.site_email_address !== undefined)
+							frm.set_value("site_contact_email", r.site_email_address);
+						if (r.company_email !== undefined)
+							frm.set_value("company_contact_email", r.company_email);
+					}
 				}
-			});
+			);
 		}
 	},
 	source_quotation: function (frm) {
