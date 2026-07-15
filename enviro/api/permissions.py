@@ -417,7 +417,7 @@ WORKSPACE_MAP = {
 # Core DocTypes that receive role-level CRUD custom permissions
 # We map each workspace module to its primary DocType
 DOCTYPE_MAP = {
-	"team": ["Employee", "Role", "User"],
+	"team": [],
 	"site": ["Site", "Site Document", "Site Waste Profile"],
 	"vehicle": ["Vehicle"],
 	"sales": [

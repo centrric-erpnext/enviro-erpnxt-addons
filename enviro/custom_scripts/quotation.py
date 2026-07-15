@@ -25,7 +25,7 @@ def before_save(doc, method=None):
 	if doc.custom_customer_signature or doc.custom_client_approval_status == "Approved":
 		doc.custom_client_approval_status = "Approved"
 	# Or if client approval isn't required at all:
-	elif not doc.get("custom_requires_client_approval"):
+	elif not frappe.utils.cint(doc.get("custom_requires_client_approval")):
 		doc.custom_client_approval_status = "Approved"
 	else:
 		doc.custom_client_approval_status = "Pending"
@@ -407,3 +407,15 @@ def make_enviro_job_card(source_name, target_doc=None):
 	)
 
 	return doclist
+
+
+@frappe.whitelist()
+def approve_on_behalf_of_client(name):
+	doc = frappe.get_doc("Quotation", name)
+	doc.custom_client_approval_status = "Approved"
+	doc.add_comment(
+		"Comment",
+		f"Client Approval was manually bypassed/approved internally by {frappe.session.user} on behalf of the client.",
+	)
+	doc.save(ignore_permissions=True)
+	return "Approved"
